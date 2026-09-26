@@ -1,0 +1,16 @@
+{
+  "name": "Dashboard CBM (Condition Base Monitoring)",
+  "short_name": "Dashboard CBM",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "description": "Aplikasi monitoring LLF, Inventory, dan Project",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1006/1006517.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
