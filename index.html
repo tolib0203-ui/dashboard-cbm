@@ -2,127 +2,162 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CBM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Condition Base Monitoring</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0d6efd">
-    <!-- Bootstrap & Ikon -->
+    <!-- Bootstrap 5 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f4f7fa; font-family: 'Segoe UI', sans-serif; }
-        .app-header { background: linear-gradient(135deg, #0d6efd, #00d4ff); color: white; padding: 20px 0; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        .card { border: none; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        .section-title { background-color: #f8f9fa; color: #0d6efd; padding: 12px 15px; font-weight: 800; font-size: 1.1rem; margin-bottom: 0; border-bottom: 2px solid #e9ecef; }
-        .nav-pills .nav-link { border-radius: 10px; font-weight: bold; color: #6c757d; }
-        .nav-pills .nav-link.active { background-color: #0d6efd; box-shadow: 0 4px 8px rgba(13,110,253,0.3); }
-        .loading { font-style: italic; color: #adb5bd; font-size: 0.9em; }
-        .btn-update { border-radius: 10px; font-weight: bold; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 90px; }
+        /* Header Modern */
+        .app-header { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; padding: 15px 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 12px rgba(13,110,253,0.2); display: flex; justify-content: space-between; align-items: center; }
+        /* Kartu Konten */
+        .card { border: none; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); overflow: hidden; }
+        .section-title { font-weight: 700; font-size: 1rem; color: #333; display: flex; align-items: center; }
+        /* Bottom Navigation Bar ala Aplikasi Native */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; height: 70px; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .nav-item-custom { text-align: center; color: #6c757d; text-decoration: none; font-size: 0.75rem; font-weight: 600; flex: 1; transition: 0.2s; }
+        .nav-item-custom i { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+        .nav-item-custom.active { color: #0d6efd; }
+        /* Floating Center Button (Tombol Tengah Menonjol) */
+        .fab-container { position: relative; top: -18px; flex: 1; text-align: center; }
+        .fab-btn { width: 52px; height: 52px; background: linear-gradient(135deg, #0d6efd, #00d4ff); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(13,110,253,0.4); border: 3px solid #fff; font-size: 1.5rem; text-decoration: none; transition: 0.2s; }
+        .fab-btn:active { transform: scale(0.95); }
+        /* Tampilan Tab */
+        .tab-pane { display: none; }
+        .tab-pane.active-tab { display: block; }
+        .loading { font-style: italic; color: #adb5bd; }
     </style>
 </head>
 <body>
 
-<div class="app-header text-center">
-    <h3 class="fw-bold mb-0"><i class="bi bi-activity"></i> DASHBOARD CBM</h3>
-    <small class="opacity-75">Condition Base Monitoring</small>
-</div>
+    <!-- HEADER -->
+    <div class="app-header">
+        <div>
+            <h6 class="fw-bold mb-0 text-white" style="letter-spacing: 0.5px;">Condition Base Monitoring</h6>
+            <small class="text-white-50" style="font-size: 0.7rem;">CBM Smart Dashboard</small>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-light text-primary rounded-circle me-1" onclick="alert('Pengaturan Sistem')"><i class="bi bi-gear-fill"></i></button>
+            <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="alert('Keluar Aplikasi')"><i class="bi bi-box-arrow-right"></i></button>
+        </div>
+    </div>
 
-<div class="container mb-5">
-    
-    <!-- MENU TAB NAVIGASI -->
-    <ul class="nav nav-pills nav-justified mb-4" id="pills-tab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-dash" type="button"><i class="bi bi-display me-1"></i> Dashboard</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-edit" type="button"><i class="bi bi-pencil-square me-1"></i> Update Data</button>
-        </li>
-    </ul>
+    <div class="container mt-3 px-3">
+        <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Mengambil data real-time...</p>
 
-    <div class="tab-content" id="pills-tabContent">
-        
-        <!-- ================= TAB 1: DASHBOARD (VIEW) ================= -->
-        <div class="tab-pane fade show active" id="pills-dash" role="tabpanel">
-            <p id="status-koneksi" class="text-center text-primary fw-bold"><i class="bi bi-arrow-repeat"></i> Sinkronisasi data...</p>
-            
-            <!-- LLF DASHBOARD -->
-            <div class="card">
-                <h4 class="section-title"><i class="bi bi-gear-wide-connected me-2"></i>1. LLF</h4>
-                <div class="accordion accordion-flush" id="accLLF">
-                    <!-- Utility -->
-                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#u_dash">Utility</button></h2>
-                        <div id="u_dash" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-light">
-                            <p class="mb-2"><i class="bi bi-search text-warning"></i> <strong>Temuan:</strong> <span id="u_temuan" class="loading">Loading...</span></p>
-                            <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Close: <span id="u_close">...</span></span><span class="badge bg-danger"><i class="bi bi-x-circle"></i> Open: <span id="u_open">...</span></span>
-                        </div></div>
+        <!-- ================= HALAMAN 1: DASHBOARD ================= -->
+        <div id="page-dashboard" class="tab-pane active-tab">
+            <div class="card p-3 bg-white">
+                <h6 class="section-title text-primary mb-3"><i class="bi bi-speedometer2 me-2"></i> Ringkasan Status Sistem</h6>
+                <div class="row text-center g-2">
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-light border">
+                            <small class="text-muted d-block fw-bold" style="font-size: 0.7rem;">TOTAL LLF AREA</small>
+                            <span class="fs-4 fw-bold text-dark">6 Area</span>
+                        </div>
                     </div>
-                    <!-- Packing 1 -->
-                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p1_dash">Packing Stg 1</button></h2>
-                        <div id="p1_dash" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-light">
-                            <p class="mb-2"><i class="bi bi-search text-warning"></i> <strong>Temuan:</strong> <span id="p1_temuan" class="loading">Loading...</span></p>
-                            <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Close: <span id="p1_close">...</span></span><span class="badge bg-danger"><i class="bi bi-x-circle"></i> Open: <span id="p1_open">...</span></span>
-                        </div></div>
-                    </div>
-                    <!-- Packing 2 -->
-                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p2_dash">Packing Stg 2</button></h2>
-                        <div id="p2_dash" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-light">
-                            <p class="mb-2"><i class="bi bi-search text-warning"></i> <strong>Temuan:</strong> <span id="p2_temuan" class="loading">Loading...</span></p>
-                            <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Close: <span id="p2_close">...</span></span><span class="badge bg-danger"><i class="bi bi-x-circle"></i> Open: <span id="p2_open">...</span></span>
-                        </div></div>
-                    </div>
-                    <!-- Proses 1 -->
-                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#pr1_dash">Proses Stg 1</button></h2>
-                        <div id="pr1_dash" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-light">
-                            <p class="mb-2"><i class="bi bi-search text-warning"></i> <strong>Temuan:</strong> <span id="pr1_temuan" class="loading">Loading...</span></p>
-                            <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Close: <span id="pr1_close">...</span></span><span class="badge bg-danger"><i class="bi bi-x-circle"></i> Open: <span id="pr1_open">...</span></span>
-                        </div></div>
-                    </div>
-                    <!-- Proses 2 -->
-                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#pr2_dash">Proses Stg 2</button></h2>
-                        <div id="pr2_dash" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-light">
-                            <p class="mb-2"><i class="bi bi-search text-warning"></i> <strong>Temuan:</strong> <span id="pr2_temuan" class="loading">Loading...</span></p>
-                            <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Close: <span id="pr2_close">...</span></span><span class="badge bg-danger"><i class="bi bi-x-circle"></i> Open: <span id="pr2_open">...</span></span>
-                        </div></div>
-                    </div>
-                    <!-- Biomas -->
-                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#b_dash">Biomas</button></h2>
-                        <div id="b_dash" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-light">
-                            <p class="mb-2"><i class="bi bi-search text-warning"></i> <strong>Temuan:</strong> <span id="b_temuan" class="loading">Loading...</span></p>
-                            <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Close: <span id="b_close">...</span></span><span class="badge bg-danger"><i class="bi bi-x-circle"></i> Open: <span id="b_open">...</span></span>
-                        </div></div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-light border">
+                            <small class="text-muted d-block fw-bold" style="font-size: 0.7rem;">STATUS PROJEK</small>
+                            <span class="fs-4 fw-bold text-success">Aktif</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- INVENTORY DASHBOARD -->
-            <div class="card">
-                <h4 class="section-title"><i class="bi bi-boxes me-2"></i>2. INVENTORY SPAREPART</h4>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="bi bi-cart me-2"></i>Order PR</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill" id="inv_opr">...</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="bi bi-arrow-right-circle me-2"></i>PR ke PO</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill" id="inv_prpo">...</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="bi bi-truck me-2"></i>PO Datang</span> <span class="badge bg-success px-3 py-2 rounded-pill" id="inv_po">...</span></li>
-                </ul>
-                <div class="card-footer bg-white py-3"><strong><i class="bi bi-geo-alt-fill text-danger"></i> Equip Bunker:</strong> <span class="badge bg-info text-dark float-end" id="inv_bunker">...</span></div>
+            <div class="text-center text-muted small py-4">
+                <i class="bi bi-info-circle me-1"></i> Gunakan menu di bawah untuk melihat detail LLF, Inventory, atau Projek.
             </div>
+        </div>
 
-            <!-- PROJECT DASHBOARD -->
-            <div class="card">
-                <h4 class="section-title"><i class="bi bi-kanban me-2"></i>3. PROJECT</h4>
-                <div class="card-body">
-                    <p class="mb-3 text-secondary small"><strong>DETAIL PROJECT:</strong><br><span id="proj_detail" class="text-dark d-block border-start border-3 border-primary ps-2 mt-1 loading">Loading...</span></p>
-                    <p class="mb-0 text-secondary small"><strong>LIST PROJECT:</strong><br><span id="proj_list" class="text-dark d-block border-start border-3 border-info ps-2 mt-1 loading">Loading...</span></p>
+        <!-- ================= HALAMAN 2: LLF ================= -->
+        <div id="page-llf" class="tab-pane">
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Monitoring LLF</h5>
+            <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accLLF">
+                <!-- Utility -->
+                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#u_d">Utility</button></h2>
+                    <div id="u_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
+                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="u_temuan" class="loading">Loading...</span></p>
+                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="u_close">...</span></span><span class="badge bg-danger">Open: <span id="u_open">...</span></span></div>
+                    </div></div>
+                </div>
+                <!-- Packing 1 -->
+                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p1_d">Packing Stg 1</button></h2>
+                    <div id="p1_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
+                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="p1_temuan" class="loading">Loading...</span></p>
+                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="p1_close">...</span></span><span class="badge bg-danger">Open: <span id="p1_open">...</span></span></div>
+                    </div></div>
+                </div>
+                <!-- Packing 2 -->
+                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p2_d">Packing Stg 2</button></h2>
+                    <div id="p2_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
+                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="p2_temuan" class="loading">Loading...</span></p>
+                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="p2_close">...</span></span><span class="badge bg-danger">Open: <span id="p2_open">...</span></span></div>
+                    </div></div>
+                </div>
+                <!-- Proses 1 -->
+                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#pr1_d">Proses Stg 1</button></h2>
+                    <div id="pr1_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
+                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="pr1_temuan" class="loading">Loading...</span></p>
+                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="pr1_close">...</span></span><span class="badge bg-danger">Open: <span id="pr1_open">...</span></span></div>
+                    </div></div>
+                </div>
+                <!-- Proses 2 -->
+                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#pr2_d">Proses Stg 2</button></h2>
+                    <div id="pr2_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
+                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="pr2_temuan" class="loading">Loading...</span></p>
+                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="pr2_close">...</span></span><span class="badge bg-danger">Open: <span id="pr2_open">...</span></span></div>
+                    </div></div>
+                </div>
+                <!-- Biomas -->
+                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#b_d">Biomas</button></h2>
+                    <div id="b_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
+                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="b_temuan" class="loading">Loading...</span></p>
+                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="b_close">...</span></span><span class="badge bg-danger">Open: <span id="b_open">...</span></span></div>
+                    </div></div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 2: UPDATE DATA (FORMS) ================= -->
-        <div class="tab-pane fade" id="pills-edit" role="tabpanel">
+        <!-- ================= HALAMAN 3: INVENTORY ================= -->
+        <div id="page-inventory" class="tab-pane">
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart</h5>
+            <div class="card p-3">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-cart me-2 text-muted"></i> Order PR</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold" id="inv_opr">...</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-arrow-right-circle me-2 text-muted"></i> PR ke PO</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold" id="inv_prpo">...</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-truck me-2 text-muted"></i> PO Datang</span> <span class="badge bg-success px-3 py-2 rounded-pill fw-bold" id="inv_po">...</span></li>
+                </ul>
+                <div class="mt-3 p-3 bg-light rounded-4 d-flex justify-content-between align-items-center">
+                    <span class="small fw-bold text-secondary"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Equip Bunker:</span> 
+                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold" id="inv_bunker">...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN 4: PROJEK ================= -->
+        <div id="page-projek" class="tab-pane">
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek</h5>
+            <div class="card p-3 mb-3">
+                <small class="text-muted fw-bold mb-1 d-block">DETAIL PROJECT</small>
+                <p id="proj_detail" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
+            </div>
+            <div class="card p-3">
+                <small class="text-muted fw-bold mb-1 d-block">LIST PROJECT</small>
+                <p id="proj_list" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN 5: INPUT/UPDATE (TENGAH) ================= -->
+        <div id="page-input" class="tab-pane">
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-pencil-square text-primary me-2"></i> Update Data Server</h5>
             
-            <!-- FORM LLF -->
-            <div class="card p-3 border-top border-4 border-primary">
-                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-gear"></i> Update LLF</h5>
-                <label class="small fw-bold text-muted">Pilih Area:</label>
-                <select id="llf_area" class="form-select mb-3">
+            <!-- Form LLF -->
+            <div class="card p-3 border-start border-4 border-primary">
+                <h6 class="fw-bold text-primary mb-2">Update Data LLF</h6>
+                <select id="llf_area" class="form-select form-select-sm mb-2">
                     <option value="utility">Utility</option>
                     <option value="packing1">Packing Stg 1</option>
                     <option value="packing2">Packing Stg 2</option>
@@ -130,103 +165,130 @@
                     <option value="proses2">Proses Stg 2</option>
                     <option value="biomas">Biomas</option>
                 </select>
-                <label class="small fw-bold text-muted">Temuan Baru:</label>
-                <input type="text" id="llf_temuan" class="form-control mb-2" placeholder="Ketik temuan...">
-                <div class="row mb-3">
-                    <div class="col"><label class="small fw-bold text-muted">Close (%):</label><input type="text" id="llf_close" class="form-control" placeholder="Contoh: 80%"></div>
-                    <div class="col"><label class="small fw-bold text-muted">Open (%):</label><input type="text" id="llf_open" class="form-control" placeholder="Contoh: 20%"></div>
+                <input type="text" id="llf_temuan" class="form-control form-control-sm mb-2" placeholder="Ketik temuan...">
+                <div class="row g-2 mb-2">
+                    <div class="col"><input type="text" id="llf_close" class="form-control form-control-sm" placeholder="Close (%)"></div>
+                    <div class="col"><input type="text" id="llf_open" class="form-control form-control-sm" placeholder="Open (%)"></div>
                 </div>
-                <button class="btn btn-primary w-100 btn-update" onclick="kirimData('llf')"><i class="bi bi-cloud-arrow-up"></i> Simpan LLF</button>
+                <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="kirimData('llf')">Simpan LLF</button>
             </div>
 
-            <!-- FORM INVENTORY -->
-            <div class="card p-3 border-top border-4 border-warning">
-                <h5 class="fw-bold text-warning mb-3"><i class="bi bi-boxes"></i> Update Inventory</h5>
-                <div class="row mb-2">
-                    <div class="col-6 mb-2"><label class="small fw-bold text-muted">Order PR:</label><input type="text" id="in_opr" class="form-control" placeholder="Cth: 10%"></div>
-                    <div class="col-6 mb-2"><label class="small fw-bold text-muted">PR ke PO:</label><input type="text" id="in_prpo" class="form-control" placeholder="Cth: 20%"></div>
-                    <div class="col-6 mb-2"><label class="small fw-bold text-muted">PO Datang:</label><input type="text" id="in_po" class="form-control" placeholder="Cth: 70%"></div>
-                    <div class="col-6 mb-2"><label class="small fw-bold text-muted">Bunker:</label><input type="text" id="in_bunker" class="form-control" placeholder="Cth: Tersedia"></div>
+            <!-- Form Inventory -->
+            <div class="card p-3 border-start border-4 border-warning">
+                <h6 class="fw-bold text-warning mb-2">Update Inventory</h6>
+                <div class="row g-2 mb-2">
+                    <div class="col-6"><input type="text" id="in_opr" class="form-control form-control-sm" placeholder="Order PR"></div>
+                    <div class="col-6"><input type="text" id="in_prpo" class="form-control form-control-sm" placeholder="PR ke PO"></div>
+                    <div class="col-6"><input type="text" id="in_po" class="form-control form-control-sm" placeholder="PO Datang"></div>
+                    <div class="col-6"><input type="text" id="in_bunker" class="form-control form-control-sm" placeholder="Bunker"></div>
                 </div>
-                <button class="btn btn-warning text-dark w-100 btn-update mt-2" onclick="kirimData('inventory')"><i class="bi bi-cloud-arrow-up"></i> Simpan Inventory</button>
+                <button class="btn btn-warning btn-sm w-100 fw-bold text-dark" onclick="kirimData('inventory')">Simpan Inventory</button>
             </div>
 
-            <!-- FORM PROJECT -->
-            <div class="card p-3 border-top border-4 border-success">
-                <h5 class="fw-bold text-success mb-3"><i class="bi bi-kanban"></i> Update Project</h5>
-                <label class="small fw-bold text-muted">Detail Project:</label>
-                <textarea id="pr_detail" class="form-control mb-2" rows="2" placeholder="Ketik detail project..."></textarea>
-                <label class="small fw-bold text-muted">List Project:</label>
-                <textarea id="pr_list" class="form-control mb-3" rows="2" placeholder="Ketik list project..."></textarea>
-                <button class="btn btn-success w-100 btn-update" onclick="kirimData('project')"><i class="bi bi-cloud-arrow-up"></i> Simpan Project</button>
+            <!-- Form Projek -->
+            <div class="card p-3 border-start border-4 border-success">
+                <h6 class="fw-bold text-success mb-2">Update Projek</h6>
+                <textarea id="pr_detail" class="form-control form-control-sm mb-2" rows="2" placeholder="Detail project..."></textarea>
+                <textarea id="pr_list" class="form-control form-control-sm mb-2" rows="2" placeholder="List project..."></textarea>
+                <button class="btn btn-success btn-sm w-100 fw-bold" onclick="kirimData('project')">Simpan Projek</button>
             </div>
-
         </div>
+
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Link sudah terpasang, tidak perlu diganti
-    const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwS7Lqx8TvtxlXnzAzul-xsv4gf10qw-D_yhuZwwkvLuwHcaUARGHCN_EkAY38QGUMtgA/exec';
+    <!-- BOTTOM NAVIGATION BAR (MENU BAWAH) -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item-custom active" onclick="switchTab('dashboard', this)">
+            <i class="bi bi-house-door-fill"></i>Dashboard
+        </a>
+        <a href="#" class="nav-item-custom" onclick="switchTab('llf', this)">
+            <i class="bi bi-gear-fill"></i>LLF
+        </a>
+        
+        <!-- Tombol Tengah Menonjol (Floating Button) -->
+        <div class="fab-container">
+            <a href="#" class="fab-btn" onclick="switchTab('input', this)">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
 
-    // FUNGSI MEMUAT DATA
-    function loadData() {
-        fetch(urlSpreadsheet).then(res => res.json()).then(data => {
-            document.getElementById('status-koneksi').style.display = 'none';
-            // Isi LLF
-            ['u','p1','p2','pr1','pr2','b'].forEach((prefix, i) => {
-                const keys = ['utility','packing1','packing2','proses1','proses2','biomas'][i];
-                document.getElementById(prefix+'_temuan').innerText = data.llf[keys+'_temuan'];
-                document.getElementById(prefix+'_close').innerText = data.llf[keys+'_close'];
-                document.getElementById(prefix+'_open').innerText = data.llf[keys+'_open'];
-            });
-            // Isi Inventory
-            document.getElementById('inv_opr').innerText = data.inventory.order_pr;
-            document.getElementById('inv_prpo').innerText = data.inventory.pr_po;
-            document.getElementById('inv_po').innerText = data.inventory.po_datang;
-            document.getElementById('inv_bunker').innerText = data.inventory.equip_bunker;
-            // Isi Project
-            document.getElementById('proj_detail').innerText = data.project.detail_project;
-            document.getElementById('proj_list').innerText = data.project.list_project;
-        });
-    }
-    loadData(); // Jalankan saat aplikasi dibuka
+        <a href="#" class="nav-item-custom" onclick="switchTab('inventory', this)">
+            <i class="bi bi-boxes"></i>Inventory
+        </a>
+        <a href="#" class="nav-item-custom" onclick="switchTab('projek', this)">
+            <i class="bi bi-kanban-fill"></i>Projek
+        </a>
+    </div>
 
-    // FUNGSI MENGIRIM SEMUA JENIS DATA
-    function kirimData(jenis) {
-        let payload = {};
-        let tombol = event.target;
-        let teksAsli = tombol.innerHTML;
-        tombol.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
-        tombol.disabled = true;
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwc9YH_0E79M50FH4yHDm67tFDj76uKw52UsF75u4McmIdlp3RJS8wUvO5pUO5Lt3jGNQ/exec';
 
-        if (jenis === 'llf') {
-            payload = { action: 'update_llf', area: document.getElementById('llf_area').value, temuan: document.getElementById('llf_temuan').value, close: document.getElementById('llf_close').value, open: document.getElementById('llf_open').value };
-        } else if (jenis === 'inventory') {
-            payload = { action: 'update_inventory', opr: document.getElementById('in_opr').value, prpo: document.getElementById('in_prpo').value, po: document.getElementById('in_po').value, bunker: document.getElementById('in_bunker').value };
-        } else if (jenis === 'project') {
-            payload = { action: 'update_project', detail: document.getElementById('pr_detail').value, list: document.getElementById('pr_list').value };
+        // Navigasi Tab Modern
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active-tab'));
+            document.getElementById('page-' + tabName).classList.add('active-tab');
+            
+            // Atur warna aktif di menu bawah
+            document.querySelectorAll('.nav-item-custom').forEach(el => el.classList.remove('active'));
+            if(element && element.classList.contains('nav-item-custom')) {
+                element.classList.add('active');
+            }
+            window.scrollTo(0, 0);
         }
 
-        fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.text()).then(hasil => {
-            alert('Mantap! Data ' + jenis.toUpperCase() + ' berhasil diupdate.');
-            tombol.innerHTML = teksAsli; tombol.disabled = false;
-            // Kosongkan form dan reload data
-            document.querySelectorAll('input, textarea').forEach(el => el.value = '');
-            document.getElementById('status-koneksi').style.display = 'block';
-            loadData(); 
-            // Pindah otomatis ke tab Dashboard
-            var tabDash = new bootstrap.Tab(document.getElementById('pills-dash-tab'));
-            tabDash.show();
-        }).catch(err => {
-            alert('Gagal menyimpan. Coba lagi.');
-            tombol.innerHTML = teksAsli; tombol.disabled = false;
-        });
-    }
+        // Ambil Data dari Spreadsheet
+        function loadData() {
+            fetch(urlSpreadsheet).then(res => res.json()).then(data => {
+                document.getElementById('status-koneksi').style.display = 'none';
+                ['u','p1','p2','pr1','pr2','b'].forEach((prefix, i) => {
+                    const keys = ['utility','packing1','packing2','proses1','proses2','biomas'][i];
+                    document.getElementById(prefix+'_temuan').innerText = data.llf[keys+'_temuan'];
+                    document.getElementById(prefix+'_close').innerText = data.llf[keys+'_close'];
+                    document.getElementById(''+prefix+'_open').innerText = data.llf[keys+'_open'];
+                });
+                document.getElementById('inv_opr').innerText = data.inventory.order_pr;
+                document.getElementById('inv_prpo').innerText = data.inventory.pr_po;
+                document.getElementById('inv_po').innerText = data.inventory.po_datang;
+                document.getElementById('inv_bunker').innerText = data.inventory.equip_bunker;
+                document.getElementById('proj_detail').innerText = data.project.detail_project;
+                document.getElementById('proj_list').innerText = data.project.list_project;
+            }).catch(err => {
+                document.getElementById('status-koneksi').innerText = 'Gagal memuat data server.';
+            });
+        }
+        loadData();
 
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
-</script>
+        // Kirim Data
+        function kirimData(jenis) {
+            let payload = {};
+            let tombol = event.target;
+            let teksAsli = tombol.innerHTML;
+            tombol.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+            tombol.disabled = true;
+
+            if (jenis === 'llf') {
+                payload = { action: 'update_llf', area: document.getElementById('llf_area').value, temuan: document.getElementById('llf_temuan').value, close: document.getElementById('llf_close').value, open: document.getElementById('llf_open').value };
+            } else if (jenis === 'inventory') {
+                payload = { action: 'update_inventory', opr: document.getElementById('in_opr').value, prpo: document.getElementById('in_prpo').value, po: document.getElementById('in_po').value, bunker: document.getElementById('in_bunker').value };
+            } else if (jenis === 'project') {
+                payload = { action: 'update_project', detail: document.getElementById('pr_detail').value, list: document.getElementById('pr_list').value };
+            }
+
+            fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
+            .then(res => res.text()).then(hasil => {
+                alert('Sukses! Data ' + jenis.toUpperCase() + ' berhasil diperbarui.');
+                tombol.innerHTML = teksAsli; tombol.disabled = false;
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                loadData();
+                switchTab('dashboard', document.querySelector('.nav-item-custom'));
+            }).catch(err => {
+                alert('Gagal menyimpan.');
+                tombol.innerHTML = teksAsli; tombol.disabled = false;
+            });
+        }
+
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
+    </script>
 </body>
 </html>
