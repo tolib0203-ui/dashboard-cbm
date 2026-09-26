@@ -9,23 +9,25 @@
     <!-- Bootstrap 5 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Chart.js untuk Grafik Akumulasi Data -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 90px; }
-        /* Header Modern */
-        .app-header { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; padding: 15px 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 12px rgba(13,110,253,0.2); display: flex; justify-content: space-between; align-items: center; }
-        /* Kartu Konten */
-        .card { border: none; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); overflow: hidden; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 90px; }
+        .app-header { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; padding: 18px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 15px rgba(13,110,253,0.25); display: flex; justify-content: space-between; align-items: center; }
+        .card { border: none; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; background: #fff; }
         .section-title { font-weight: 700; font-size: 1rem; color: #333; display: flex; align-items: center; }
-        /* Bottom Navigation Bar ala Aplikasi Native */
+        
+        /* Bottom Navigation Bar */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; height: 70px; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; }
-        .nav-item-custom { text-align: center; color: #6c757d; text-decoration: none; font-size: 0.75rem; font-weight: 600; flex: 1; transition: 0.2s; }
+        .nav-item-custom { text-align: center; color: #6c757d; text-decoration: none; font-size: 0.72rem; font-weight: 600; flex: 1; transition: 0.2s; }
         .nav-item-custom i { font-size: 1.3rem; display: block; margin-bottom: 2px; }
         .nav-item-custom.active { color: #0d6efd; }
-        /* Floating Center Button (Tombol Tengah Menonjol) */
-        .fab-container { position: relative; top: -18px; flex: 1; text-align: center; }
-        .fab-btn { width: 52px; height: 52px; background: linear-gradient(135deg, #0d6efd, #00d4ff); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(13,110,253,0.4); border: 3px solid #fff; font-size: 1.5rem; text-decoration: none; transition: 0.2s; }
+        
+        /* Floating Center Button (Tombol Tambah/Update di Tengah) */
+        .fab-container { position: relative; top: -16px; flex: 1; text-align: center; }
+        .fab-btn { width: 50px; height: 50px; background: linear-gradient(135deg, #0d6efd, #00d4ff); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(13,110,253,0.4); border: 3px solid #fff; font-size: 1.4rem; text-decoration: none; transition: 0.2s; }
         .fab-btn:active { transform: scale(0.95); }
-        /* Tampilan Tab */
+
         .tab-pane { display: none; }
         .tab-pane.active-tab { display: block; }
         .loading { font-style: italic; color: #adb5bd; }
@@ -37,44 +39,53 @@
     <div class="app-header">
         <div>
             <h6 class="fw-bold mb-0 text-white" style="letter-spacing: 0.5px;">Condition Base Monitoring</h6>
-            <small class="text-white-50" style="font-size: 0.7rem;">CBM Smart Dashboard</small>
+            <small class="text-white-50" style="font-size: 0.7rem;">Smart Industrial Dashboard</small>
         </div>
         <div>
-            <button class="btn btn-sm btn-light text-primary rounded-circle me-1" onclick="alert('Pengaturan Sistem')"><i class="bi bi-gear-fill"></i></button>
-            <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="alert('Keluar Aplikasi')"><i class="bi bi-box-arrow-right"></i></button>
+            <span class="badge bg-light text-primary fw-bold px-2 py-1 rounded-pill" style="font-size: 0.75rem;"><i class="bi bi-circle-fill text-success" style="font-size: 0.5rem;"></i> Live System</span>
         </div>
     </div>
 
     <div class="container mt-3 px-3">
-        <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Mengambil data real-time...</p>
+        <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan ke database...</p>
 
-        <!-- ================= HALAMAN 1: DASHBOARD ================= -->
+        <!-- ================= 1. HALAMAN DASHBOARD (AKUMULASI & GRAFIK) ================= -->
         <div id="page-dashboard" class="tab-pane active-tab">
-            <div class="card p-3 bg-white">
-                <h6 class="section-title text-primary mb-3"><i class="bi bi-speedometer2 me-2"></i> Ringkasan Status Sistem</h6>
-                <div class="row text-center g-2">
-                    <div class="col-6">
-                        <div class="p-3 rounded-4 bg-light border">
-                            <small class="text-muted d-block fw-bold" style="font-size: 0.7rem;">TOTAL LLF AREA</small>
-                            <span class="fs-4 fw-bold text-dark">6 Area</span>
-                        </div>
+            <div class="card p-3">
+                <h6 class="section-title text-primary mb-3"><i class="bi bi-pie-chart-fill me-2"></i> Akumulasi Status Sistem CBM</h6>
+                <p class="text-muted small mb-3">Grafik ringkasan progres keseluruhan sistem pemantauan kondisi mesin dan inventaris.</p>
+                
+                <!-- Kotak Chart.js -->
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="cbmChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Ringkasan Cepat -->
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="card p-3 text-center">
+                        <small class="text-muted fw-bold" style="font-size: 0.7rem;">TOTAL LLF AREA</small>
+                        <h3 class="fw-bold text-dark mt-1 mb-0">6</h3>
+                        <span class="text-success" style="font-size: 0.75rem;"><i class="bi bi-check-circle"></i> Terpantau Aktif</span>
                     </div>
-                    <div class="col-6">
-                        <div class="p-3 rounded-4 bg-light border">
-                            <small class="text-muted d-block fw-bold" style="font-size: 0.7rem;">STATUS PROJEK</small>
-                            <span class="fs-4 fw-bold text-success">Aktif</span>
-                        </div>
+                </div>
+                <div class="col-6">
+                    <div class="card p-3 text-center">
+                        <small class="text-muted fw-bold" style="font-size: 0.7rem;">STATUS PROJEK</small>
+                        <h3 class="fw-bold text-primary mt-1 mb-0">Run</h3>
+                        <span class="text-primary" style="font-size: 0.75rem;"><i class="bi bi-activity"></i> Normal Operation</span>
                     </div>
                 </div>
             </div>
-            <div class="text-center text-muted small py-4">
-                <i class="bi bi-info-circle me-1"></i> Gunakan menu di bawah untuk melihat detail LLF, Inventory, atau Projek.
-            </div>
         </div>
 
-        <!-- ================= HALAMAN 2: LLF ================= -->
+        <!-- ================= 2. HALAMAN LLF ================= -->
         <div id="page-llf" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Monitoring LLF</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Data LLF</h5>
+                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="switchTab('input', null)"><i class="bi bi-plus-lg"></i> Update</button>
+            </div>
             <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accLLF">
                 <!-- Utility -->
                 <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#u_d">Utility</button></h2>
@@ -121,9 +132,12 @@
             </div>
         </div>
 
-        <!-- ================= HALAMAN 3: INVENTORY ================= -->
+        <!-- ================= 3. HALAMAN INVENTORY ================= -->
         <div id="page-inventory" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart</h5>
+                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="switchTab('input', null)"><i class="bi bi-plus-lg"></i> Update</button>
+            </div>
             <div class="card p-3">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-cart me-2 text-muted"></i> Order PR</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold" id="inv_opr">...</span></li>
@@ -137,9 +151,12 @@
             </div>
         </div>
 
-        <!-- ================= HALAMAN 4: PROJEK ================= -->
+        <!-- ================= 4. HALAMAN PROJEK ================= -->
         <div id="page-projek" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek</h5>
+                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="switchTab('input', null)"><i class="bi bi-plus-lg"></i> Update</button>
+            </div>
             <div class="card p-3 mb-3">
                 <small class="text-muted fw-bold mb-1 d-block">DETAIL PROJECT</small>
                 <p id="proj_detail" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
@@ -150,9 +167,9 @@
             </div>
         </div>
 
-        <!-- ================= HALAMAN 5: INPUT/UPDATE (TENGAH) ================= -->
+        <!-- ================= 5. HALAMAN INPUT / UPDATE (TOMBOL TENGAH) ================= -->
         <div id="page-input" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-pencil-square text-primary me-2"></i> Update Data Server</h5>
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-pencil-square text-primary me-2"></i> Form Input & Update Data</h5>
             
             <!-- Form LLF -->
             <div class="card p-3 border-start border-4 border-primary">
@@ -167,8 +184,8 @@
                 </select>
                 <input type="text" id="llf_temuan" class="form-control form-control-sm mb-2" placeholder="Ketik temuan...">
                 <div class="row g-2 mb-2">
-                    <div class="col"><input type="text" id="llf_close" class="form-control form-control-sm" placeholder="Close (%)"></div>
-                    <div class="col"><input type="text" id="llf_open" class="form-control form-control-sm" placeholder="Open (%)"></div>
+                    <div class="col"><input type="text" id="llf_close" class="form-control form-control-sm" placeholder="Close"></div>
+                    <div class="col"><input type="text" id="llf_open" class="form-control form-control-sm" placeholder="Open"></div>
                 </div>
                 <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="kirimData('llf')">Simpan LLF</button>
             </div>
@@ -196,7 +213,7 @@
 
     </div>
 
-    <!-- BOTTOM NAVIGATION BAR (MENU BAWAH) -->
+    <!-- BOTTOM NAVIGATION BAR -->
     <div class="bottom-nav">
         <a href="#" class="nav-item-custom active" onclick="switchTab('dashboard', this)">
             <i class="bi bi-house-door-fill"></i>Dashboard
@@ -205,7 +222,7 @@
             <i class="bi bi-gear-fill"></i>LLF
         </a>
         
-        <!-- Tombol Tengah Menonjol (Floating Button) -->
+        <!-- Tombol Tengah (Floating Action Button) -->
         <div class="fab-container">
             <a href="#" class="fab-btn" onclick="switchTab('input', this)">
                 <i class="bi bi-plus-lg"></i>
@@ -223,36 +240,77 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwc9YH_0E79M50FH4yHDm67tFDj76uKw52UsF75u4McmIdlp3RJS8wUvO5pUO5Lt3jGNQ/exec';
+        let myChart = null;
 
-        // Navigasi Tab Modern
+        // Navigasi Tab
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active-tab'));
             document.getElementById('page-' + tabName).classList.add('active-tab');
             
-            // Atur warna aktif di menu bawah
-            document.querySelectorAll('.nav-item-custom').forEach(el => el.classList.remove('active'));
-            if(element && element.classList.contains('nav-item-custom')) {
+            if(element) {
+                document.querySelectorAll('.nav-item-custom').forEach(el => el.classList.remove('active'));
                 element.classList.add('active');
             }
             window.scrollTo(0, 0);
+        }
+
+        // Render Grafik Akumulasi (Chart.js)
+        function renderChart(invData) {
+            const ctx = document.getElementById('cbmChart').getContext('2d');
+            
+            // Ubah teks angka/persen dari inventory menjadi angka murni untuk grafik (jika berupa string berakhiran %)
+            let opr = parseFloat(invData.order_pr) || 10;
+            let prpo = parseFloat(invData.pr_po) || 20;
+            let po = parseFloat(invData.po_datang) || 70;
+
+            if(myChart) myChart.destroy(); // Hapus chart lama jika ada data baru
+
+            myChart = new Chart(ctx, {
+                type: 'bar', // Bisa diganti 'doughnut' jika ingin lingkaran
+                data: {
+                    labels: ['Order PR', 'PR ke PO', 'PO Datang'],
+                    datasets: [{
+                        label: 'Progres Inventaris (%)',
+                        data: [opr, prpo, po],
+                        backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
         }
 
         // Ambil Data dari Spreadsheet
         function loadData() {
             fetch(urlSpreadsheet).then(res => res.json()).then(data => {
                 document.getElementById('status-koneksi').style.display = 'none';
+                
+                // Isi LLF
                 ['u','p1','p2','pr1','pr2','b'].forEach((prefix, i) => {
                     const keys = ['utility','packing1','packing2','proses1','proses2','biomas'][i];
                     document.getElementById(prefix+'_temuan').innerText = data.llf[keys+'_temuan'];
                     document.getElementById(prefix+'_close').innerText = data.llf[keys+'_close'];
-                    document.getElementById(''+prefix+'_open').innerText = data.llf[keys+'_open'];
+                    document.getElementById(prefix+'_open').innerText = data.llf[keys+'_open'];
                 });
+
+                // Isi Inventory
                 document.getElementById('inv_opr').innerText = data.inventory.order_pr;
                 document.getElementById('inv_prpo').innerText = data.inventory.pr_po;
                 document.getElementById('inv_po').innerText = data.inventory.po_datang;
                 document.getElementById('inv_bunker').innerText = data.inventory.equip_bunker;
+
+                // Isi Projek
                 document.getElementById('proj_detail').innerText = data.project.detail_project;
                 document.getElementById('proj_list').innerText = data.project.list_project;
+
+                // Buat Grafik Akumulasi di Dashboard
+                renderChart(data.inventory);
+
             }).catch(err => {
                 document.getElementById('status-koneksi').innerText = 'Gagal memuat data server.';
             });
