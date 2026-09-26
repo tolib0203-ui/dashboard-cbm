@@ -45,22 +45,42 @@
     <div class="container mt-3 px-3">
         <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan ke database...</p>
 
-        <!-- ================= 1. DASHBOARD ================= -->
+        <!-- ================= 1. DASHBOARD (GRAFIK AKUMULASI LENGKAP & MODERN) ================= -->
         <div id="page-dashboard" class="tab-pane active-tab">
+            
+            <!-- Grafik 1: Akumulasi Inventory Sparepart -->
             <div class="card p-3 mb-3">
-                <h6 class="section-title text-primary mb-2"><i class="bi bi-bar-chart-fill me-2"></i> Grafik Inventory Sparepart</h6>
-                <div style="position: relative; height: 200px; width: 100%;"><canvas id="chartInventory"></canvas></div>
+                <h6 class="section-title text-primary mb-2"><i class="bi bi-bar-chart-fill me-2"></i> Akumulasi Inventory Sparepart</h6>
+                <p class="text-muted small mb-2">Sentuh grafik untuk melihat detail nilai persentase.</p>
+                <div style="position: relative; height: 220px; width: 100%;"><canvas id="chartInventory"></canvas></div>
             </div>
+
+            <!-- Grafik 2: Akumulasi Semua Area LLF (Close vs Open) -->
             <div class="card p-3 mb-3">
-                <h6 class="section-title text-success mb-2"><i class="bi bi-graph-up-arrow me-2"></i> Grafik Ringkasan LLF</h6>
-                <div style="position: relative; height: 200px; width: 100%;"><canvas id="chartLLF"></canvas></div>
+                <h6 class="section-title text-success mb-2"><i class="bi bi-graph-up-arrow me-2"></i> Akumulasi Progress LLF (Semua Area)</h6>
+                <p class="text-muted small mb-2">Perbandingan status Close (Hijau) dan Open (Merah) di 6 Area.</p>
+                <div style="position: relative; height: 260px; width: 100%;"><canvas id="chartLLFAll"></canvas></div>
             </div>
+
+            <!-- Grafik 3: Status Manajemen Projek & Ringkasan -->
             <div class="card p-3 mb-3">
-                <h6 class="section-title text-warning mb-2"><i class="bi bi-pie-chart-fill me-2"></i> Status Manajemen Projek</h6>
-                <div class="p-2 bg-light rounded-3 text-center">
-                    <strong id="dash_proj_status" class="text-dark fs-6">Memuat data...</strong>
+                <h6 class="section-title text-warning mb-2"><i class="bi bi-kanban-fill me-2"></i> Status Manajemen Projek</h6>
+                <div class="row g-2 mt-1">
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <small class="text-muted fw-bold d-block mb-1">DETAIL PROJECT TERBARU:</small>
+                            <span id="dash_proj_detail" class="text-dark fw-bold">Memuat data...</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <small class="text-muted fw-bold d-block mb-1">LIST PROJECT:</small>
+                            <span id="dash_proj_list" class="text-secondary small">Memuat data...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- ================= 2. LLF ================= -->
@@ -148,7 +168,7 @@
             </div>
         </div>
 
-        <!-- ================= 4. PROJEK (GAYA ACCORDION SEPERTI LLF & INVENTORY) ================= -->
+        <!-- ================= 4. PROJEK ================= -->
         <div id="page-projek" class="tab-pane">
             <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek & Update</h5>
             <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accProject">
@@ -225,10 +245,10 @@
     <script>
         const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwc9YH_0E79M50FH4yHDm67tFDj76uKw52UsF75u4McmIdlp3RJS8wUvO5pUO5Lt3jGNQ/exec';
         let chartInvInstance = null;
-        let chartLLFInstance = null;
+        let chartLLFAllInstance = null;
         let html5QrCode = null;
         let latestInventoryData = {};
-        let latestProjectData = {}; // Menyimpan data projek saat ini
+        let latestProjectData = {};
 
         function switchTab(tabName, element) {
             stopScanner();
@@ -273,38 +293,97 @@
             }
         }
 
+        // Render Grafik Modern Lengkap dengan Tooltip Interaktif
         function renderCharts(data) {
+            // 1. Grafik Inventory
             const ctxInv = document.getElementById('chartInventory').getContext('2d');
-            let opr = parseFloat(data.inventory.order_pr) || 15;
-            let prpo = parseFloat(data.inventory.pr_po) || 30;
-            let po = parseFloat(data.inventory.po_datang) || 75;
+            let opr = parseFloat(data.inventory.order_pr) || 0;
+            let prpo = parseFloat(data.inventory.pr_po) || 0;
+            let po = parseFloat(data.inventory.po_datang) || 0;
 
             if(chartInvInstance) chartInvInstance.destroy();
             chartInvInstance = new Chart(ctxInv, {
                 type: 'bar',
                 data: {
                     labels: ['Order PR', 'PR ke PO', 'PO Datang'],
-                    datasets: [{ data: [opr, prpo, po], backgroundColor: ['#ffc107', '#0dcaf0', '#198754'], borderRadius: 8 }]
+                    datasets: [{
+                        label: 'Nilai / Progress',
+                        data: [opr, prpo, po],
+                        backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
+                        borderRadius: 10
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Status: ' + context.raw + ' (Item/%)';
+                                }
+                            }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true } }
+                }
             });
 
-            const ctxLLF = document.getElementById('chartLLF').getContext('2d');
-            let uClose = parseFloat(data.llf.utility_close) || 50;
-            let p1Close = parseFloat(data.llf.packing1_close) || 60;
-            let p2Close = parseFloat(data.llf.packing2_close) || 40;
+            // 2. Grafik LLF Semua Area (Close vs Open)
+            const ctxLLFAll = document.getElementById('chartLLFAll').getContext('2d');
+            
+            let labelsLLF = ['Utility', 'Packing 1', 'Packing 2', 'Proses 1', 'Proses 2', 'Biomas'];
+            let closeData = [
+                parseFloat(data.llf.utility_close) || 0,
+                parseFloat(data.llf.packing1_close) || 0,
+                parseFloat(data.llf.packing2_close) || 0,
+                parseFloat(data.llf.proses1_close) || 0,
+                parseFloat(data.llf.proses2_close) || 0,
+                parseFloat(data.llf.biomas_close) || 0
+            ];
+            let openData = [
+                parseFloat(data.llf.utility_open) || 0,
+                parseFloat(data.llf.packing1_open) || 0,
+                parseFloat(data.llf.packing2_open) || 0,
+                parseFloat(data.llf.proses1_open) || 0,
+                parseFloat(data.llf.proses2_open) || 0,
+                parseFloat(data.llf.biomas_open) || 0
+            ];
 
-            if(chartLLFInstance) chartLLFInstance.destroy();
-            chartLLFInstance = new Chart(ctxLLF, {
-                type: 'line',
+            if(chartLLFAllInstance) chartLLFAllInstance.destroy();
+            chartLLFAllInstance = new Chart(ctxLLFAll, {
+                type: 'bar',
                 data: {
-                    labels: ['Utility', 'Packing 1', 'Packing 2'],
-                    datasets: [{ data: [uClose, p1Close, p2Close], borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', fill: true, tension: 0.3 }]
+                    labels: labelsLLF,
+                    datasets: [
+                        { label: 'Close (Selesai)', data: closeData, backgroundColor: '#198754', borderRadius: 6 },
+                        { label: 'Open (Belum)', data: openData, backgroundColor: '#dc3545', borderRadius: 6 }
+                    ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100 },
+                        x: { grid: { display: false } }
+                    }
+                }
             });
 
-            document.getElementById('dash_proj_status').innerText = data.project.detail_project || 'Normal Running';
+            // 3. Status Projek di Dashboard
+            document.getElementById('dash_proj_detail').innerText = data.project.detail_project || 'Tidak ada detail.';
+            document.getElementById('dash_proj_list').innerText = data.project.list_project || 'Tidak ada list.';
         }
 
         function loadData() {
@@ -381,7 +460,6 @@
             }).catch(err => { alert('Gagal menyimpan.'); });
         }
 
-        // Update Projek Per Baris (Accordion)
         function updateProjectDirect(itemId) {
             let val = document.getElementById('proj_input_' + itemId).value;
             if(!val) {
@@ -398,7 +476,7 @@
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
             .then(res => res.text()).then(hasil => {
                 alert('Sukses memperbarui Project!');
-                document.getElementById('proj_input_' + itemId).value = '';
+                document.getElementById('proj_input_' + itemId).value = ' ';
                 loadData();
             }).catch(err => { alert('Gagal menyimpan.'); });
         }
