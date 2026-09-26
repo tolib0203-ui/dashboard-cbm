@@ -9,11 +9,12 @@
     <!-- Bootstrap 5 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Chart.js untuk Grafik Akumulasi Data -->
+    <!-- Chart.js untuk Grafik Interaktif -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 90px; }
-        .app-header { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; padding: 18px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 15px rgba(13,110,253,0.25); display: flex; justify-content: space-between; align-items: center; }
+        /* Header Rata Tengah & Bersih */
+        .app-header { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; padding: 20px 15px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 15px rgba(13,110,253,0.25); text-align: center; }
         .card { border: none; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; background: #fff; }
         .section-title { font-weight: 700; font-size: 1rem; color: #333; display: flex; align-items: center; }
         
@@ -35,47 +36,42 @@
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- HEADER (Tengah & Tanpa Live System) -->
     <div class="app-header">
-        <div>
-            <h6 class="fw-bold mb-0 text-white" style="letter-spacing: 0.5px;">Condition Base Monitoring</h6>
-            <small class="text-white-50" style="font-size: 0.7rem;">Smart Industrial Dashboard</small>
-        </div>
-        <div>
-            <span class="badge bg-light text-primary fw-bold px-2 py-1 rounded-pill" style="font-size: 0.75rem;"><i class="bi bi-circle-fill text-success" style="font-size: 0.5rem;"></i> Live System</span>
-        </div>
+        <h5 class="fw-bold mb-0 text-white" style="letter-spacing: 0.5px;">Condition Base Monitoring</h5>
+        <small class="text-white-50" style="font-size: 0.7rem;">Smart Industrial Dashboard</small>
     </div>
 
     <div class="container mt-3 px-3">
         <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan ke database...</p>
 
-        <!-- ================= 1. HALAMAN DASHBOARD (AKUMULASI & GRAFIK) ================= -->
+        <!-- ================= 1. HALAMAN DASHBOARD (SEMUA BERBENTUK GRAFIK) ================= -->
         <div id="page-dashboard" class="tab-pane active-tab">
-            <div class="card p-3">
-                <h6 class="section-title text-primary mb-3"><i class="bi bi-pie-chart-fill me-2"></i> Akumulasi Status Sistem CBM</h6>
-                <p class="text-muted small mb-3">Grafik ringkasan progres keseluruhan sistem pemantauan kondisi mesin dan inventaris.</p>
-                
-                <!-- Kotak Chart.js -->
-                <div style="position: relative; height: 220px; width: 100%;">
-                    <canvas id="cbmChart"></canvas>
+            
+            <!-- Grafik 1: Akumulasi Inventory Sparepart -->
+            <div class="card p-3 mb-3">
+                <h6 class="section-title text-primary mb-2"><i class="bi bi-bar-chart-fill me-2"></i> Grafik Inventory Sparepart</h6>
+                <p class="text-muted small mb-3">Perbandingan status Order PR, PR ke PO, dan PO Datang.</p>
+                <div style="position: relative; height: 200px; width: 100%;">
+                    <canvas id="chartInventory"></canvas>
                 </div>
             </div>
 
-            <!-- Ringkasan Cepat -->
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <div class="card p-3 text-center">
-                        <small class="text-muted fw-bold" style="font-size: 0.7rem;">TOTAL LLF AREA</small>
-                        <h3 class="fw-bold text-dark mt-1 mb-0">6</h3>
-                        <span class="text-success" style="font-size: 0.75rem;"><i class="bi bi-check-circle"></i> Terpantau Aktif</span>
-                    </div>
+            <!-- Grafik 2: Akumulasi Status LLF -->
+            <div class="card p-3 mb-3">
+                <h6 class="section-title text-success mb-2"><i class="bi bi-graph-up-arrow me-2"></i> Grafik Ringkasan LLF</h6>
+                <p class="text-muted small mb-3">Akumulasi progress Close vs Open area operasional.</p>
+                <div style="position: relative; height: 200px; width: 100%;">
+                    <canvas id="chartLLF"></canvas>
                 </div>
-                <div class="col-6">
-                    <div class="card p-3 text-center">
-                        <small class="text-muted fw-bold" style="font-size: 0.7rem;">STATUS PROJEK</small>
-                        <h3 class="fw-bold text-primary mt-1 mb-0">Run</h3>
-                        <span class="text-primary" style="font-size: 0.75rem;"><i class="bi bi-activity"></i> Normal Operation</span>
-                    </div>
+            </div>
+
+            <!-- Grafik 3: Status Projek -->
+            <div class="card p-3 mb-3">
+                <h6 class="section-title text-warning mb-2"><i class="bi bi-pie-chart-fill me-2"></i> Status Manajemen Projek</h6>
+                <div class="p-2 bg-light rounded-3 text-center">
+                    <span class="text-muted small d-block">Projek Aktif Saat Ini:</span>
+                    <strong id="dash_proj_status" class="text-dark fs-6">Memuat data...</strong>
                 </div>
             </div>
         </div>
@@ -213,10 +209,10 @@
 
     </div>
 
-    <!-- BOTTOM NAVIGATION BAR -->
+    <!-- BOTTOM NAVIGATION BAR (Ikon Dashboard Diubah Menjadi Chart) -->
     <div class="bottom-nav">
         <a href="#" class="nav-item-custom active" onclick="switchTab('dashboard', this)">
-            <i class="bi bi-house-door-fill"></i>Dashboard
+            <i class="bi bi-bar-chart-line-fill"></i>Dashboard
         </a>
         <a href="#" class="nav-item-custom" onclick="switchTab('llf', this)">
             <i class="bi bi-gear-fill"></i>LLF
@@ -240,7 +236,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwc9YH_0E79M50FH4yHDm67tFDj76uKw52UsF75u4McmIdlp3RJS8wUvO5pUO5Lt3jGNQ/exec';
-        let myChart = null;
+        let chartInvInstance = null;
+        let chartLLFInstance = null;
 
         // Navigasi Tab
         function switchTab(tabName, element) {
@@ -254,35 +251,54 @@
             window.scrollTo(0, 0);
         }
 
-        // Render Grafik Akumulasi (Chart.js)
-        function renderChart(invData) {
-            const ctx = document.getElementById('cbmChart').getContext('2d');
-            
-            // Ubah teks angka/persen dari inventory menjadi angka murni untuk grafik (jika berupa string berakhiran %)
-            let opr = parseFloat(invData.order_pr) || 10;
-            let prpo = parseFloat(invData.pr_po) || 20;
-            let po = parseFloat(invData.po_datang) || 70;
+        // Render Grafik Akumulasi
+        function renderCharts(data) {
+            // 1. Grafik Inventory
+            const ctxInv = document.getElementById('chartInventory').getContext('2d');
+            let opr = parseFloat(data.inventory.order_pr) || 15;
+            let prpo = parseFloat(data.inventory.pr_po) || 30;
+            let po = parseFloat(data.inventory.po_datang) || 75;
 
-            if(myChart) myChart.destroy(); // Hapus chart lama jika ada data baru
-
-            myChart = new Chart(ctx, {
-                type: 'bar', // Bisa diganti 'doughnut' jika ingin lingkaran
+            if(chartInvInstance) chartInvInstance.destroy();
+            chartInvInstance = new Chart(ctxInv, {
+                type: 'bar',
                 data: {
                     labels: ['Order PR', 'PR ke PO', 'PO Datang'],
                     datasets: [{
-                        label: 'Progres Inventaris (%)',
+                        label: 'Progres (%)',
                         data: [opr, prpo, po],
                         backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
                         borderRadius: 8
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, max: 100 } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
             });
+
+            // 2. Grafik LLF (Utility vs Packing 1)
+            const ctxLLF = document.getElementById('chartLLF').getContext('2d');
+            let uClose = parseFloat(data.llf.utility_close) || 50;
+            let p1Close = parseFloat(data.llf.packing1_close) || 60;
+            let p2Close = parseFloat(data.llf.packing2_close) || 40;
+
+            if(chartLLFInstance) chartLLFInstance.destroy();
+            chartLLFInstance = new Chart(ctxLLF, {
+                type: 'line', // Grafik garis yang modern
+                data: {
+                    labels: ['Utility', 'Packing 1', 'Packing 2'],
+                    datasets: [{
+                        label: 'Close (%)',
+                        data: [uClose, p1Close, p2Close],
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+
+            // 3. Status Projek di Dashboard
+            document.getElementById('dash_proj_status').innerText = data.project.detail_project || 'Normal Running';
         }
 
         // Ambil Data dari Spreadsheet
@@ -290,7 +306,7 @@
             fetch(urlSpreadsheet).then(res => res.json()).then(data => {
                 document.getElementById('status-koneksi').style.display = 'none';
                 
-                // Isi LLF
+                // Isi LLF Detail
                 ['u','p1','p2','pr1','pr2','b'].forEach((prefix, i) => {
                     const keys = ['utility','packing1','packing2','proses1','proses2','biomas'][i];
                     document.getElementById(prefix+'_temuan').innerText = data.llf[keys+'_temuan'];
@@ -298,18 +314,18 @@
                     document.getElementById(prefix+'_open').innerText = data.llf[keys+'_open'];
                 });
 
-                // Isi Inventory
+                // Isi Inventory Detail
                 document.getElementById('inv_opr').innerText = data.inventory.order_pr;
                 document.getElementById('inv_prpo').innerText = data.inventory.pr_po;
                 document.getElementById('inv_po').innerText = data.inventory.po_datang;
                 document.getElementById('inv_bunker').innerText = data.inventory.equip_bunker;
 
-                // Isi Projek
+                // Isi Projek Detail
                 document.getElementById('proj_detail').innerText = data.project.detail_project;
                 document.getElementById('proj_list').innerText = data.project.list_project;
 
-                // Buat Grafik Akumulasi di Dashboard
-                renderChart(data.inventory);
+                // Render Grafik
+                renderCharts(data);
 
             }).catch(err => {
                 document.getElementById('status-koneksi').innerText = 'Gagal memuat data server.';
