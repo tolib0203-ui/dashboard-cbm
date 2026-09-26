@@ -109,7 +109,7 @@
             </div>
         </div>
 
-        <!-- ================= 3. INVENTORY (AKSES ACCORDION SEPERTI LLF) ================= -->
+        <!-- ================= 3. INVENTORY ================= -->
         <div id="page-inventory" class="tab-pane">
             <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart & Update</h5>
             <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accInventory">
@@ -148,20 +148,40 @@
             </div>
         </div>
 
-        <!-- ================= 4. PROJEK ================= -->
+        <!-- ================= 4. PROJEK (GAYA ACCORDION SEPERTI LLF & INVENTORY) ================= -->
         <div id="page-projek" class="tab-pane">
             <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek & Update</h5>
-            <div class="card p-3 mb-3">
-                <small class="text-muted fw-bold mb-1 d-block">DETAIL PROJECT SAAT INI</small>
-                <p id="proj_detail" class="text-dark mb-2 p-2 bg-light rounded-3 loading">Loading...</p>
-                <small class="text-muted fw-bold mb-1 d-block">LIST PROJECT SAAT INI</small>
-                <p id="proj_list" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
-            </div>
-            <div class="card p-3 border-start border-4 border-success">
-                <h6 class="fw-bold text-success mb-2">Update Projek Langsung</h6>
-                <textarea id="pr_detail" class="form-control form-control-sm mb-2" rows="2" placeholder="Detail project..."></textarea>
-                <textarea id="pr_list" class="form-control form-control-sm mb-2" rows="2" placeholder="List project..."></textarea>
-                <button class="btn btn-success btn-sm w-100 fw-bold" onclick="kirimData('project')">Simpan Projek</button>
+            <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accProject">
+                <script>
+                    const projectItems = [
+                        {id: 'detail', name: 'Detail Project'},
+                        {id: 'list', name: 'List Project'}
+                    ];
+
+                    projectItems.forEach((item) => {
+                        document.write(`
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_proj_${item.id}">
+                                        ${item.name}
+                                    </button>
+                                </h2>
+                                <div id="collapse_proj_${item.id}" class="accordion-collapse collapse" data-bs-parent="#accProject">
+                                    <div class="accordion-body bg-light">
+                                        <div class="mb-2 p-2 bg-white rounded-3 border">
+                                            <small class="text-muted d-block">Data Saat Ini:</small>
+                                            <p id="proj_val_${item.id}" class="text-dark mb-0 small loading">Loading...</p>
+                                        </div>
+                                        <hr class="my-2">
+                                        <label class="small fw-bold text-primary mb-1">Update ${item.name}:</label>
+                                        <textarea id="proj_input_${item.id}" class="form-control form-control-sm mb-2" rows="2" placeholder="Ketik update terbaru..."></textarea>
+                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateProjectDirect('${item.id}')">Simpan Perubahan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
             </div>
         </div>
 
@@ -207,7 +227,8 @@
         let chartInvInstance = null;
         let chartLLFInstance = null;
         let html5QrCode = null;
-        let latestInventoryData = {}; // Menyimpan data inventory saat ini
+        let latestInventoryData = {};
+        let latestProjectData = {}; // Menyimpan data projek saat ini
 
         function switchTab(tabName, element) {
             stopScanner();
@@ -297,7 +318,7 @@
                     document.getElementById(area.id + '_o').innerText = data.llf[area.id + '_open'];
                 });
 
-                // Simpan & Isi Inventory
+                // Isi Inventory
                 latestInventoryData = data.inventory;
                 document.getElementById('inv_val_opr').innerText = data.inventory.order_pr;
                 document.getElementById('inv_val_prpo').innerText = data.inventory.pr_po;
@@ -305,8 +326,9 @@
                 document.getElementById('inv_val_bunker').innerText = data.inventory.equip_bunker;
 
                 // Isi Projek
-                document.getElementById('proj_detail').innerText = data.project.detail_project;
-                document.getElementById('proj_list').innerText = data.project.list_project;
+                latestProjectData = data.project;
+                document.getElementById('proj_val_detail').innerText = data.project.detail_project;
+                document.getElementById('proj_val_list').innerText = data.project.list_project;
 
                 renderCharts(data);
             }).catch(err => {
@@ -336,7 +358,6 @@
             }).catch(err => { alert('Gagal menyimpan.'); });
         }
 
-        // Fungsi Update Inventory Per Baris (Accordion)
         function updateInventoryDirect(itemId) {
             let val = document.getElementById('inv_input_' + itemId).value;
             if(!val) {
@@ -344,7 +365,6 @@
                 return;
             }
 
-            // Ambil data lama, lalu timpa bagian yang diubah saja
             let payload = {
                 action: 'update_inventory',
                 opr: itemId === 'opr' ? val : (latestInventoryData.order_pr || ''),
@@ -361,16 +381,24 @@
             }).catch(err => { alert('Gagal menyimpan.'); });
         }
 
-        function kirimData(jenis) {
-            let payload = {};
-            if (jenis === 'project') {
-                payload = { action: 'update_project', detail: document.getElementById('pr_detail').value, list: document.getElementById('pr_list').value };
+        // Update Projek Per Baris (Accordion)
+        function updateProjectDirect(itemId) {
+            let val = document.getElementById('proj_input_' + itemId).value;
+            if(!val) {
+                alert('Silakan masukkan teks update terlebih dahulu!');
+                return;
             }
+
+            let payload = {
+                action: 'update_project',
+                detail: itemId === 'detail' ? val : (latestProjectData.detail_project || ''),
+                list: itemId === 'list' ? val : (latestProjectData.list_project || '')
+            };
 
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
             .then(res => res.text()).then(hasil => {
-                alert('Sukses! Data Project berhasil diperbarui.');
-                document.querySelectorAll('textarea').forEach(el => el.value = '');
+                alert('Sukses memperbarui Project!');
+                document.getElementById('proj_input_' + itemId).value = '';
                 loadData();
             }).catch(err => { alert('Gagal menyimpan.'); });
         }
