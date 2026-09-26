@@ -9,11 +9,10 @@
     <!-- Bootstrap 5 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Chart.js untuk Grafik Interaktif -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 90px; }
-        /* Header Rata Tengah & Bersih */
         .app-header { background: linear-gradient(135deg, #0d6efd, #0099ff); color: white; padding: 20px 15px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 15px rgba(13,110,253,0.25); text-align: center; }
         .card { border: none; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; background: #fff; }
         .section-title { font-weight: 700; font-size: 1rem; color: #333; display: flex; align-items: center; }
@@ -24,7 +23,7 @@
         .nav-item-custom i { font-size: 1.3rem; display: block; margin-bottom: 2px; }
         .nav-item-custom.active { color: #0d6efd; }
         
-        /* Floating Center Button (Tombol Tambah/Update di Tengah) */
+        /* Floating Center Button */
         .fab-container { position: relative; top: -16px; flex: 1; text-align: center; }
         .fab-btn { width: 50px; height: 50px; background: linear-gradient(135deg, #0d6efd, #00d4ff); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(13,110,253,0.4); border: 3px solid #fff; font-size: 1.4rem; text-decoration: none; transition: 0.2s; }
         .fab-btn:active { transform: scale(0.95); }
@@ -36,7 +35,7 @@
 </head>
 <body>
 
-    <!-- HEADER (Tengah & Tanpa Live System) -->
+    <!-- HEADER -->
     <div class="app-header">
         <h5 class="fw-bold mb-0 text-white" style="letter-spacing: 0.5px;">Condition Base Monitoring</h5>
         <small class="text-white-50" style="font-size: 0.7rem;">Smart Industrial Dashboard</small>
@@ -45,150 +44,85 @@
     <div class="container mt-3 px-3">
         <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan ke database...</p>
 
-        <!-- ================= 1. HALAMAN DASHBOARD (SEMUA BERBENTUK GRAFIK) ================= -->
+        <!-- ================= 1. DASHBOARD ================= -->
         <div id="page-dashboard" class="tab-pane active-tab">
-            
-            <!-- Grafik 1: Akumulasi Inventory Sparepart -->
             <div class="card p-3 mb-3">
                 <h6 class="section-title text-primary mb-2"><i class="bi bi-bar-chart-fill me-2"></i> Grafik Inventory Sparepart</h6>
-                <p class="text-muted small mb-3">Perbandingan status Order PR, PR ke PO, dan PO Datang.</p>
-                <div style="position: relative; height: 200px; width: 100%;">
-                    <canvas id="chartInventory"></canvas>
-                </div>
+                <div style="position: relative; height: 200px; width: 100%;"><canvas id="chartInventory"></canvas></div>
             </div>
-
-            <!-- Grafik 2: Akumulasi Status LLF -->
             <div class="card p-3 mb-3">
                 <h6 class="section-title text-success mb-2"><i class="bi bi-graph-up-arrow me-2"></i> Grafik Ringkasan LLF</h6>
-                <p class="text-muted small mb-3">Akumulasi progress Close vs Open area operasional.</p>
-                <div style="position: relative; height: 200px; width: 100%;">
-                    <canvas id="chartLLF"></canvas>
-                </div>
+                <div style="position: relative; height: 200px; width: 100%;"><canvas id="chartLLF"></canvas></div>
             </div>
-
-            <!-- Grafik 3: Status Projek -->
             <div class="card p-3 mb-3">
                 <h6 class="section-title text-warning mb-2"><i class="bi bi-pie-chart-fill me-2"></i> Status Manajemen Projek</h6>
                 <div class="p-2 bg-light rounded-3 text-center">
-                    <span class="text-muted small d-block">Projek Aktif Saat Ini:</span>
                     <strong id="dash_proj_status" class="text-dark fs-6">Memuat data...</strong>
                 </div>
             </div>
         </div>
 
-        <!-- ================= 2. HALAMAN LLF ================= -->
+        <!-- ================= 2. LLF (KLIK LANGSUNG TAMPIL FORM UPDATE) ================= -->
         <div id="page-llf" class="tab-pane">
-            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
-                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Data LLF</h5>
-                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="switchTab('input', null)"><i class="bi bi-plus-lg"></i> Update</button>
-            </div>
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Data & Update LLF</h5>
             <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accLLF">
-                <!-- Utility -->
-                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#u_d">Utility</button></h2>
-                    <div id="u_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
-                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="u_temuan" class="loading">Loading...</span></p>
-                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="u_close">...</span></span><span class="badge bg-danger">Open: <span id="u_open">...</span></span></div>
-                    </div></div>
-                </div>
-                <!-- Packing 1 -->
-                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p1_d">Packing Stg 1</button></h2>
-                    <div id="p1_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
-                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="p1_temuan" class="loading">Loading...</span></p>
-                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="p1_close">...</span></span><span class="badge bg-danger">Open: <span id="p1_open">...</span></span></div>
-                    </div></div>
-                </div>
-                <!-- Packing 2 -->
-                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p2_d">Packing Stg 2</button></h2>
-                    <div id="p2_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
-                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="p2_temuan" class="loading">Loading...</span></p>
-                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="p2_close">...</span></span><span class="badge bg-danger">Open: <span id="p2_open">...</span></span></div>
-                    </div></div>
-                </div>
-                <!-- Proses 1 -->
-                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#pr1_d">Proses Stg 1</button></h2>
-                    <div id="pr1_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
-                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="pr1_temuan" class="loading">Loading...</span></p>
-                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="pr1_close">...</span></span><span class="badge bg-danger">Open: <span id="pr1_open">...</span></span></div>
-                    </div></div>
-                </div>
-                <!-- Proses 2 -->
-                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#pr2_d">Proses Stg 2</button></h2>
-                    <div id="pr2_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
-                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="pr2_temuan" class="loading">Loading...</span></p>
-                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="pr2_close">...</span></span><span class="badge bg-danger">Open: <span id="pr2_open">...</span></span></div>
-                    </div></div>
-                </div>
-                <!-- Biomas -->
-                <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#b_d">Biomas</button></h2>
-                    <div id="b_d" class="accordion-collapse collapse" data-bs-parent="#accLLF"><div class="accordion-body bg-white">
-                        <p class="mb-2 small"><strong>Temuan:</strong> <span id="b_temuan" class="loading">Loading...</span></p>
-                        <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="b_close">...</span></span><span class="badge bg-danger">Open: <span id="b_open">...</span></span></div>
-                    </div></div>
-                </div>
+                
+                <!-- Generator Fungsi Area LLF (Utility, Packing, dll) -->
+                <script>
+                    const areas = [
+                        {id: 'utility', name: 'Utility'},
+                        {id: 'packing1', name: 'Packing Stg 1'},
+                        {id: 'packing2', name: 'Packing Stg 2'},
+                        {id: 'proses1', name: 'Proses Stg 1'},
+                        {id: 'proses2', name: 'Proses Stg 2'},
+                        {id: 'biomas', name: 'Biomas'}
+                    ];
+                    
+                    areas.forEach((area, index) => {
+                        document.write(`
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${area.id}">
+                                        ${area.name}
+                                    </button>
+                                </h2>
+                                <div id="collapse_${area.id}" class="accordion-collapse collapse" data-bs-parent="#accLLF">
+                                    <div class="accordion-body bg-light">
+                                        <div class="mb-2 p-2 bg-white rounded-3 border">
+                                            <small class="text-muted d-block">Data Saat Ini:</small>
+                                            <p class="mb-1 small"><strong>Temuan:</strong> <span id="${area.id}_t" class="loading">Loading...</span></p>
+                                            <div class="d-flex justify-content-between"><span class="badge bg-success">Close: <span id="${area.id}_c">...</span></span><span class="badge bg-danger">Open: <span id="${area.id}_o">...</span></span></div>
+                                        </div>
+                                        <hr class="my-2">
+                                        <label class="small fw-bold text-primary mb-1">Update Langsung ${area.name}:</label>
+                                        <input type="text" id="${area.id}_input_t" class="form-control form-control-sm mb-2" placeholder="Ketik temuan baru...">
+                                        <div class="row g-2 mb-2">
+                                            <div class="col"><input type="text" id="${area.id}_input_c" class="form-control form-control-sm" placeholder="Close (%)"></div>
+                                            <div class="col"><input type="text" id="${area.id}_input_o" class="form-control form-control-sm" placeholder="Open (%)"></div>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateLLFDirect('${area.id}')">Simpan Perubahan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
+
             </div>
         </div>
 
-        <!-- ================= 3. HALAMAN INVENTORY ================= -->
+        <!-- ================= 3. INVENTORY ================= -->
         <div id="page-inventory" class="tab-pane">
-            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
-                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart</h5>
-                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="switchTab('input', null)"><i class="bi bi-plus-lg"></i> Update</button>
-            </div>
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart & Update</h5>
             <div class="card p-3">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-cart me-2 text-muted"></i> Order PR</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold" id="inv_opr">...</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-arrow-right-circle me-2 text-muted"></i> PR ke PO</span> <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold" id="inv_prpo">...</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center py-3"><span><i class="bi bi-truck me-2 text-muted"></i> PO Datang</span> <span class="badge bg-success px-3 py-2 rounded-pill fw-bold" id="inv_po">...</span></li>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"><span>Order PR</span> <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold" id="inv_opr">...</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"><span>PR ke PO</span> <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold" id="inv_prpo">...</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"><span>PO Datang</span> <span class="badge bg-success px-3 py-1 rounded-pill fw-bold" id="inv_po">...</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"><span>Equip Bunker</span> <span class="badge bg-info text-dark px-3 py-1 rounded-pill fw-bold" id="inv_bunker">...</span></li>
                 </ul>
-                <div class="mt-3 p-3 bg-light rounded-4 d-flex justify-content-between align-items-center">
-                    <span class="small fw-bold text-secondary"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Equip Bunker:</span> 
-                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold" id="inv_bunker">...</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= 4. HALAMAN PROJEK ================= -->
-        <div id="page-projek" class="tab-pane">
-            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
-                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek</h5>
-                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="switchTab('input', null)"><i class="bi bi-plus-lg"></i> Update</button>
-            </div>
-            <div class="card p-3 mb-3">
-                <small class="text-muted fw-bold mb-1 d-block">DETAIL PROJECT</small>
-                <p id="proj_detail" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
-            </div>
-            <div class="card p-3">
-                <small class="text-muted fw-bold mb-1 d-block">LIST PROJECT</small>
-                <p id="proj_list" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
-            </div>
-        </div>
-
-        <!-- ================= 5. HALAMAN INPUT / UPDATE (TOMBOL TENGAH) ================= -->
-        <div id="page-input" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-pencil-square text-primary me-2"></i> Form Input & Update Data</h5>
-            
-            <!-- Form LLF -->
-            <div class="card p-3 border-start border-4 border-primary">
-                <h6 class="fw-bold text-primary mb-2">Update Data LLF</h6>
-                <select id="llf_area" class="form-select form-select-sm mb-2">
-                    <option value="utility">Utility</option>
-                    <option value="packing1">Packing Stg 1</option>
-                    <option value="packing2">Packing Stg 2</option>
-                    <option value="proses1">Proses Stg 1</option>
-                    <option value="proses2">Proses Stg 2</option>
-                    <option value="biomas">Biomas</option>
-                </select>
-                <input type="text" id="llf_temuan" class="form-control form-control-sm mb-2" placeholder="Ketik temuan...">
-                <div class="row g-2 mb-2">
-                    <div class="col"><input type="text" id="llf_close" class="form-control form-control-sm" placeholder="Close"></div>
-                    <div class="col"><input type="text" id="llf_open" class="form-control form-control-sm" placeholder="Open"></div>
-                </div>
-                <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="kirimData('llf')">Simpan LLF</button>
-            </div>
-
-            <!-- Form Inventory -->
-            <div class="card p-3 border-start border-4 border-warning">
-                <h6 class="fw-bold text-warning mb-2">Update Inventory</h6>
+                <hr>
+                <h6 class="fw-bold text-warning mb-2">Update Inventory Langsung</h6>
                 <div class="row g-2 mb-2">
                     <div class="col-6"><input type="text" id="in_opr" class="form-control form-control-sm" placeholder="Order PR"></div>
                     <div class="col-6"><input type="text" id="in_prpo" class="form-control form-control-sm" placeholder="PR ke PO"></div>
@@ -197,19 +131,38 @@
                 </div>
                 <button class="btn btn-warning btn-sm w-100 fw-bold text-dark" onclick="kirimData('inventory')">Simpan Inventory</button>
             </div>
+        </div>
 
-            <!-- Form Projek -->
+        <!-- ================= 4. PROJEK ================= -->
+        <div id="page-projek" class="tab-pane">
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-kanban text-primary me-2"></i> Manajemen Projek & Update</h5>
+            <div class="card p-3 mb-3">
+                <small class="text-muted fw-bold mb-1 d-block">DETAIL PROJECT SAAT INI</small>
+                <p id="proj_detail" class="text-dark mb-2 p-2 bg-light rounded-3 loading">Loading...</p>
+                <small class="text-muted fw-bold mb-1 d-block">LIST PROJECT SAAT INI</small>
+                <p id="proj_list" class="text-dark mb-0 p-2 bg-light rounded-3 loading">Loading...</p>
+            </div>
             <div class="card p-3 border-start border-4 border-success">
-                <h6 class="fw-bold text-success mb-2">Update Projek</h6>
+                <h6 class="fw-bold text-success mb-2">Update Projek Langsung</h6>
                 <textarea id="pr_detail" class="form-control form-control-sm mb-2" rows="2" placeholder="Detail project..."></textarea>
                 <textarea id="pr_list" class="form-control form-control-sm mb-2" rows="2" placeholder="List project..."></textarea>
                 <button class="btn btn-success btn-sm w-100 fw-bold" onclick="kirimData('project')">Simpan Projek</button>
             </div>
         </div>
 
+        <!-- ================= 5. HALAMAN PUSAT INFORMASI / SHORTCUT ================= -->
+        <div id="page-input" class="tab-pane">
+            <div class="card p-4 text-center">
+                <i class="bi bi-info-circle text-primary fs-1 mb-2"></i>
+                <h5 class="fw-bold">Pusat Interaksi Langsung</h5>
+                <p class="text-muted small">Semua menu sekarang sudah interaktif! Cukup klik tab <strong>LLF</strong>, <strong>Inventory</strong>, atau <strong>Projek</strong> di bawah untuk melihat data sekaligus memperbaruinya secara langsung tanpa tombol tambahan.</p>
+                <button class="btn btn-primary btn-sm rounded-pill mt-2" onclick="switchTab('dashboard', document.querySelector('.nav-item-custom'))">Kembali ke Dashboard</button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- BOTTOM NAVIGATION BAR (Ikon Dashboard Diubah Menjadi Chart) -->
+    <!-- BOTTOM NAVIGATION BAR -->
     <div class="bottom-nav">
         <a href="#" class="nav-item-custom active" onclick="switchTab('dashboard', this)">
             <i class="bi bi-bar-chart-line-fill"></i>Dashboard
@@ -218,10 +171,10 @@
             <i class="bi bi-gear-fill"></i>LLF
         </a>
         
-        <!-- Tombol Tengah (Floating Action Button) -->
+        <!-- Tombol Tengah -->
         <div class="fab-container">
-            <a href="#" class="fab-btn" onclick="switchTab('input', this)">
-                <i class="bi bi-plus-lg"></i>
+            <a href="#" class="fab-btn" onclick="switchTab('dashboard', document.querySelector('.nav-item-custom'))">
+                <i class="bi bi-house-door-fill" style="font-size: 1.2rem;"></i>
             </a>
         </div>
 
@@ -239,21 +192,17 @@
         let chartInvInstance = null;
         let chartLLFInstance = null;
 
-        // Navigasi Tab
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active-tab'));
             document.getElementById('page-' + tabName).classList.add('active-tab');
-            
-            if(element) {
+            if(element && element.classList.contains('nav-item-custom')) {
                 document.querySelectorAll('.nav-item-custom').forEach(el => el.classList.remove('active'));
                 element.classList.add('active');
             }
             window.scrollTo(0, 0);
         }
 
-        // Render Grafik Akumulasi
         function renderCharts(data) {
-            // 1. Grafik Inventory
             const ctxInv = document.getElementById('chartInventory').getContext('2d');
             let opr = parseFloat(data.inventory.order_pr) || 15;
             let prpo = parseFloat(data.inventory.pr_po) || 30;
@@ -264,17 +213,11 @@
                 type: 'bar',
                 data: {
                     labels: ['Order PR', 'PR ke PO', 'PO Datang'],
-                    datasets: [{
-                        label: 'Progres (%)',
-                        data: [opr, prpo, po],
-                        backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
-                        borderRadius: 8
-                    }]
+                    datasets: [{ data: [opr, prpo, po], backgroundColor: ['#ffc107', '#0dcaf0', '#198754'], borderRadius: 8 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
             });
 
-            // 2. Grafik LLF (Utility vs Packing 1)
             const ctxLLF = document.getElementById('chartLLF').getContext('2d');
             let uClose = parseFloat(data.llf.utility_close) || 50;
             let p1Close = parseFloat(data.llf.packing1_close) || 60;
@@ -282,68 +225,74 @@
 
             if(chartLLFInstance) chartLLFInstance.destroy();
             chartLLFInstance = new Chart(ctxLLF, {
-                type: 'line', // Grafik garis yang modern
+                type: 'line',
                 data: {
                     labels: ['Utility', 'Packing 1', 'Packing 2'],
-                    datasets: [{
-                        label: 'Close (%)',
-                        data: [uClose, p1Close, p2Close],
-                        borderColor: '#0d6efd',
-                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    datasets: [{ data: [uClose, p1Close, p2Close], borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', fill: true, tension: 0.3 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
             });
 
-            // 3. Status Projek di Dashboard
             document.getElementById('dash_proj_status').innerText = data.project.detail_project || 'Normal Running';
         }
 
-        // Ambil Data dari Spreadsheet
         function loadData() {
             fetch(urlSpreadsheet).then(res => res.json()).then(data => {
                 document.getElementById('status-koneksi').style.display = 'none';
                 
-                // Isi LLF Detail
-                ['u','p1','p2','pr1','pr2','b'].forEach((prefix, i) => {
-                    const keys = ['utility','packing1','packing2','proses1','proses2','biomas'][i];
-                    document.getElementById(prefix+'_temuan').innerText = data.llf[keys+'_temuan'];
-                    document.getElementById(prefix+'_close').innerText = data.llf[keys+'_close'];
-                    document.getElementById(prefix+'_open').innerText = data.llf[keys+'_open'];
+                // Isi LLF
+                areas.forEach(area => {
+                    document.getElementById(area.id + '_t').innerText = data.llf[area.id + '_temuan'];
+                    document.getElementById(area.id + '_c').innerText = data.llf[area.id + '_close'];
+                    document.getElementById(area.id + '_o').innerText = data.llf[area.id + '_open'];
                 });
 
-                // Isi Inventory Detail
+                // Isi Inventory
                 document.getElementById('inv_opr').innerText = data.inventory.order_pr;
                 document.getElementById('inv_prpo').innerText = data.inventory.pr_po;
                 document.getElementById('inv_po').innerText = data.inventory.po_datang;
                 document.getElementById('inv_bunker').innerText = data.inventory.equip_bunker;
 
-                // Isi Projek Detail
+                // Isi Projek
                 document.getElementById('proj_detail').innerText = data.project.detail_project;
                 document.getElementById('proj_list').innerText = data.project.list_project;
 
-                // Render Grafik
                 renderCharts(data);
-
             }).catch(err => {
                 document.getElementById('status-koneksi').innerText = 'Gagal memuat data server.';
             });
         }
         loadData();
 
-        // Kirim Data
+        // Update Khusus LLF Langsung dari Dropdown/Accordion
+        function updateLLFDirect(areaId) {
+            let temuanVal = document.getElementById(areaId + '_input_t').value;
+            let closeVal = document.getElementById(areaId + '_input_c').value;
+            let openVal = document.getElementById(areaId + '_input_o').value;
+
+            if(!temuanVal && !closeVal && !openVal) {
+                alert('Silakan isi minimal salah satu kolom untuk mengupdate!');
+                return;
+            }
+
+            let payload = { action: 'update_llf', area: areaId, temuan: temuanVal, close: closeVal, open: openVal };
+            
+            fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
+            .then(res => res.text()).then(hasil => {
+                alert('Sukses memperbarui area ' + areaId.toUpperCase() + '!');
+                document.getElementById(areaId + '_input_t').value = '';
+                document.getElementById(areaId + '_input_c').value = '';
+                document.getElementById(areaId + '_input_o').value = '';
+                loadData();
+            }).catch(err => {
+                alert('Gagal menyimpan.');
+            });
+        }
+
+        // Kirim Data Inventory / Projek
         function kirimData(jenis) {
             let payload = {};
-            let tombol = event.target;
-            let teksAsli = tombol.innerHTML;
-            tombol.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
-            tombol.disabled = true;
-
-            if (jenis === 'llf') {
-                payload = { action: 'update_llf', area: document.getElementById('llf_area').value, temuan: document.getElementById('llf_temuan').value, close: document.getElementById('llf_close').value, open: document.getElementById('llf_open').value };
-            } else if (jenis === 'inventory') {
+            if (jenis === 'inventory') {
                 payload = { action: 'update_inventory', opr: document.getElementById('in_opr').value, prpo: document.getElementById('in_prpo').value, po: document.getElementById('in_po').value, bunker: document.getElementById('in_bunker').value };
             } else if (jenis === 'project') {
                 payload = { action: 'update_project', detail: document.getElementById('pr_detail').value, list: document.getElementById('pr_list').value };
@@ -352,13 +301,10 @@
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
             .then(res => res.text()).then(hasil => {
                 alert('Sukses! Data ' + jenis.toUpperCase() + ' berhasil diperbarui.');
-                tombol.innerHTML = teksAsli; tombol.disabled = false;
                 document.querySelectorAll('input, textarea').forEach(el => el.value = '');
                 loadData();
-                switchTab('dashboard', document.querySelector('.nav-item-custom'));
             }).catch(err => {
                 alert('Gagal menyimpan.');
-                tombol.innerHTML = teksAsli; tombol.disabled = false;
             });
         }
 
