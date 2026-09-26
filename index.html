@@ -19,7 +19,26 @@
 <div class="container mt-4 mb-5">
     <h3 class="text-center mb-4 fw-bold">DASHBOARD<br>CONDITION BASE MONITORING</h3>
     <p id="status-koneksi" class="text-center text-primary">Sedang mengambil data dari Spreadsheet...</p>
-
+<!-- KOTAK FORM INPUT UTILITY -->
+    <div class="card p-3 border-primary mb-4" style="background-color: #e9f2ff;">
+        <h5 class="text-primary fw-bold">Update Data Utility</h5>
+        <div class="mb-2">
+            <label class="fw-bold">Temuan Baru:</label>
+            <input type="text" id="input_temuan" class="form-control" placeholder="Ketik temuan...">
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <label class="fw-bold">Close (%):</label>
+                <input type="text" id="input_close" class="form-control" placeholder="Contoh: 80%">
+            </div>
+            <div class="col">
+                <label class="fw-bold">Open (%):</label>
+                <input type="text" id="input_open" class="form-control" placeholder="Contoh: 20%">
+            </div>
+        </div>
+        <button class="btn btn-primary w-100" onclick="simpanUtility()">Simpan ke Spreadsheet</button>
+        <p id="pesan_simpan" class="text-center mt-2 fw-bold" style="display:none;"></p>
+    </div>
     <!-- BAGIAN 1: LLF -->
     <div class="card p-3">
         <h4 class="section-title">1. LLF</h4>
@@ -113,7 +132,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // ===== MASUKKAN LINK URL SPREADSHEET ANDA DI BAWAH INI =====
-    const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwUn-aEcosf1E-_v-YQ3DQXnJH7LAlSK2S9k-Ad_uGPbsrdgRglWlh0ScBmK7-m-8JvGg/exec';
+    const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbwc9YH_0E79M50FH4yHDm67tFDj76uKw52UsF75u4McmIdlp3RJS8wUvO5pUO5Lt3jGNQ/exec';
     // ==========================================================
 
     fetch(urlSpreadsheet)
@@ -161,7 +180,37 @@
             document.getElementById('status-koneksi').classList.replace('text-primary', 'text-danger');
             console.error('Error:', error);
         });
+// FUNGSI UNTUK MENGIRIM DATA KE SPREADSHEET
+    function simpanUtility() {
+        document.getElementById('pesan_simpan').style.display = 'block';
+        document.getElementById('pesan_simpan').innerText = 'Sedang mengirim...';
+        document.getElementById('pesan_simpan').className = 'text-center mt-2 text-warning';
 
+        // Ambil data yang diketik user
+        var dataKirim = {
+            temuan: document.getElementById('input_temuan').value,
+            close: document.getElementById('input_close').value,
+            open: document.getElementById('input_open').value
+        };
+
+        // Kirim (POST) ke Google Apps Script
+        fetch(urlSpreadsheet, {
+            method: 'POST',
+            body: JSON.stringify(dataKirim)
+        })
+        .then(response => response.text())
+        .then(hasil => {
+            document.getElementById('pesan_simpan').innerText = 'Data Berhasil Disimpan!';
+            document.getElementById('pesan_simpan').className = 'text-center mt-2 text-success';
+            
+            // Muat ulang halaman agar data terbaru langsung muncul
+            setTimeout(() => { window.location.reload(); }, 1500);
+        })
+        .catch(error => {
+            document.getElementById('pesan_simpan').innerText = 'Gagal menyimpan!';
+            document.getElementById('pesan_simpan').className = 'text-center mt-2 text-danger';
+        });
+    }
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js');
