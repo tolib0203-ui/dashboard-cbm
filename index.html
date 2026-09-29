@@ -32,6 +32,9 @@
         .tab-pane { display: none; }
         .tab-pane.active-tab { display: block; }
         .loading { font-style: italic; color: #adb5bd; }
+        
+        /* Timeline Step Indicator */
+        .step-badge { font-size: 0.75rem; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block; }
     </style>
 </head>
 <body>
@@ -45,13 +48,12 @@
     <div class="container mt-3 px-3">
         <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan ke database...</p>
 
-        <!-- ================= 1. DASHBOARD (GRAFIK AKUMULASI DENGAN TANGGAL/REVIEW PER WEEK) ================= -->
+        <!-- ================= 1. DASHBOARD ================= -->
         <div id="page-dashboard" class="tab-pane active-tab">
-            
             <div class="card p-3 mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h6 class="section-title text-primary mb-0"><i class="bi bi-bar-chart-fill me-2"></i> Akumulasi Inventory</h6>
-                    <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;"><i class="bi bi-calendar-week"></i> Real-time Weekly</span>
+                    <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;"><i class="bi bi-calendar-week"></i> Real-time</span>
                 </div>
                 <div style="position: relative; height: 200px; width: 100%;"><canvas id="chartInventory"></canvas></div>
             </div>
@@ -59,26 +61,20 @@
             <div class="card p-3 mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h6 class="section-title text-success mb-0"><i class="bi bi-graph-up-arrow me-2"></i> Progress Temuan LLF (Close vs Open)</h6>
-                    <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;"><i class="bi bi-calendar-week"></i> Berdasarkan Tanggal</span>
                 </div>
                 <div style="position: relative; height: 240px; width: 100%;"><canvas id="chartLLFAll"></canvas></div>
             </div>
 
             <div class="card p-3 mb-3">
                 <h6 class="section-title text-warning mb-2"><i class="bi bi-kanban-fill me-2"></i> Status Manajemen Projek</h6>
-                <div class="row g-2 mt-1">
-                    <div class="col-12">
-                        <div class="p-3 bg-light rounded-3 border">
-                            <small class="text-muted fw-bold d-block mb-1">DETAIL PROJECT TERBARU:</small>
-                            <span id="dash_proj_detail" class="text-dark fw-bold">Memuat data...</span>
-                        </div>
-                    </div>
+                <div class="p-3 bg-light rounded-3 border">
+                    <small class="text-muted fw-bold d-block mb-1">DETAIL PROJECT TERBARU:</small>
+                    <span id="dash_proj_detail" class="text-dark fw-bold">Memuat data...</span>
                 </div>
             </div>
-
         </div>
 
-        <!-- ================= 2. LLF (DENGAN HISTORY & STATUS CLOSE/OPEN BERDASARKAN TANGGAL) ================= -->
+        <!-- ================= 2. LLF ================= -->
         <div id="page-llf" class="tab-pane">
             <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Data & Update LLF</h5>
             <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accLLF">
@@ -114,7 +110,7 @@
                                             <option value="Open">Open (Belum Selesai)</option>
                                             <option value="Close">Close (Sudah Selesai)</option>
                                         </select>
-                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateLLFDirect('${area.id}')">Simpan Temuan Baru</button>
+                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateLLFDirect('${area.name}')">Simpan Temuan Baru</button>
                                     </div>
                                 </div>
                             </div>
@@ -124,36 +120,48 @@
             </div>
         </div>
 
-        <!-- ================= 3. INVENTORY ================= -->
+        <!-- ================= 3. INVENTORY (ALUR PROGRESIF / PIPELINE) ================= -->
         <div id="page-inventory" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-boxes text-primary me-2"></i> Inventory Sparepart & Update</h5>
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-boxes text-primary me-2"></i> Alur Progresif Inventory Sparepart</h5>
+            
+            <div class="card p-3 mb-3 bg-light border">
+                <small class="text-muted d-block mb-2"><i class="bi bi-info-circle-fill text-primary"></i> Anda dapat memperbarui status alur pengadaan sparepart dari Order PR ➔ PR ke PO ➔ PO Datang secara berkala.</small>
+            </div>
+
             <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accInventory">
                 <script>
                     const inventoryItems = [
-                        {id: 'opr', name: 'Order PR', badgeClass: 'bg-warning text-dark'},
-                        {id: 'prpo', name: 'PR ke PO', badgeClass: 'bg-warning text-dark'},
-                        {id: 'po', name: 'PO Datang', badgeClass: 'bg-success'},
-                        {id: 'bunker', name: 'Equip Bunker', badgeClass: 'bg-info text-dark'}
+                        {id: 'opr', name: 'Order PR', icon: 'bi-cart-plus', badgeClass: 'bg-warning text-dark'},
+                        {id: 'prpo', name: 'PR ke PO', icon: 'bi-arrow-left-right', badgeClass: 'bg-info text-dark'},
+                        {id: 'po', name: 'PO Datang', icon: 'bi-box-seam', badgeClass: 'bg-success'},
+                        {id: 'bunker', name: 'Equip Bunker', icon: 'bi-tools', badgeClass: 'bg-primary'}
                     ];
 
                     inventoryItems.forEach((item) => {
                         document.write(`
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-bold d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_inv_${item.id}">
-                                        <span>${item.name}</span>
+                                    <button class="accordion-button collapsed fw-bold d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_inv_${item.id}">
+                                        <i class="bi ${item.icon} me-2 text-primary fs-5"></i>
+                                        <span class="flex-grow-1">${item.name}</span>
                                     </button>
                                 </h2>
                                 <div id="collapse_inv_${item.id}" class="accordion-collapse collapse" data-bs-parent="#accInventory">
                                     <div class="accordion-body bg-light">
-                                        <div class="mb-2 p-2 bg-white rounded-3 border d-flex justify-content-between align-items-center">
-                                            <small class="text-muted">Nilai Saat Ini:</small>
-                                            <span class="badge ${item.badgeClass} px-3 py-1 rounded-pill fw-bold" id="inv_val_${item.id}">...</span>
+                                        <div class="mb-3 p-3 bg-white rounded-3 border d-flex justify-content-between align-items-center shadow-sm">
+                                            <div>
+                                                <small class="text-muted d-block fw-bold" style="font-size: 0.7rem;">TAHAP / STATUS SAAT INI:</small>
+                                                <span id="inv_val_${item.id}" class="fs-6 fw-bold text-primary">Memuat...</span>
+                                            </div>
+                                            <span class="badge ${item.badgeClass} px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">${item.name}</span>
                                         </div>
-                                        <hr class="my-2">
-                                        <label class="small fw-bold text-primary mb-1">Update ${item.name}:</label>
-                                        <input type="text" id="inv_input_${item.id}" class="form-control form-control-sm mb-2" placeholder="Masukkan nilai baru...">
-                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateInventoryDirect('${item.id}')">Simpan Perubahan</button>
+
+                                        <!-- Tombol Pintas Alur Progresif (Pindah Tahap Cepat) -->
+                                        <label class="small fw-bold text-muted mb-1"><i class="bi bi-shuffle"></i> Pindahkan ke Status / Catatan Baru:</label>
+                                        <div class="input-group input-group-sm mb-2">
+                                            <input type="text" id="inv_input_${item.id}" class="form-control" placeholder="Contoh: 5 item / Selesai / Proses Vendor...">
+                                            <button class="btn btn-primary fw-bold" onclick="updateInventoryDirect('${item.id}')">Update</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -200,7 +208,7 @@
             </div>
         </div>
 
-        <!-- ================= 5. HALAMAN SCAN BARCODE ================= -->
+        <!-- ================= 5. SCAN BARCODE ================= -->
         <div id="page-scanner" class="tab-pane">
             <div class="card p-3 text-center">
                 <h5 class="fw-bold text-primary mb-2"><i class="bi bi-upc-scan"></i> Scan Barcode Mesin</h5>
@@ -259,9 +267,7 @@
         function openScanner() {
             switchTab('scanner', null);
             setTimeout(() => {
-                if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("reader");
-                }
+                if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
                 html5QrCode.start(
                     { facingMode: "environment" },
                     { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -269,26 +275,17 @@
                         let resDiv = document.getElementById('result-scan');
                         resDiv.style.display = 'block';
                         resDiv.innerText = 'Barcode Terdeteksi: ' + decodedText;
-                        if(decodedText.toLowerCase().includes('utility')) {
-                            switchTab('llf', document.querySelectorAll('.nav-item-custom')[1]);
-                            document.getElementById('collapse_utility').classList.add('show');
-                        }
                         stopScanner();
                     },
                     (errorMessage) => {}
-                ).catch(err => {
-                    alert("Tidak dapat mengakses kamera HP. Pastikan izin kamera aktif.");
-                });
+                ).catch(err => { alert("Tidak dapat mengakses kamera."); });
             }, 300);
         }
 
         function stopScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().catch(err => {});
-            }
+            if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().catch(err => {}); }
         }
 
-        // Render Grafik Modern dengan Tooltip & Berdasarkan Tanggal
         function renderCharts(dataLLFRaw, invData) {
             // 1. Grafik Inventory
             const ctxInv = document.getElementById('chartInventory').getContext('2d');
@@ -316,7 +313,7 @@
                 }
             });
 
-            // 2. Hitung Rekapitulasi Close vs Open per Area dari Data History Sheet LLF
+            // 2. Grafik LLF Close vs Open
             let areaCounts = {
                 utility: { close: 0, open: 0, history: [] },
                 packing1: { close: 0, open: 0, history: [] },
@@ -326,7 +323,6 @@
                 biomas: { close: 0, open: 0, history: [] }
             };
 
-            // Proses baris riwayat data LLF dari spreadsheet
             if(Array.isArray(dataLLFRaw)) {
                 dataLLFRaw.forEach(row => {
                     let tanggal = row[0];
@@ -334,7 +330,6 @@
                     let temuan = row[2];
                     let status = (row[3] || '').trim();
 
-                    // Cocokkan area
                     let mappedKey = '';
                     if(area.includes('utility')) mappedKey = 'utility';
                     else if(area.includes('packing stg 1') || area.includes('packing1')) mappedKey = 'packing1';
@@ -352,8 +347,16 @@
                 });
             }
 
-            // Masukkan ke tampilan HTML Accordion LLF & Riwayatnya
-            areas.forEach(a => {
+            const areasList = [
+                {id: 'utility', name: 'Utility'},
+                {id: 'packing1', name: 'Packing Stg 1'},
+                {id: 'packing2', name: 'Packing Stg 2'},
+                {id: 'proses1', name: 'Proses Stg 1'},
+                {id: 'proses2', name: 'Proses Stg 2'},
+                {id: 'biomas', name: 'Biomas'}
+            ];
+
+            areasList.forEach(a => {
                 let histContainer = document.getElementById(a.id + '_history');
                 if(histContainer) {
                     if(areaCounts[a.id].history.length > 0) {
@@ -364,7 +367,6 @@
                 }
             });
 
-            // Siapkan data untuk Grafik LLF All
             let labelsLLF = ['Utility', 'Packing 1', 'Packing 2', 'Proses 1', 'Proses 2', 'Biomas'];
             let closeArr = [areaCounts.utility.close, areaCounts.packing1.close, areaCounts.packing2.close, areaCounts.proses1.close, areaCounts.proses2.close, areaCounts.biomas.close];
             let openArr = [areaCounts.utility.open, areaCounts.packing1.open, areaCounts.packing2.open, areaCounts.proses1.open, areaCounts.proses2.open, areaCounts.biomas.open];
@@ -393,20 +395,17 @@
             fetch(urlSpreadsheet).then(res => res.json()).then(data => {
                 document.getElementById('status-koneksi').style.display = 'none';
                 
-                // Inventory
                 latestInventoryData = data.inventory;
-                document.getElementById('inv_val_opr').innerText = data.inventory.order_pr;
-                document.getElementById('inv_val_prpo').innerText = data.inventory.pr_po;
-                document.getElementById('inv_val_po').innerText = data.inventory.po_datang;
-                document.getElementById('inv_val_bunker').innerText = data.inventory.equip_bunker;
+                document.getElementById('inv_val_opr').innerText = data.inventory.order_pr || '0';
+                document.getElementById('inv_val_prpo').innerText = data.inventory.pr_po || '0';
+                document.getElementById('inv_val_po').innerText = data.inventory.po_datang || '0';
+                document.getElementById('inv_val_bunker').innerText = data.inventory.equip_bunker || '-';
 
-                // Projek
                 latestProjectData = data.project;
-                document.getElementById('proj_val_detail').innerText = data.project.detail_project;
-                document.getElementById('proj_val_list').innerText = data.project.list_project;
-                document.getElementById('dash_proj_detail').innerText = data.project.detail_project;
+                document.getElementById('proj_val_detail').innerText = data.project.detail_project || '-';
+                document.getElementById('proj_val_list').innerText = data.project.list_project || '-';
+                document.getElementById('dash_proj_detail').innerText = data.project.detail_project || '-';
 
-                // Render Chart & Riwayat LLF
                 renderCharts(data.llf, data.inventory);
             }).catch(err => {
                 document.getElementById('status-koneksi').innerText = 'Gagal memuat data server.';
@@ -414,27 +413,33 @@
         }
         loadData();
 
-        function updateLLFDirect(areaId) {
-            let temuanVal = document.getElementById(areaId + '_input_t').value;
-            let statusVal = document.getElementById(areaId + '_input_status').value;
+        function updateLLFDirect(areaName) {
+            let inputId = '';
+            if(areaName === 'Utility') inputId = 'utility_input_t';
+            else if(areaName === 'Packing Stg 1') inputId = 'packing1_input_t';
+            else if(areaName === 'Packing Stg 2') inputId = 'packing2_input_t';
+            else if(areaName === 'Proses Stg 1') inputId = 'proses1_input_t';
+            else if(areaName === 'Proses Stg 2') inputId = 'proses2_input_t';
+            else if(areaName === 'Biomas') inputId = 'biomas_input_t';
 
-            if(!temuanVal) {
-                alert('Silakan ketik temuan mesin terlebih dahulu!');
-                return;
-            }
+            let statusId = inputId.replace('_input_t', '_input_status');
+            let temuan = document.getElementById(inputId).value;
+            let status = document.getElementById(statusId).value;
 
-            let payload = { action: 'update_llf', area: areaId, temuan: temuanVal, status: statusVal };
+            if(!temuan) { alert('Silakan ketik temuan mesin terlebih dahulu!'); return; }
+
+            let payload = { action: 'update_llf', area: areaName, temuan: temuan, status: status };
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.text()).then(hasil => {
+            .then(res => res.text()).then(() => {
                 alert('Sukses menambah temuan baru!');
-                document.getElementById(areaId + '_input_t').value = '';
+                document.getElementById(inputId).value = '';
                 loadData();
-            }).catch(err => { alert('Gagal menyimpan.'); });
+            });
         }
 
         function updateInventoryDirect(itemId) {
             let val = document.getElementById('inv_input_' + itemId).value;
-            if(!val) { alert('Masukkan nilai baru!'); return; }
+            if(!val) { alert('Silakan masukkan update nilai / status baru!'); return; }
 
             let payload = {
                 action: 'update_inventory',
@@ -445,8 +450,8 @@
             };
 
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.text()).then(hasil => {
-                alert('Sukses Inventory!');
+            .then(res => res.text()).then(() => {
+                alert('Alur Inventory berhasil diperbarui!');
                 document.getElementById('inv_input_' + itemId).value = '';
                 loadData();
             });
@@ -463,7 +468,7 @@
             };
 
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.text()).then(hasil => {
+            .then(res => res.text()).then(() => {
                 alert('Sukses Project!');
                 document.getElementById('proj_input_' + itemId).value = '';
                 loadData();
