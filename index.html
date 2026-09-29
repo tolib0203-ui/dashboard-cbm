@@ -45,43 +45,60 @@
     <div class="container mt-3 px-3">
         <p id="status-koneksi" class="text-center text-primary small fw-bold mb-3"><span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan ke database...</p>
 
-        <!-- ================= 1. DASHBOARD (GRAFIK AKUMULASI DENGAN TANGGAL/REVIEW PER WEEK) ================= -->
+        <!-- ================= 1. DASHBOARD ================= -->
         <div id="page-dashboard" class="tab-pane active-tab">
-            
             <div class="card p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="section-title text-primary mb-0"><i class="bi bi-bar-chart-fill me-2"></i> Akumulasi Inventory</h6>
-                    <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;"><i class="bi bi-calendar-week"></i> Real-time Weekly</span>
-                </div>
+                <h6 class="section-title text-primary mb-2"><i class="bi bi-bar-chart-fill me-2"></i> Akumulasi Inventory</h6>
                 <div style="position: relative; height: 200px; width: 100%;"><canvas id="chartInventory"></canvas></div>
             </div>
 
             <div class="card p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="section-title text-success mb-0"><i class="bi bi-graph-up-arrow me-2"></i> Progress Temuan LLF (Close vs Open)</h6>
-                    <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;"><i class="bi bi-calendar-week"></i> Berdasarkan Tanggal</span>
-                </div>
+                <h6 class="section-title text-success mb-2"><i class="bi bi-graph-up-arrow me-2"></i> Progress Temuan LLF (Close vs Open)</h6>
                 <div style="position: relative; height: 240px; width: 100%;"><canvas id="chartLLFAll"></canvas></div>
             </div>
 
             <div class="card p-3 mb-3">
                 <h6 class="section-title text-warning mb-2"><i class="bi bi-kanban-fill me-2"></i> Status Manajemen Projek</h6>
-                <div class="row g-2 mt-1">
-                    <div class="col-12">
-                        <div class="p-3 bg-light rounded-3 border">
-                            <small class="text-muted fw-bold d-block mb-1">DETAIL PROJECT TERBARU:</small>
-                            <span id="dash_proj_detail" class="text-dark fw-bold">Memuat data...</span>
-                        </div>
+                <div class="p-3 bg-light rounded-3 border">
+                    <small class="text-muted fw-bold d-block mb-1">DETAIL PROJECT TERBARU:</small>
+                    <span id="dash_proj_detail" class="text-dark fw-bold">Memuat data...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 2. LLF DENGAN FITUR FILTER & INPUT ================= -->
+        <div id="page-llf" class="tab-pane">
+            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Data & Filter LLF</h5>
+            
+            <!-- Kotak Filter Interaktif -->
+            <div class="card p-3 mb-3 bg-white border">
+                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-filter"></i> Filter Data Temuan</h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold">Pilih Area:</label>
+                        <select id="filter_area" class="form-select form-select-sm" onchange="filterLLFData()">
+                            <option value="semua">Semua Area</option>
+                            <option value="Utility">Utility</option>
+                            <option value="Packing Stg 1">Packing Stg 1</option>
+                            <option value="Packing Stg 2">Packing Stg 2</option>
+                            <option value="Proses Stg 1">Proses Stg 1</option>
+                            <option value="Proses Stg 2">Proses Stg 2</option>
+                            <option value="Biomas">Biomas</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted fw-bold">Pilih Status:</label>
+                        <select id="filter_status" class="form-select form-select-sm" onchange="filterLLFData()">
+                            <option value="semua">Semua Status</option>
+                            <option value="Open">Open</option>
+                            <option value="Close">Close</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-        </div>
-
-        <!-- ================= 2. LLF (DENGAN HISTORY & STATUS CLOSE/OPEN BERDASARKAN TANGGAL) ================= -->
-        <div id="page-llf" class="tab-pane">
-            <h5 class="fw-bold text-dark mb-3 px-1"><i class="bi bi-gear-wide-connected text-primary me-2"></i> Data & Update LLF</h5>
-            <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="accLLF">
+            <!-- Accordion Area LLF & Input -->
+            <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden mb-3" id="accLLF">
                 <script>
                     const areas = [
                         {id: 'utility', name: 'Utility'},
@@ -102,11 +119,6 @@
                                 </h2>
                                 <div id="collapse_${area.id}" class="accordion-collapse collapse" data-bs-parent="#accLLF">
                                     <div class="accordion-body bg-light">
-                                        <div class="mb-2 p-2 bg-white rounded-3 border">
-                                            <small class="text-muted fw-bold d-block mb-1">Riwayat & Status Temuan (${area.name}):</small>
-                                            <div id="${area.id}_history" class="small text-secondary mb-2" style="max-height: 120px; overflow-y: auto;">Memuat riwayat...</div>
-                                        </div>
-                                        <hr class="my-2">
                                         <label class="small fw-bold text-primary mb-1">Tambah Temuan Baru (${area.name}):</label>
                                         <input type="text" id="${area.id}_input_t" class="form-control form-control-sm mb-2" placeholder="Ketik temuan mesin...">
                                         <label class="small fw-bold text-muted mb-1">Pilih Status:</label>
@@ -114,13 +126,33 @@
                                             <option value="Open">Open (Belum Selesai)</option>
                                             <option value="Close">Close (Sudah Selesai)</option>
                                         </select>
-                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateLLFDirect('${area.id}')">Simpan Temuan Baru</button>
+                                        <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateLLFDirect('${area.name}')">Simpan Temuan Baru</button>
                                     </div>
                                 </div>
                             </div>
                         `);
                     });
                 </script>
+            </div>
+
+            <!-- Tabel Riwayat Temuan (Terdampak Filter) -->
+            <div class="card p-3">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-clock-history"></i> Tabel Riwayat Temuan</h6>
+                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                    <table class="table table-sm table-striped small mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Area</th>
+                                <th>Temuan</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel_riwayat_llf">
+                            <tr><td colspan="4" class="text-center text-muted">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -200,7 +232,7 @@
             </div>
         </div>
 
-        <!-- ================= 5. HALAMAN SCAN BARCODE ================= -->
+        <!-- ================= 5. SCAN BARCODE ================= -->
         <div id="page-scanner" class="tab-pane">
             <div class="card p-3 text-center">
                 <h5 class="fw-bold text-primary mb-2"><i class="bi bi-upc-scan"></i> Scan Barcode Mesin</h5>
@@ -238,12 +270,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbyqnPCBFBPGCHbyw9fgSkYqb9AfzqKG1lS-QfYCTWn7EfjRXwUot4-gNG--dMHvAX9i/exec';
+        const urlSpreadsheet = 'https://script.google.com/macros/s/AKfycbzBj-fCQoNcViuy3Pft2X0RJkzBalX_jXFbUv0-eLmhtsui6cqjOZjeJwG7xXkETpgvfQ/exec';
         let chartInvInstance = null;
         let chartLLFAllInstance = null;
         let html5QrCode = null;
         let latestInventoryData = {};
         let latestProjectData = {};
+        let globalLLFRawData = []; // Menyimpan data mentah untuk filter
 
         function switchTab(tabName, element) {
             stopScanner();
@@ -259,9 +292,7 @@
         function openScanner() {
             switchTab('scanner', null);
             setTimeout(() => {
-                if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("reader");
-                }
+                if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
                 html5QrCode.start(
                     { facingMode: "environment" },
                     { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -269,27 +300,21 @@
                         let resDiv = document.getElementById('result-scan');
                         resDiv.style.display = 'block';
                         resDiv.innerText = 'Barcode Terdeteksi: ' + decodedText;
-                        if(decodedText.toLowerCase().includes('utility')) {
-                            switchTab('llf', document.querySelectorAll('.nav-item-custom')[1]);
-                            document.getElementById('collapse_utility').classList.add('show');
-                        }
                         stopScanner();
                     },
                     (errorMessage) => {}
-                ).catch(err => {
-                    alert("Tidak dapat mengakses kamera HP. Pastikan izin kamera aktif.");
-                });
+                ).catch(err => { alert("Tidak dapat mengakses kamera."); });
             }, 300);
         }
 
         function stopScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().catch(err => {});
-            }
+            if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().catch(err => {}); }
         }
 
-        // Render Grafik Modern dengan Tooltip & Berdasarkan Tanggal
-        function renderCharts(dataLLFRaw, invData) {
+        // Render Grafik & Tabel Riwayat
+        function renderDashboardAndTable(dataLLFRaw, invData) {
+            globalLLFRawData = dataLLFRaw; // Simpan untuk filter
+
             // 1. Grafik Inventory
             const ctxInv = document.getElementById('chartInventory').getContext('2d');
             let opr = parseFloat(invData.order_pr) || 0;
@@ -301,73 +326,35 @@
                 type: 'bar',
                 data: {
                     labels: ['Order PR', 'PR ke PO', 'PO Datang'],
-                    datasets: [{
-                        label: 'Progress',
-                        data: [opr, prpo, po],
-                        backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
-                        borderRadius: 8
-                    }]
+                    datasets: [{ data: [opr, prpo, po], backgroundColor: ['#ffc107', '#0dcaf0', '#198754'], borderRadius: 8 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
-            // 2. Hitung Rekapitulasi Close vs Open per Area dari Data History Sheet LLF
-            let areaCounts = {
-                utility: { close: 0, open: 0, history: [] },
-                packing1: { close: 0, open: 0, history: [] },
-                packing2: { close: 0, open: 0, history: [] },
-                proses1: { close: 0, open: 0, history: [] },
-                proses2: { close: 0, open: 0, history: [] },
-                biomas: { close: 0, open: 0, history: [] }
+            // 2. Hitung Rekapitulasi Close vs Open per Area
+            let counts = {
+                'Utility': {close: 0, open: 0},
+                'Packing Stg 1': {close: 0, open: 0},
+                'Packing Stg 2': {close: 0, open: 0},
+                'Proses Stg 1': {close: 0, open: 0},
+                'Proses Stg 2': {close: 0, open: 0},
+                'Biomas': {close: 0, open: 0}
             };
 
-            // Proses baris riwayat data LLF dari spreadsheet
             if(Array.isArray(dataLLFRaw)) {
                 dataLLFRaw.forEach(row => {
-                    let tanggal = row[0];
-                    let area = (row[1] || '').toLowerCase().trim();
-                    let temuan = row[2];
-                    let status = (row[3] || '').trim();
-
-                    // Cocokkan area
-                    let mappedKey = '';
-                    if(area.includes('utility')) mappedKey = 'utility';
-                    else if(area.includes('packing stg 1') || area.includes('packing1')) mappedKey = 'packing1';
-                    else if(area.includes('packing stg 2') || area.includes('packing2')) mappedKey = 'packing2';
-                    else if(area.includes('proses stg 1') || area.includes('proses1')) mappedKey = 'proses1';
-                    else if(area.includes('proses stg 2') || area.includes('proses2')) mappedKey = 'proses2';
-                    else if(area.includes('biomas')) mappedKey = 'biomas';
-
-                    if(mappedKey && temuan) {
-                        if(status.toLowerCase() === 'close') areaCounts[mappedKey].close++;
-                        else areaCounts[mappedKey].open++;
-
-                        areaCounts[mappedKey].history.push(`[${tanggal}] ${temuan} — <b class="${status.toLowerCase() === 'close' ? 'text-success':'text-danger'}">${status}</b>`);
+                    let area = (row[1] || '').trim();
+                    let status = (row[3] || '').toLowerCase().trim();
+                    if(counts[area]) {
+                        if(status === 'close') counts[area].close++;
+                        else counts[area].open++;
                     }
                 });
             }
 
-            // Masukkan ke tampilan HTML Accordion LLF & Riwayatnya
-            areas.forEach(a => {
-                let histContainer = document.getElementById(a.id + '_history');
-                if(histContainer) {
-                    if(areaCounts[a.id].history.length > 0) {
-                        histContainer.innerHTML = areaCounts[a.id].history.join('<br>');
-                    } else {
-                        histContainer.innerHTML = '<span class="text-muted">Belum ada riwayat temuan.</span>';
-                    }
-                }
-            });
-
-            // Siapkan data untuk Grafik LLF All
-            let labelsLLF = ['Utility', 'Packing 1', 'Packing 2', 'Proses 1', 'Proses 2', 'Biomas'];
-            let closeArr = [areaCounts.utility.close, areaCounts.packing1.close, areaCounts.packing2.close, areaCounts.proses1.close, areaCounts.proses2.close, areaCounts.biomas.close];
-            let openArr = [areaCounts.utility.open, areaCounts.packing1.open, areaCounts.packing2.open, areaCounts.proses1.open, areaCounts.proses2.open, areaCounts.biomas.open];
+            let labelsLLF = Object.keys(counts);
+            let closeArr = labelsLLF.map(k => counts[k].close);
+            let openArr = labelsLLF.map(k => counts[k].open);
 
             const ctxLLFAll = document.getElementById('chartLLFAll').getContext('2d');
             if(chartLLFAllInstance) chartLLFAllInstance.destroy();
@@ -380,62 +367,105 @@
                         { label: 'Open (Belum)', data: openArr, backgroundColor: '#dc3545', borderRadius: 6 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' } },
-                    scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
             });
+
+            // Tampilkan Tabel Riwayat Awal
+            displayTable(dataLLFRaw);
+        }
+
+        // Fungsi Tampilkan Tabel Riwayat dengan Filter
+        function displayTable(dataArray) {
+            let tbody = document.getElementById('tabel_riwayat_llf');
+            let fArea = document.getElementById('filter_area').value;
+            let fStatus = document.getElementById('filter_status').value;
+
+            tbody.innerHTML = '';
+            let filtered = dataArray.filter(row => {
+                let tgl = row[0];
+                let area = (row[1] || '').trim();
+                let temuan = row[2];
+                let status = (row[3] || '').trim();
+
+                if(!temuan) return false;
+                if(fArea !== 'semua' && area !== fArea) return false;
+                if(fStatus !== 'semua' && status !== fStatus) return false;
+                return true;
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Tidak ada data yang sesuai filter.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(row => {
+                let badgeColor = row[3].toLowerCase() === 'close' ? 'bg-success' : 'bg-danger';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row[0]}</td>
+                        <td>${row[1]}</td>
+                        <td>${row[2]}</td>
+                        <td><span class="badge ${badgeColor}" style="font-size: 0.65rem;">${row[3]}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterLLFData() {
+            displayTable(globalLLFRawData);
         }
 
         function loadData() {
             fetch(urlSpreadsheet).then(res => res.json()).then(data => {
                 document.getElementById('status-koneksi').style.display = 'none';
                 
-                // Inventory
                 latestInventoryData = data.inventory;
                 document.getElementById('inv_val_opr').innerText = data.inventory.order_pr;
                 document.getElementById('inv_val_prpo').innerText = data.inventory.pr_po;
                 document.getElementById('inv_val_po').innerText = data.inventory.po_datang;
                 document.getElementById('inv_val_bunker').innerText = data.inventory.equip_bunker;
 
-                // Projek
                 latestProjectData = data.project;
                 document.getElementById('proj_val_detail').innerText = data.project.detail_project;
                 document.getElementById('proj_val_list').innerText = data.project.list_project;
                 document.getElementById('dash_proj_detail').innerText = data.project.detail_project;
 
-                // Render Chart & Riwayat LLF
-                renderCharts(data.llf, data.inventory);
+                renderDashboardAndTable(data.llf, data.inventory);
             }).catch(err => {
                 document.getElementById('status-koneksi').innerText = 'Gagal memuat data server.';
             });
         }
         loadData();
 
-        function updateLLFDirect(areaId) {
-            let temuanVal = document.getElementById(areaId + '_input_t').value;
-            let statusVal = document.getElementById(areaId + '_input_status').value;
+        function updateLLFDirect(areaName) {
+            let temuanVal = document.getElementById(areaName.toLowerCase().replace(/[^a-z0-9]/g,'') + '_input_t') ? document.getElementById(areaName.toLowerCase().replace(/[^a-z0-9]/g,'') + '_input_t').value : '';
+            // Ambil dari input dinamis area
+            let inputId = '';
+            if(areaName === 'Utility') inputId = 'utility_input_t';
+            else if(areaName === 'Packing Stg 1') inputId = 'packing1_input_t';
+            else if(areaName === 'Packing Stg 2') inputId = 'packing2_input_t';
+            else if(areaName === 'Proses Stg 1') inputId = 'proses1_input_t';
+            else if(areaName === 'Proses Stg 2') inputId = 'proses2_input_t';
+            else if(areaName === 'Biomas') inputId = 'biomas_input_t';
 
-            if(!temuanVal) {
-                alert('Silakan ketik temuan mesin terlebih dahulu!');
-                return;
-            }
+            let statusId = inputId.replace('_input_t', '_input_status');
+            let temuan = document.getElementById(inputId).value;
+            let status = document.getElementById(statusId).value;
 
-            let payload = { action: 'update_llf', area: areaId, temuan: temuanVal, status: statusVal };
+            if(!temuan) { alert('Ketik temuan mesin terlebih dahulu!'); return; }
+
+            let payload = { action: 'update_llf', area: areaName, temuan: temuan, status: status };
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
             .then(res => res.text()).then(hasil => {
-                alert('Sukses menambah temuan baru!');
-                document.getElementById(areaId + '_input_t').value = '';
+                alert('Sukses menambah temuan!');
+                document.getElementById(inputId).value = '';
                 loadData();
-            }).catch(err => { alert('Gagal menyimpan.'); });
+            });
         }
 
         function updateInventoryDirect(itemId) {
             let val = document.getElementById('inv_input_' + itemId).value;
             if(!val) { alert('Masukkan nilai baru!'); return; }
-
             let payload = {
                 action: 'update_inventory',
                 opr: itemId === 'opr' ? val : (latestInventoryData.order_pr || ''),
@@ -443,31 +473,20 @@
                 po: itemId === 'po' ? val : (latestInventoryData.po_datang || ''),
                 bunker: itemId === 'bunker' ? val : (latestInventoryData.equip_bunker || '')
             };
-
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.text()).then(hasil => {
-                alert('Sukses Inventory!');
-                document.getElementById('inv_input_' + itemId).value = '';
-                loadData();
-            });
+            .then(res => res.text()).then(() => { alert('Sukses Inventory!'); loadData(); });
         }
 
         function updateProjectDirect(itemId) {
             let val = document.getElementById('proj_input_' + itemId).value;
             if(!val) { alert('Masukkan teks update!'); return; }
-
             let payload = {
                 action: 'update_project',
                 detail: itemId === 'detail' ? val : (latestProjectData.detail_project || ''),
                 list: itemId === 'list' ? val : (latestProjectData.list_project || '')
             };
-
             fetch(urlSpreadsheet, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.text()).then(hasil => {
-                alert('Sukses Project!');
-                document.getElementById('proj_input_' + itemId).value = '';
-                loadData();
-            });
+            .then(res => res.text()).then(() => { alert('Sukses Project!'); loadData(); });
         }
 
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
