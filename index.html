@@ -611,55 +611,135 @@
     }
 </script>
 
-           <!-- INVENTORY TAB -->
-
-        <div id="page-inv" class="tab-pane">
-
-            <h4 class="fw-bold text-dark mb-4"><i class="bi bi-boxes text-primary me-2"></i>3. Inventory Sparepart</h4>
-
-            <div class="row g-3">
-
-                <div class="col-md-4">
-
-                    <div class="card p-4 border-top border-warning border-4">
-
-                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-cart text-warning me-1"></i> On Order</h6>
-
-                        <h4 class="fw-bold text-dark mb-0">Rp 45.000.000</h4>
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-4">
-
-                    <div class="card p-4 border-top border-info border-4">
-
-                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-earmark-text text-info me-1"></i> On PR</h6>
-
-                        <h4 class="fw-bold text-dark mb-0">Rp 20.000.000</h4>
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-4">
-
-                    <div class="card p-4 border-top border-success border-4">
-
-                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-box-seam text-success me-1"></i> On PO</h6>
-
-                        <h4 class="fw-bold text-dark mb-0">Rp 15.000.000</h4>
-
-                    </div>
-
-                </div>
-
+         <!-- INVENTORY TAB (Sesuai Kodingan Asli Anda yang disempurnakan) -->
+<div id="page-inv" class="tab-pane">
+    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-boxes text-primary me-2"></i>3. Inventory Sparepart</h4>
+    <div class="row g-3">
+        <!-- Card On Order -->
+        <div class="col-md-4">
+            <div class="card p-4 border-top border-warning border-4">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-cart text-warning me-1"></i> On Order</h6>
+                <h4 class="fw-bold text-dark mb-0">Rp 45.000.000</h4>
             </div>
-
         </div>
 
+        <!-- Card On PR (Ditambahkan fungsi klik dan cursor pointer) -->
+        <div class="col-md-4">
+            <div class="card p-4 border-top border-info border-4" onclick="bukaModalPR()" style="cursor: pointer; transition: transform 0.2s;" title="Klik untuk melihat rincian PR">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-earmark-text text-info me-1"></i> On PR <small class="text-primary float-end fw-normal" style="font-size: 0.75rem;"><i class="bi bi-hand-index"></i> Klik Detail</small></h6>
+                <h4 class="fw-bold text-dark mb-0">Rp 20.000.000</h4>
+            </div>
+        </div>
 
+        <!-- Card On PO -->
+        <div class="col-md-4">
+            <div class="card p-4 border-top border-success border-4">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-box-seam text-success me-1"></i> On PO</h6>
+                <h4 class="fw-bold text-dark mb-0">Rp 15.000.000</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Inventory On PR (Taruh di luar bagian tab, di bawah sebelum </body>) -->
+<div class="modal fade" id="modalInventoryPR" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i> Rincian Material — On PR (Purchase Requisition)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle small">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Kode Material</th>
+                                <th>Nama Material</th>
+                                <th>PR Number</th>
+                                <th>PR Date</th>
+                                <th>PR Delivery Date</th>
+                                <th>PR Quantity</th>
+                                <th>Status</th>
+                                <th>Ket</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelBodyInventoryPR">
+                            <!-- Data akan dimuat otomatis via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skrip JavaScript Pendukung -->
+<script>
+    // Data rincian On PR sesuai permintaan kolom Anda
+    const dataOnPR = [
+        {
+            kode: "MAT-001",
+            nama: "Bearing 6205 ZZ",
+            prNumber: "PR-2026-001",
+            prDate: "25 Sep 2026",
+            deliveryDate: "10 Okt 2026",
+            qty: "15 Pcs",
+            status: "Approved",
+            ket: "Urgent untuk Utility"
+        },
+        {
+            kode: "MAT-042",
+            nama: "Mechanical Seal 32mm",
+            prNumber: "PR-2026-002",
+            prDate: "28 Sep 2026",
+            deliveryDate: "15 Okt 2026",
+            qty: "4 Pcs",
+            status: "Waiting Approval",
+            ket: "Proses verifikasi purchasing"
+        },
+        {
+            kode: "MAT-118",
+            nama: "V-Belt B-120",
+            prNumber: "PR-2026-003",
+            prDate: "01 Okt 2026",
+            deliveryDate: "20 Okt 2026",
+            qty: "10 Pcs",
+            status: "Draft",
+            ket: "Stok minimum gudang"
+        }
+    ];
+
+    function bukaModalPR() {
+        const tbody = document.getElementById('tabelBodyInventoryPR');
+        tbody.innerHTML = '';
+
+        dataOnPR.forEach(item => {
+            let badgeClass = item.status === 'Approved' ? 'bg-success' : (item.status === 'Waiting Approval' ? 'bg-warning text-dark' : 'bg-secondary');
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td class="fw-bold">${item.kode}</td>
+                    <td>${item.nama}</td>
+                    <td>${item.prNumber}</td>
+                    <td>${item.prDate}</td>
+                    <td>${item.deliveryDate}</td>
+                    <td>${item.qty}</td>
+                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
+                    <td>${item.ket}</td>
+                </tr>
+            `;
+        });
+
+        // Memunculkan modal menggunakan Bootstrap 5 Modal API
+        const modalElement = document.getElementById('modalInventoryPR');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
+</script
 
         <!-- INDICATOR TAB -->
         <div id="page-ind" class="tab-pane">
