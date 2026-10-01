@@ -611,61 +611,104 @@
     }
 </script>
 
-         <!-- INVENTORY TAB (Sesuai Kodingan Asli Anda yang disempurnakan) -->
+         <!-- INVENTORY TAB (Diperbarui per Stage 1112 & 1113) -->
 <div id="page-inv" class="tab-pane">
-    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-boxes text-primary me-2"></i>3. Inventory Sparepart</h4>
-    <div class="row g-3">
-        <!-- Card On Order -->
+    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-boxes text-primary me-2"></i>3. Inventory Sparepart — Berdasarkan Stage</h4>
+    
+    <div class="row g-4">
+        <!-- KELOMPOK ON ORDER -->
         <div class="col-md-4">
-            <div class="card p-4 border-top border-warning border-4">
-                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-cart text-warning me-1"></i> On Order</h6>
-                <h4 class="fw-bold text-dark mb-0">Rp 45.000.000</h4>
+            <div class="card shadow-sm border-top border-warning border-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cart text-warning me-1"></i> On Order</h5>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Stage 1112</span>
+                            <h6 class="fw-bold text-dark mb-0">Rp 25.000.000</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning text-dark fw-bold px-3" onclick="bukaModalInventory('On Order', '1112')">Detail</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Stage 1113</span>
+                            <h6 class="fw-bold text-dark mb-0">Rp 20.000.000</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning text-dark fw-bold px-3" onclick="bukaModalInventory('On Order', '1113')">Detail</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Card On PR (Ditambahkan fungsi klik dan cursor pointer) -->
+        <!-- KELOMPOK ON PR -->
         <div class="col-md-4">
-            <div class="card p-4 border-top border-info border-4" onclick="bukaModalPR()" style="cursor: pointer; transition: transform 0.2s;" title="Klik untuk melihat rincian PR">
-                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-earmark-text text-info me-1"></i> On PR <small class="text-primary float-end fw-normal" style="font-size: 0.75rem;"><i class="bi bi-hand-index"></i> Klik Detail</small></h6>
-                <h4 class="fw-bold text-dark mb-0">Rp 20.000.000</h4>
+            <div class="card shadow-sm border-top border-info border-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-file-earmark-text text-info me-1"></i> On PR</h5>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Stage 1112</span>
+                            <h6 class="fw-bold text-dark mb-0">Rp 12.000.000</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-info fw-bold px-3" onclick="bukaModalInventory('On PR', '1112')">Detail</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Stage 1113</span>
+                            <h6 class="fw-bold text-dark mb-0">Rp 8.000.000</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-info fw-bold px-3" onclick="bukaModalInventory('On PR', '1113')">Detail</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Card On PO -->
+        <!-- KELOMPOK ON PO -->
         <div class="col-md-4">
-            <div class="card p-4 border-top border-success border-4">
-                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-box-seam text-success me-1"></i> On PO</h6>
-                <h4 class="fw-bold text-dark mb-0">Rp 15.000.000</h4>
+            <div class="card shadow-sm border-top border-success border-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam text-success me-1"></i> On PO</h5>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Stage 1112</span>
+                            <h6 class="fw-bold text-dark mb-0">Rp 9.000.000</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-success fw-bold px-3" onclick="bukaModalInventory('On PO', '1112')">Detail</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Stage 1113</span>
+                            <h6 class="fw-bold text-dark mb-0">Rp 6.000.000</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-success fw-bold px-3" onclick="bukaModalInventory('On PO', '1113')">Detail</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Detail Inventory On PR (Taruh di luar bagian tab, di bawah sebelum </body>) -->
-<div class="modal fade" id="modalInventoryPR" tabindex="-1" aria-hidden="true">
+<!-- Modal Detail Inventory Terpadu (Taruh di luar tab / di bawah sebelum </body>) -->
+<div class="modal fade" id="modalInventoryDetail" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i> Rincian Material — On PR (Purchase Requisition)</h5>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="judulModalInv"><i class="bi bi-journal-text me-2"></i> Rincian Material</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle small">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Kode Material</th>
-                                <th>Nama Material</th>
-                                <th>PR Number</th>
-                                <th>PR Date</th>
-                                <th>PR Delivery Date</th>
-                                <th>PR Quantity</th>
-                                <th>Status</th>
-                                <th>Ket</th>
-                            </tr>
+                        <thead class="table-dark" id="tabelHeaderInv">
+                            <!-- Header akan disesuaikan otomatis via JS -->
                         </thead>
-                        <tbody id="tabelBodyInventoryPR">
-                            <!-- Data akan dimuat otomatis via JavaScript -->
+                        <tbody id="tabelBodyInv">
+                            <!-- Data dimuat via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -677,69 +720,115 @@
     </div>
 </div>
 
-<!-- Skrip JavaScript Pendukung -->
+<!-- Skrip JavaScript Inventory -->
 <script>
-    // Data rincian On PR sesuai permintaan kolom Anda
-    const dataOnPR = [
-        {
-            kode: "MAT-001",
-            nama: "Bearing 6205 ZZ",
-            prNumber: "PR-2026-001",
-            prDate: "25 Sep 2026",
-            deliveryDate: "10 Okt 2026",
-            qty: "15 Pcs",
-            status: "Approved",
-            ket: "Urgent untuk Utility"
-        },
-        {
-            kode: "MAT-042",
-            nama: "Mechanical Seal 32mm",
-            prNumber: "PR-2026-002",
-            prDate: "28 Sep 2026",
-            deliveryDate: "15 Okt 2026",
-            qty: "4 Pcs",
-            status: "Waiting Approval",
-            ket: "Proses verifikasi purchasing"
-        },
-        {
-            kode: "MAT-118",
-            nama: "V-Belt B-120",
-            prNumber: "PR-2026-003",
-            prDate: "01 Okt 2026",
-            deliveryDate: "20 Okt 2026",
-            qty: "10 Pcs",
-            status: "Draft",
-            ket: "Stok minimum gudang"
-        }
-    ];
+    // Database Simulasi Data per Kategori dan Stage
+    const databaseInventory = {
+        'On PR_1112': [
+            { kode: "MAT-001", nama: "Bearing 6205 ZZ", prNum: "PR-2026-001", prDate: "25 Sep 2026", delDate: "10 Okt 2026", qty: "10 Pcs", status: "Approved", ket: "Urgent Stage 1112" },
+            { kode: "MAT-015", nama: "Oil Seal 40x55", prNum: "PR-2026-002", prDate: "26 Sep 2026", delDate: "12 Okt 2026", qty: "5 Pcs", status: "Waiting Approval", ket: "Proses verifikasi" }
+        ],
+        'On PR_1113': [
+            { kode: "MAT-102", nama: "V-Belt B-120", prNum: "PR-2026-003", prDate: "28 Sep 2026", delDate: "15 Okt 2026", qty: "8 Pcs", status: "Approved", ket: "Stok Stage 1113" }
+        ],
+        'On Order_1112': [
+            { kode: "MAT-201", nama: "Mechanical Seal", orderNum: "ORD-901", orderDate: "20 Sep 2026", estDate: "05 Okt 2026", qty: "2 Pcs", status: "In Transit", ket: "Kirim via ekspedisi" }
+        ],
+        'On Order_1113': [
+            { kode: "MAT-205", nama: "Pressure Gauge", orderNum: "ORD-902", orderDate: "21 Sep 2026", estDate: "06 Okt 2026", qty: "4 Pcs", status: "Processing", ket: "Vendor packing" }
+        ],
+        'On PO_1112': [
+            { kode: "MAT-301", nama: "Contactor LC1D", poNum: "PO-501", poDate: "15 Sep 2026", delDate: "01 Okt 2026", qty: "3 Pcs", status: "Delivered", ket: "Selesai" }
+        ],
+        'On PO_1113': [
+            { kode: "MAT-308", nama: "Thermal Relay", poNum: "PO-502", poDate: "18 Sep 2026", delDate: "04 Okt 2026", qty: "2 Pcs", status: "On Delivery", ket: "Menuju lokasi" }
+        ]
+    };
 
-    function bukaModalPR() {
-        const tbody = document.getElementById('tabelBodyInventoryPR');
+    function bukaModalInventory(kategori, stage) {
+        const key = kategori + '_' + stage;
+        const listData = databaseInventory[key] || [];
+        
+        document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${kategori} — Stage ${stage}`;
+
+        const thead = document.getElementById('tabelHeaderInv');
+        const tbody = document.getElementById('tabelBodyInv');
         tbody.innerHTML = '';
 
-        dataOnPR.forEach(item => {
-            let badgeClass = item.status === 'Approved' ? 'bg-success' : (item.status === 'Waiting Approval' ? 'bg-warning text-dark' : 'bg-secondary');
-            
-            tbody.innerHTML += `
+        // Jika kategori On PR, gunakan kolom persis sesuai permintaan Anda
+        if (kategori === 'On PR') {
+            thead.innerHTML = `
                 <tr>
-                    <td class="fw-bold">${item.kode}</td>
-                    <td>${item.nama}</td>
-                    <td>${item.prNumber}</td>
-                    <td>${item.prDate}</td>
-                    <td>${item.deliveryDate}</td>
-                    <td>${item.qty}</td>
-                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
-                    <td>${item.ket}</td>
+                    <th>Kode Material</th>
+                    <th>Nama Material</th>
+                    <th>PR Number</th>
+                    <th>PR Date</th>
+                    <th>PR Delivery Date</th>
+                    <th>PR Quantity</th>
+                    <th>Status</th>
+                    <th>Ket</th>
                 </tr>
             `;
-        });
 
-        // Memunculkan modal menggunakan Bootstrap 5 Modal API
-        const modalElement = document.getElementById('modalInventoryPR');
-        const myModal = new bootstrap.Modal(modalElement);
+            if (listData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Tidak ada data untuk stage ini.</td></tr>`;
+            } else {
+                listData.forEach(item => {
+                    let badge = item.status === 'Approved' ? 'bg-success' : 'bg-warning text-dark';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">${item.kode}</td>
+                            <td>${item.nama}</td>
+                            <td>${item.prNum}</td>
+                            <td>${item.prDate}</td>
+                            <td>${item.delDate}</td>
+                            <td>${item.qty}</td>
+                            <td><span class="badge ${badge}">${item.status}</span></td>
+                            <td>${item.ket}</td>
+                        </tr>
+                    `;
+                });
+            }
+        } else {
+            // Untuk On Order / On PO (tampilan standar pendukung)
+            thead.innerHTML = `
+                <tr>
+                    <th>Kode Material</th>
+                    <th>Nama Material</th>
+                    <th>Nomor Dokumen</th>
+                    <th>Tanggal</th>
+                    <th>Estimasi Tiba</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Ket</th>
+                </tr>
+            `;
+
+            if (listData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Tidak ada data untuk stage ini.</td></tr>`;
+            } else {
+                listData.forEach(item => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">${item.kode}</td>
+                            <td>${item.nama}</td>
+                            <td>${item.orderNum || item.poNum}</td>
+                            <td>${item.orderDate || item.poDate}</td>
+                            <td>${item.estDate || item.delDate}</td>
+                            <td>${item.qty}</td>
+                            <td><span class="badge bg-primary">${item.status}</span></td>
+                            <td>${item.ket}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Tampilkan Modal
+        var myModal = new bootstrap.Modal(document.getElementById('modalInventoryDetail'));
         myModal.show();
     }
-</script
+</script>
 
         <!-- INDICATOR TAB -->
         <div id="page-ind" class="tab-pane">
