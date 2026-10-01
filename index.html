@@ -286,71 +286,132 @@
             </div>
         </div>
 
-      <!-- LLF TAB -->
+     <!-- LLF TAB -->
 <div id="page-llf" class="tab-pane active">
-    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-gear-wide-connected text-primary me-2"></i>2. LLF (Look, Listen, Feel) — Berdasarkan Area</h4>
+    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-gear-wide-connected text-primary me-2"></i>2. LLF (Look, Listen, Feel) — Per Stage & Area</h4>
     
-    <!-- 4 Kotak Area Utama sesuai Sketsa -->
     <div class="row g-4">
-        <!-- Area Utility -->
-        <div class="col-md-6">
+        <!-- 1. Utility Stage 1 -->
+        <div class="col-md-6 col-lg-4">
             <div class="card shadow-sm border-start border-primary border-4 h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body d-flex flex-column justify-content-between">
                     <div>
-                        <h5 class="fw-bold text-primary mb-1"><i class="bi bi-building me-2"></i>Utility</h5>
-                        <span class="text-muted small">Status Closed Rate:</span>
-                        <h3 class="fw-bold text-success mb-0" id="rate-utility">100%</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-primary mb-0"><i class="bi bi-gear me-1"></i> Utility Stage 1</h6>
+                            <span class="badge bg-success" id="rate-util1">100% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Utility tahap 1.</p>
                     </div>
-                    <button class="btn btn-outline-primary px-4 fw-bold" onclick="bukaDetailArea('Utility')">
-                        <i class="bi bi-list-ul me-1"></i> Detail
+                    <button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="bukaDetailStage('Utility Stage 1', 'util1')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Area Proses -->
-        <div class="col-md-6">
+        <!-- 2. Utility Stage 2 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-start border-primary border-4 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-primary mb-0"><i class="bi bi-gear me-1"></i> Utility Stage 2</h6>
+                            <span class="badge bg-success" id="rate-util2">100% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Utility tahap 2.</p>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="bukaDetailStage('Utility Stage 2', 'util2')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Proses Stage 1 -->
+        <div class="col-md-6 col-lg-4">
             <div class="card shadow-sm border-start border-warning border-4 h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body d-flex flex-column justify-content-between">
                     <div>
-                        <h5 class="fw-bold text-warning mb-1 text-dark"><i class="bi bi-cpu me-2"></i>Proses</h5>
-                        <span class="text-muted small">Status Closed Rate:</span>
-                        <h3 class="fw-bold text-warning mb-0" id="rate-proses">85%</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-warning text-dark mb-0"><i class="bi bi-cpu me-1"></i> Proses Stage 1</h6>
+                            <span class="badge bg-warning text-dark" id="rate-pros1">80% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Proses tahap 1.</p>
                     </div>
-                    <button class="btn btn-outline-warning text-dark px-4 fw-bold" onclick="bukaDetailArea('Proses')">
-                        <i class="bi bi-list-ul me-1"></i> Detail
+                    <button class="btn btn-outline-warning text-dark btn-sm w-100 fw-bold" onclick="bukaDetailStage('Proses Stage 1', 'pros1')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Area Packing -->
-        <div class="col-md-6">
+        <!-- 4. Proses Stage 2 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-start border-warning border-4 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-warning text-dark mb-0"><i class="bi bi-cpu me-1"></i> Proses Stage 2</h6>
+                            <span class="badge bg-success" id="rate-pros2">100% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Proses tahap 2.</p>
+                    </div>
+                    <button class="btn btn-outline-warning text-dark btn-sm w-100 fw-bold" onclick="bukaDetailStage('Proses Stage 2', 'pros2')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Packing Stage 1 -->
+        <div class="col-md-6 col-lg-4">
             <div class="card shadow-sm border-start border-success border-4 h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body d-flex flex-column justify-content-between">
                     <div>
-                        <h5 class="fw-bold text-success mb-1"><i class="bi bi-box-seam me-2"></i>Packing</h5>
-                        <span class="text-muted small">Status Closed Rate:</span>
-                        <h3 class="fw-bold text-success mb-0" id="rate-packing">92%</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-success mb-0"><i class="bi bi-box-seam me-1"></i> Packing Stage 1</h6>
+                            <span class="badge bg-success" id="rate-pack1">90% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Packing tahap 1.</p>
                     </div>
-                    <button class="btn btn-outline-success px-4 fw-bold" onclick="bukaDetailArea('Packing')">
-                        <i class="bi bi-list-ul me-1"></i> Detail
+                    <button class="btn btn-outline-success btn-sm w-100 fw-bold" onclick="bukaDetailStage('Packing Stage 1', 'pack1')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Area Biomass -->
-        <div class="col-md-6">
-            <div class="card shadow-sm border-start border-info border-4 h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
+        <!-- 6. Packing Stage 2 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-start border-success border-4 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
                     <div>
-                        <h5 class="fw-bold text-info mb-1"><i class="bi bi-tree me-2"></i>Biomass</h5>
-                        <span class="text-muted small">Status Closed Rate:</span>
-                        <h3 class="fw-bold text-info mb-0" id="rate-biomass">78%</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-success mb-0"><i class="bi bi-box-seam me-1"></i> Packing Stage 2</h6>
+                            <span class="badge bg-success" id="rate-pack2">100% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Packing tahap 2.</p>
                     </div>
-                    <button class="btn btn-outline-info px-4 fw-bold" onclick="bukaDetailArea('Biomass')">
-                        <i class="bi bi-list-ul me-1"></i> Detail
+                    <button class="btn btn-outline-success btn-sm w-100 fw-bold" onclick="bukaDetailStage('Packing Stage 2', 'pack2')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Biomass -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-start border-info border-4 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-info mb-0"><i class="bi bi-tree me-1"></i> Biomass</h6>
+                            <span class="badge bg-warning text-dark" id="rate-biom">75% Closed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Monitoring abnormalitas mesin area Biomass.</p>
+                    </div>
+                    <button class="btn btn-outline-info btn-sm w-100 fw-bold" onclick="bukaDetailStage('Biomass', 'biom')">
+                        <i class="bi bi-list-ul me-1"></i> Detail & Input Temuan
                     </button>
                 </div>
             </div>
@@ -358,101 +419,109 @@
     </div>
 </div>
 
-<!-- Modal Detail LLF per Area -->
-<div class="modal fade" id="modalDetailLLF" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+<!-- Modal Detail LLF per Stage -->
+<div class="modal fade" id="modalDetailStage" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="judulModalArea"><i class="bi bi-folder2-open me-2"></i> Rincian Temuan LLF</h5>
+                <h5 class="modal-title" id="judulModalStage"><i class="bi bi-folder2-open me-2"></i> Rincian Temuan Stage</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Form Input Temuan Khusus Area Terpilih -->
-                <div class="card bg-light mb-4 p-3 border-0">
-                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-plus-circle me-1"></i> Input Temuan Baru untuk Area Ini</h6>
-                    <div class="row g-3">
+                <!-- Form Input Temuan Baru -->
+                <div class="card bg-light mb-3 p-3 border-0">
+                    <h6 class="fw-bold text-primary mb-2"><i class="bi bi-plus-circle me-1"></i> Tambah Temuan Baru</h6>
+                    <div class="row g-2">
+                        <div class="col-md-7">
+                            <input type="text" id="inputDeskripsiStage" class="form-control form-control-sm" placeholder="Deskripsi temuan (misal: Pompa bocor / suara berisik)...">
+                        </div>
                         <div class="col-md-3">
-                            <input type="text" id="inputStageSub" class="form-control form-control-sm" placeholder="Nama Stage / Mesin...">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" id="inputDeskripsiSub" class="form-control form-control-sm" placeholder="Deskripsi temuan abnormalitas...">
-                        </div>
-                        <div class="col-md-2">
-                            <select id="inputStatusSub" class="form-select form-select-sm">
+                            <select id="inputStatusStage" class="form-select form-select-sm">
                                 <option value="Open">Open</option>
                                 <option value="Closed">Closed</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="simpanTemuanArea()"><i class="bi bi-save me-1"></i> Simpan</button>
+                            <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="simpanTemuanStage()"><i class="bi bi-save"></i> Simpan</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tabel Daftar Temuan -->
+                <!-- Tabel Data Temuan -->
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle">
+                    <table class="table table-bordered table-hover align-middle small">
                         <thead class="table-dark">
                             <tr>
                                 <th>Tanggal</th>
-                                <th>Stage / Mesin</th>
-                                <th>Deskripsi Temuan</th>
+                                <th>Detail Temuan</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelBodyDetail">
-                            <!-- Data akan dimuat secara dinamis via JavaScript -->
+                        <tbody id="tabelBodyStage">
+                            <!-- Data dimuat via JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Skrip Pendukung JavaScript -->
+<!-- Skrip JavaScript -->
 <script>
-    // Database sementara untuk menyimpan temuan per area
-    let dataLLFArea = {
-        'Utility': [
-            { tanggal: '01 Okt 2026', stage: 'Utility Stage 1', deskripsi: 'Pompa air cooling bocor', status: 'Closed' }
+    // Database penyimpanan data per stage ID
+    let databaseLLFStage = {
+        'util1': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Pompa air cooling bocor', status: 'Closed' }
         ],
-        'Proses': [
-            { tanggal: '01 Okt 2026', stage: 'Line Proses 1', deskripsi: 'Conveyor belt sedikit bergeser', status: 'Open' }
+        'util2': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Valve pipa utama macet', status: 'Closed' }
         ],
-        'Packing': [
-            { tanggal: '01 Okt 2026', stage: 'Packing Line 2', deskripsi: 'Sensor fotolistrik berdebu', status: 'Closed' }
+        'pros1': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Conveyor belt agak kendor', status: 'Open' },
+            { tanggal: '02 Okt 2026', deskripsi: 'Bearing roller berisik', status: 'Closed' }
         ],
-        'Biomass': [
-            { tanggal: '01 Okt 2026', stage: 'Biomass Chipper', deskripsi: 'Vibrasi motor utama tinggi', status: 'Open' }
+        'pros2': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Filter oli kotor', status: 'Closed' }
+        ],
+        'pack1': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Sensor fotolistrik berdebu', status: 'Closed' }
+        ],
+        'pack2': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Pneumatic cylinder lambat', status: 'Closed' }
+        ],
+        'biom': [
+            { tanggal: '01 Okt 2026', deskripsi: 'Vibrasi motor utama tinggi', status: 'Open' },
+            { tanggal: '02 Okt 2026', deskripsi: 'Chute material tersumbat', status: 'Closed' }
         ]
     };
 
-    let areaAktif = '';
+    let activeStageId = '';
+    let activeStageName = '';
 
-    function bukaDetailArea(namaArea) {
-        areaAktif = namaArea;
-        document.getElementById('judulModalArea').innerHTML = `<i class="bi bi-folder2-open me-2"></i> Rincian Temuan LLF — Area: ${namaArea}`;
+    function bukaDetailStage(namaStage, stageId) {
+        activeStageName = namaStage;
+        activeStageId = stageId;
         
-        muatTabelDetail();
-        
-        // Tampilkan Modal
-        var myModal = new bootstrap.Modal(document.getElementById('modalDetailLLF'));
+        document.getElementById('judulModalStage').innerHTML = `<i class="bi bi-folder2-open me-2"></i> Rincian Temuan — ${namaStage}`;
+        muatTabelStage();
+
+        var myModal = new bootstrap.Modal(document.getElementById('modalDetailStage'));
         myModal.show();
     }
 
-    function muatTabelDetail() {
-        const tbody = document.getElementById('tabelBodyDetail');
+    function muatTabelStage() {
+        const tbody = document.getElementById('tabelBodyStage');
         tbody.innerHTML = '';
 
-        let listTemuan = dataLLFArea[areaAktif] || [];
-        
+        let listTemuan = databaseLLFStage[activeStageId] || [];
+
         if (listTemuan.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Belum ada temuan untuk area ini.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Belum ada temuan tercatat.</td></tr>`;
             return;
         }
 
@@ -461,82 +530,83 @@
             tbody.innerHTML += `
                 <tr>
                     <td>${item.tanggal}</td>
-                    <td>${item.stage}</td>
                     <td>${item.deskripsi}</td>
                     <td><span class="badge ${badgeClass}">${item.status}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-info text-white" onclick="ubahStatusSub(${index})" title="Ubah Status"><i class="bi bi-arrow-repeat"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="hapusTemuanSub(${index})" title="Hapus"><i class="bi bi-trash"></i></button>
+                        <button class="btn btn-sm btn-info text-white py-0 px-2" onclick="ubahStatusStage(${index})" title="Ubah Status"><i class="bi bi-arrow-repeat"></i></button>
+                        <button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusTemuanStage(${index})" title="Hapus"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
             `;
         });
-        
-        hitungUlangClosedRate(areaAktif);
+
+        hitungClosedRateStage(activeStageId);
     }
 
-    function simpanTemuanArea() {
-        const stage = document.getElementById('inputStageSub').value.trim();
-        const deskripsi = document.getElementById('inputDeskripsiSub').value.trim();
-        const status = document.getElementById('inputStatusSub').value;
+    function simpanTemuanStage() {
+        const deskripsi = document.getElementById('inputDeskripsiStage').value.trim();
+        const status = document.getElementById('inputStatusStage').value;
 
-        if (!stage || !deskripsi) {
-            alert('Nama stage dan deskripsi temuan wajib diisi!');
+        if (!deskripsi) {
+            alert('Deskripsi temuan wajib diisi!');
             return;
         }
 
         const options = { day: '2-digit', month: 'short', year: 'numeric' };
         const tanggalHariIni = new Date().toLocaleDateString('id-ID', options);
 
-        if (!dataLLFArea[areaAktif]) {
-            dataLLFArea[areaAktif] = [];
+        if (!databaseLLFStage[activeStageId]) {
+            databaseLLFStage[activeStageId] = [];
         }
 
-        dataLLFArea[areaAktif].push({
+        databaseLLFStage[activeStageId].push({
             tanggal: tanggalHariIni,
-            stage: stage,
             deskripsi: deskripsi,
             status: status
         });
 
-        // Reset input form
-        document.getElementById('inputStageSub').value = '';
-        document.getElementById('inputDeskripsiSub').value = '';
-        document.getElementById('inputStatusSub').value = 'Open';
+        // Reset input
+        document.getElementById('inputDeskripsiStage').value = '';
+        document.getElementById('inputStatusStage').value = 'Open';
 
-        muatTabelDetail();
+        muatTabelStage();
     }
 
-    function ubahStatusSub(index) {
-        let item = dataLLFArea[areaAktif][index];
+    function ubahStatusStage(index) {
+        let item = databaseLLFStage[activeStageId][index];
         item.status = item.status === 'Closed' ? 'Open' : 'Closed';
-        muatTabelDetail();
+        muatTabelStage();
     }
 
-    function hapusTemuanSub(index) {
+    function hapusTemuanStage(index) {
         if (confirm('Yakin ingin menghapus temuan ini?')) {
-            dataLLFArea[areaAktif].splice(index, 1);
-            muatTabelDetail();
+            databaseLLFStage[activeStageId].splice(index, 1);
+            muatTabelStage();
         }
     }
 
-    function hitungUlangClosedRate(namaArea) {
-        let listTemuan = dataLLFArea[namaArea] || [];
+    function hitungClosedRateStage(stageId) {
+        let listTemuan = databaseLLFStage[stageId] || [];
+        let badgeEl = document.getElementById('rate-' + stageId);
+        
+        if (!badgeEl) return;
+
         if (listTemuan.length === 0) {
-            updateBadgeRate(namaArea, 0);
+            badgeEl.innerText = '0% Closed';
+            badgeEl.className = 'badge bg-secondary';
             return;
         }
 
         let closedCount = listTemuan.filter(i => i.status === 'Closed').length;
         let percentage = Math.round((closedCount / listTemuan.length) * 100);
-        updateBadgeRate(namaArea, percentage);
-    }
 
-    function updateBadgeRate(namaArea, percentage) {
-        let elementId = 'rate-' + namaArea.toLowerCase();
-        let el = document.getElementById(elementId);
-        if (el) {
-            el.innerText = percentage + '%';
+        badgeEl.innerText = percentage + '% Closed';
+        if (percentage === 100) {
+            badgeEl.className = 'badge bg-success';
+        } else if (percentage >= 50) {
+            badgeEl.className = 'badge bg-warning text-dark';
+        } else {
+            badgeEl.className = 'badge bg-danger';
         }
     }
 </script>
