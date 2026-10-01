@@ -611,7 +611,7 @@
     }
 </script>
 
-      <!-- INVENTORY SPAREPART TAB -->
+        <!-- INVENTORY SPAREPART TAB -->
 <div id="page-inventory" class="tab-pane active">
     <h4 class="fw-bold text-dark mb-4"><i class="bi bi-box-seam text-primary me-2"></i>3. Inventory Sparepart</h4>
     
@@ -631,7 +631,7 @@
 
         <!-- Card On PR (Dapat Diklik) -->
         <div class="col-md-4">
-            <div class="card shadow-sm border-start border-info border-4 h-100" onclick="bukaModalPR()" style="cursor: pointer; transition: transform 0.2s;">
+            <div class="card shadow-sm border-start border-info border-4 h-100 cursor-pointer" onclick="bukaModalInventory('On PR')" style="cursor: pointer; transition: transform 0.2s;">
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-2">
                         <i class="bi bi-file-earmark-text text-info fs-4 me-2"></i>
@@ -658,15 +658,16 @@
     </div>
 </div>
 
-<!-- Modal Detail Inventory On PR (Pastikan ditaruh di luar kontainer tab/di bawah sebelum </body>) -->
-<div class="modal fade" id="modalInventoryPR" tabindex="-1" aria-hidden="true">
+<!-- Modal Detail Inventory On PR -->
+<div class="modal fade" id="modalInventory" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i> Rincian Material — On PR</h5>
+                <h5 class="modal-title" id="judulModalInventory"><i class="bi bi-file-earmark-text me-2"></i> Rincian Material — On PR</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Tabel Rincian PR -->
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle small">
                         <thead class="table-dark">
@@ -681,8 +682,8 @@
                                 <th>Ket</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelBodyInventoryPR">
-                            <!-- Data dimuat otomatis -->
+                        <tbody id="tabelBodyInventory">
+                            <!-- Data akan dimuat otomatis via JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -696,6 +697,7 @@
 
 <!-- Skrip JavaScript Inventory -->
 <script>
+    // Data contoh untuk On PR sesuai kolom yang diminta
     const dataOnPR = [
         {
             kode: "MAT-001",
@@ -729,33 +731,34 @@
         }
     ];
 
-    function bukaModalPR() {
-        const tbody = document.getElementById('tabelBodyInventoryPR');
-        tbody.innerHTML = '';
+    function bukaModalInventory(jenis) {
+        if (jenis === 'On PR') {
+            const tbody = document.getElementById('tabelBodyInventory');
+            tbody.innerHTML = '';
 
-        dataOnPR.forEach(item => {
-            let badgeClass = item.status === 'Approved' ? 'bg-success' : (item.status === 'Waiting Approval' ? 'bg-warning text-dark' : 'bg-secondary');
-            
-            tbody.innerHTML += `
-                <tr>
-                    <td class="fw-bold">${item.kode}</td>
-                    <td>${item.nama}</td>
-                    <td>${item.prNumber}</td>
-                    <td>${item.prDate}</td>
-                    <td>${item.deliveryDate}</td>
-                    <td>${item.qty}</td>
-                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
-                    <td>${item.ket}</td>
-                </tr>
-            `;
-        });
+            dataOnPR.forEach(item => {
+                let badgeClass = item.status === 'Approved' ? 'bg-success' : (item.status === 'Waiting Approval' ? 'bg-warning text-dark' : 'bg-secondary');
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${item.kode}</td>
+                        <td>${item.nama}</td>
+                        <td>${item.prNumber}</td>
+                        <td>${item.prDate}</td>
+                        <td>${item.deliveryDate}</td>
+                        <td>${item.qty}</td>
+                        <td><span class="badge ${badgeClass}">${item.status}</span></td>
+                        <td>${item.ket}</td>
+                    </tr>
+                `;
+            });
 
-        // Panggil modal menggunakan ID baru
-        const modalElement = document.getElementById('modalInventoryPR');
-        const myModal = new bootstrap.Modal(modalElement);
-        myModal.show();
+            var myModal = new bootstrap.Modal(document.getElementById('modalInventory'));
+            myModal.show();
+        }
     }
 </script>
+
         <!-- INDICATOR TAB -->
         <div id="page-ind" class="tab-pane">
             <h4 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>4. Indicator Performance</h4>
