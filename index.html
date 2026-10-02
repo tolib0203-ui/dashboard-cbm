@@ -2869,5 +2869,63 @@
             }
         };
     </script>
+    <script>
+    // URL Web App Google Sheets Anda yang sudah jadi
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlb5CLyMjIeB83lXXBI9-ZykejacHWrPb9KaI_x88RvQz__Em1MQK3FFgaahWKgZBktA/exec";
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('maintenanceApp', () => ({
+            activeSheetName: "PM Utility stage 1", // Ganti atau sesuaikan dengan nama Sheet di Excel/Google Sheets Anda
+
+            // Fungsi saat tombol "Simpan Perubahan" diklik
+            async simpanPerubahanKeDatabase() {
+                // Ambil baris data dari tabel modal di layar
+                let rows = document.querySelectorAll(".modal-body table tbody tr");
+                let dataToSend = [];
+                let selectedWeek = document.querySelector(".modal-title select, .modal-header select")?.value || "Week 38";
+                
+                rows.forEach((tr, index) => {
+                    let cols = tr.querySelectorAll("td");
+                    if (cols.length > 0) {
+                        let rowData = {
+                            SlNo: cols[0].innerText.trim() || (index + 1),
+                            Equipment: cols[1].innerText.trim(),
+                            MainWorkCtr: cols[2].innerText.trim(),
+                            Frequency: cols[3].querySelector("select") ? cols[3].querySelector("select").value : cols[3].innerText,
+                            PlannedDate: cols[4].querySelector("input") ? cols[4].querySelector("input").value : cols[4].innerText,
+                            CompletionDate: cols[5].querySelector("input") ? cols[5].querySelector("input").value : cols[5].innerText,
+                            Remarks: cols[6].querySelector("input, select, textarea") ? cols[6].querySelector("input, select, textarea").value : cols[6].innerText,
+                            Week: selectedWeek
+                        };
+                        dataToSend.push(rowData);
+                    }
+                });
+                
+                // Bungkus data beserta nama sheet tujuan
+                let payload = {
+                    sheetName: this.activeSheetName,
+                    data: dataToSend
+                };
+
+                // Kirim data menggunakan fetch POST ke Google Sheets
+                try {
+                    let response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors", // Wajib agar Google Apps Script tidak diblokir CORS oleh browser
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    alert("Berhasil! Data tersimpan ke database Google Sheets.");
+                } catch (error) {
+                    console.error("Gagal menyimpan:", error);
+                    alert("Terjadi kesalahan saat menyimpan data.");
+                }
+            }
+        }));
+    });
+</script>
 </body>
 </html>
