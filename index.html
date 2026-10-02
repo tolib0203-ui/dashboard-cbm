@@ -137,6 +137,31 @@
                 padding: 15px;
             }
         }
+
+        /* PM Compliance editable controls */
+        .pm-frequency,
+        .pm-date,
+        .pm-remarks {
+            min-width: 140px;
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+
+        .pm-date {
+            min-width: 150px;
+        }
+
+        .pm-remarks {
+            min-width: 230px;
+        }
+
+        .pm-frequency:focus,
+        .pm-date:focus,
+        .pm-remarks:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
+        }
+
     </style>
 </head>
 <body>
@@ -2527,159 +2552,188 @@
             { si: 16, eq: "PAVO120 FBS L06", work: "MESIN PACKING", freq: "1 WEEKLY", planned: "22.09.2026", comp: "", remarks: "" }
         ];
 
-        function renderUtilityStage1Table() {
-            let tbody = document.getElementById('utility_stage1_tbody');
-            if(!tbody) return;
+        // =========================
+        // PM COMPLIANCE - EDITABLE
+        // =========================
+
+        // Konversi tanggal DD.MM.YYYY -> YYYY-MM-DD untuk input type="date"
+        function pmDateToInput(value) {
+            if (!value) return '';
+            const parts = String(value).split('.');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            return value;
+        }
+
+        // Konversi tanggal YYYY-MM-DD -> DD.MM.YYYY untuk disimpan di data
+        function pmDateFromInput(value) {
+            if (!value) return '';
+            const parts = String(value).split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            }
+            return value;
+        }
+
+        // Menyamakan format frequency lama dengan pilihan baru
+        function pmNormalizeFrequency(value) {
+            const v = String(value || '').toUpperCase();
+            if (v.includes('MONTH')) return 'MONTHLY';
+            if (v.includes('YEAR')) return 'YEARLY';
+            return 'WEEKLY';
+        }
+
+        // Menyamakan data remarks lama dengan pilihan baru
+        function pmNormalizeRemarks(value) {
+            const v = String(value || '').toLowerCase();
+            if (v.includes('belum')) return 'PM belum terselesaikan';
+            if (v.includes('sudah') || v.includes('terealis') || v.includes('selesai')) {
+                return 'PM sudah terselesaikan';
+            }
+            return '';
+        }
+
+        function pmFrequencySelect(dataRef, index, item) {
+            const current = pmNormalizeFrequency(item.freq);
+            return `
+                <select class="form-select form-select-sm pm-frequency"
+                        onchange="${dataRef}[${index}].freq = this.value">
+                    <option value="WEEKLY" ${current === 'WEEKLY' ? 'selected' : ''}>WEEKLY</option>
+                    <option value="MONTHLY" ${current === 'MONTHLY' ? 'selected' : ''}>MONTHLY</option>
+                    <option value="YEARLY" ${current === 'YEARLY' ? 'selected' : ''}>YEARLY</option>
+                </select>
+            `;
+        }
+
+        function pmDateInput(dataRef, index, field, value) {
+            return `
+                <input type="date"
+                       class="form-control form-control-sm pm-date"
+                       value="${pmDateToInput(value)}"
+                       onchange="${dataRef}[${index}].${field} = pmDateFromInput(this.value)"
+                       title="Pilih tanggal dengan kalender">
+            `;
+        }
+
+        function pmRemarksSelect(dataRef, index, item) {
+            const current = pmNormalizeRemarks(item.remarks);
+            return `
+                <select class="form-select form-select-sm pm-remarks"
+                        onchange="${dataRef}[${index}].remarks = this.value">
+                    <option value="" ${current === '' ? 'selected' : ''}>Pilih status PM</option>
+                    <option value="PM sudah terselesaikan" ${current === 'PM sudah terselesaikan' ? 'selected' : ''}>PM sudah terselesaikan</option>
+                    <option value="PM belum terselesaikan" ${current === 'PM belum terselesaikan' ? 'selected' : ''}>PM belum terselesaikan</option>
+                </select>
+            `;
+        }
+
+        function renderPMRow(item, index, dataRef) {
+            return `
+                <tr>
+                    <td class="text-center fw-bold">${item.si}</td>
+                    <td class="fw-semibold text-dark">${item.eq}</td>
+                    <td>${item.work}</td>
+                    <td class="text-center">
+                        ${pmFrequencySelect(dataRef, index, item)}
+                    </td>
+                    <td class="text-center">
+                        ${pmDateInput(dataRef, index, 'planned', item.planned)}
+                    </td>
+                    <td>
+                        ${pmDateInput(dataRef, index, 'comp', item.comp)}
+                    </td>
+                    <td>
+                        ${pmRemarksSelect(dataRef, index, item)}
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderPMTable(tbodyId, dataset, dataRef) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+
             tbody.innerHTML = '';
-            utilityStage1Data.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="utilityStage1Data[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="utilityStage1Data[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
+            dataset.forEach((item, index) => {
+                tbody.innerHTML += renderPMRow(item, index, dataRef);
             });
+        }
+
+        function renderUtilityStage1Table() {
+            renderPMTable('utility_stage1_tbody', utilityStage1Data, 'utilityStage1Data');
         }
 
         function renderUtilityStage2Table() {
-            let tbody = document.getElementById('utility_stage2_tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            utilityStage2Data.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="utilityStage2Data[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="utilityStage2Data[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
-            });
+            renderPMTable('utility_stage2_tbody', utilityStage2Data, 'utilityStage2Data');
         }
 
         function renderBiomassTable() {
-            let tbody = document.getElementById('biomass_tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            biomassData.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="biomassData[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="biomassData[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
-            });
+            renderPMTable('biomass_tbody', biomassData, 'biomassData');
         }
 
         function renderProsesStage1Table() {
-            let subCat = document.getElementById('prosesSubCategory').value;
-            let tbody = document.getElementById('proses_stage1_tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
+            const subCat = document.getElementById('prosesSubCategory').value;
             let activeDataset = prosesCKData;
-            if(subCat === 'MHS') activeDataset = prosesMHSData;
-            else if(subCat === 'GDRM') activeDataset = prosesGDRMData;
+            let dataRef = 'prosesCKData';
 
-            activeDataset.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="activeDataset[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="activeDataset[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
-            });
+            if (subCat === 'MHS') {
+                activeDataset = prosesMHSData;
+                dataRef = 'prosesMHSData';
+            } else if (subCat === 'GDRM') {
+                activeDataset = prosesGDRMData;
+                dataRef = 'prosesGDRMData';
+            }
+
+            renderPMTable('proses_stage1_tbody', activeDataset, dataRef);
         }
 
         function renderProsesStage2Table() {
-            let tbody = document.getElementById('proses_stage2_tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            prosesStage2Data.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="prosesStage2Data[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="prosesStage2Data[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
-            });
+            renderPMTable('proses_stage2_tbody', prosesStage2Data, 'prosesStage2Data');
         }
 
         function renderPackingStage1Table() {
-            let subCat = document.getElementById('packingSubCategory').value;
-            let tbody = document.getElementById('packing_stage1_tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-
+            const subCat = document.getElementById('packingSubCategory').value;
             let activeDataset = packingLine1Data;
-            if(subCat === 'LINE2') activeDataset = packingLine2Data;
-            else if(subCat === 'LINE3') activeDataset = packingLine3Data;
-            else if(subCat === 'LINE4') activeDataset = packingLine4Data;
-            else if(subCat === 'LINE5') activeDataset = packingLine5Data;
+            let dataRef = 'packingLine1Data';
 
-            activeDataset.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="activeDataset[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="activeDataset[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
-            });
+            if (subCat === 'LINE2') {
+                activeDataset = packingLine2Data;
+                dataRef = 'packingLine2Data';
+            } else if (subCat === 'LINE3') {
+                activeDataset = packingLine3Data;
+                dataRef = 'packingLine3Data';
+            } else if (subCat === 'LINE4') {
+                activeDataset = packingLine4Data;
+                dataRef = 'packingLine4Data';
+            } else if (subCat === 'LINE5') {
+                activeDataset = packingLine5Data;
+                dataRef = 'packingLine5Data';
+            }
+
+            renderPMTable('packing_stage1_tbody', activeDataset, dataRef);
         }
 
         function renderPackingStage2Table() {
-            let subCat = document.getElementById('packingStage2SubCategory').value;
-            let tbody = document.getElementById('packing_stage2_tbody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-
+            const subCat = document.getElementById('packingStage2SubCategory').value;
             let activeDataset = packingStage2Line1;
-            if(subCat === 'LINE2') activeDataset = packingStage2Line2;
-            else if(subCat === 'LINE3') activeDataset = packingStage2Line3;
-            else if(subCat === 'LINE4') activeDataset = packingStage2Line4;
-            else if(subCat === 'LINE5') activeDataset = packingStage2Line5;
+            let dataRef = 'packingStage2Line1';
 
-            activeDataset.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center fw-bold">${item.si}</td>
-                        <td class="fw-semibold text-dark">${item.eq}</td>
-                        <td>${item.work}</td>
-                        <td class="text-center">${item.freq}</td>
-                        <td class="text-center text-muted">${item.planned}</td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.comp}" onchange="activeDataset[${index}].comp = this.value"></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${item.remarks}" onchange="activeDataset[${index}].remarks = this.value"></td>
-                    </tr>
-                `;
-            });
+            if (subCat === 'LINE2') {
+                activeDataset = packingStage2Line2;
+                dataRef = 'packingStage2Line2';
+            } else if (subCat === 'LINE3') {
+                activeDataset = packingStage2Line3;
+                dataRef = 'packingStage2Line3';
+            } else if (subCat === 'LINE4') {
+                activeDataset = packingStage2Line4;
+                dataRef = 'packingStage2Line4';
+            } else if (subCat === 'LINE5') {
+                activeDataset = packingStage2Line5;
+                dataRef = 'packingStage2Line5';
+            }
+
+            renderPMTable('packing_stage2_tbody', activeDataset, dataRef);
         }
 
         function openUtilityStage1Modal() {
