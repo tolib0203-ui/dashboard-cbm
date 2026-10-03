@@ -2678,6 +2678,25 @@
 
         const pmDirty = new Map();
         let pmTimer = null;
+        let pmLoaded = false;     // true setelah data Spreadsheet berhasil dibaca (mencegah seed ganda)
+
+        // Isi Spreadsheet dengan daftar equipment untuk minggu yang sedang dibuka
+        // (hanya baris yang belum ada di database)
+        function pmSeedWeek(ref, week) {
+            if (!DB_ENABLED || !pmLoaded) return;
+            const ds = pmDatasets()[ref];
+            pmWeekData[ref] = pmWeekData[ref] || {};
+            pmWeekData[ref][week] = pmWeekData[ref][week] || {};
+            const have = pmWeekData[ref][week];
+            const rows = [];
+            ds.forEach((_, i) => {
+                if (have[i]) return;
+                const it = pmEffective(ref, i, week);
+                have[i] = { freq: it.freq, planned: it.planned, comp: it.comp, remarks: it.remarks };
+                rows.push(pmRowPayload(ref, i, week));
+            });
+            if (rows.length) apiQueue('pmSave', { rows: rows });
+        }
 
         function pmRowPayload(ref, index, week) {
             const it = pmEffective(ref, index, week);
@@ -2757,6 +2776,7 @@
                 const r = await res.json();
                 if (!r.ok) throw new Error(r.error || 'Server error');
                 applyPM(r.pm || []);
+                pmLoaded = true;
                 renderUtilityStage1Table(); renderUtilityStage2Table(); renderBiomassTable();
                 renderProsesStage1Table(); renderProsesStage2Table();
                 renderPackingStage1Table(); renderPackingStage2Table();
@@ -2898,6 +2918,7 @@
             if (!tbody) return;
 
             const week = pmWeekOf(dataRef);
+            pmSeedWeek(dataRef, week);
             tbody.innerHTML = '';
             dataset.forEach((_, index) => {
                 tbody.innerHTML += renderPMRow(pmEffective(dataRef, index, week), index, dataRef);
