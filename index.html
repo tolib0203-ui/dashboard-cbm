@@ -452,7 +452,7 @@
 
 <!-- Modal Detail LLF per Stage -->
 <div class="modal fade" id="modalDetailStage" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="judulModalStage"><i class="bi bi-folder2-open me-2"></i> Rincian Temuan Stage</h5>
@@ -463,28 +463,59 @@
                 <div class="card bg-light mb-3 p-3 border-0">
                     <h6 class="fw-bold text-primary mb-2"><i class="bi bi-plus-circle me-1"></i> Tambah Temuan Baru</h6>
                     <div class="row g-2">
-                        <div class="col-md-7">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold mb-0">Reported by</label>
+                            <input type="text" id="llfReportedBy" class="form-control form-control-sm" placeholder="Nama pelapor">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold mb-0">Equipment</label>
+                            <input type="text" id="llfEquipment" class="form-control form-control-sm" placeholder="Nama / kode equipment">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold mb-0">Location</label>
+                            <input type="text" id="llfLocation" class="form-control form-control-sm" placeholder="Lokasi">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold mb-0">Description</label>
                             <input type="text" id="inputDeskripsiStage" class="form-control form-control-sm" placeholder="Deskripsi temuan (misal: Pompa bocor / suara berisik)...">
                         </div>
                         <div class="col-md-3">
+                            <label class="form-label small fw-bold mb-0">Notif. date</label>
+                            <input type="date" id="llfNotif" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold mb-0">Malfunct. start</label>
+                            <input type="date" id="llfStart" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold mb-0">Malfunct. end</label>
+                            <input type="date" id="llfEnd" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold mb-0">Status</label>
                             <select id="inputStatusStage" class="form-select form-select-sm">
                                 <option value="Open">Open</option>
                                 <option value="Closed">Closed</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1 d-flex align-items-end">
                             <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="simpanTemuanStage()"><i class="bi bi-save"></i> Simpan</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tabel Data Temuan -->
-                <div class="table-responsive">
+                <div class="table-responsive" style="max-height: 45vh; overflow-y: auto;">
                     <table class="table table-bordered table-hover align-middle small">
                         <thead class="table-dark">
                             <tr>
-                                <th>Tanggal</th>
-                                <th>Detail Temuan</th>
+                                <th>Notif. date</th>
+                                <th>Reported by</th>
+                                <th>Equipment</th>
+                                <th>Location</th>
+                                <th>Description</th>
+                                <th style="min-width:135px">Malfunct. start</th>
+                                <th style="min-width:135px">Malfunct. end</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -496,7 +527,9 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <span id="llfDirtyHint" class="text-warning fw-bold small me-auto d-none"><i class="bi bi-exclamation-triangle me-1"></i>Ada perubahan yang belum di-Update</span>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="updateLLFStage()" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
             </div>
         </div>
     </div>
@@ -505,54 +538,54 @@
 <!-- Skrip JavaScript -->
 <script>
     // Database penyimpanan data per stage ID
-    let databaseLLFStage = {
-        'util1': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Pompa air cooling bocor', status: 'Closed' }
-        ],
-        'util2': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Valve pipa utama macet', status: 'Closed' }
-        ],
-        'pros1': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Conveyor belt agak kendor', status: 'Open' },
-            { tanggal: '02 Okt 2026', deskripsi: 'Bearing roller berisik', status: 'Closed' }
-        ],
-        'pros2': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Filter oli kotor', status: 'Closed' }
-        ],
-        'pack1': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Sensor fotolistrik berdebu', status: 'Closed' }
-        ],
-        'pack2': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Pneumatic cylinder lambat', status: 'Closed' }
-        ],
-        'biom': [
-            { tanggal: '01 Okt 2026', deskripsi: 'Vibrasi motor utama tinggi', status: 'Open' },
-            { tanggal: '02 Okt 2026', deskripsi: 'Chute material tersumbat', status: 'Closed' }
-        ]
-    };
+    let databaseLLFStage = {};      // diisi dari Spreadsheet (tab LLF)
 
     let activeStageId = '';
     let activeStageName = '';
+    let llfWork = null;        // salinan kerja (draft) milik stage yang sedang dibuka
+    let llfDirty = false;      // true jika ada perubahan yang belum di-Update
+
+    function llfEsc(t) {
+        return String(t === null || t === undefined ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function llfToday() {                                    // yyyy-mm-dd (untuk input type=date)
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function llfResetForm() {
+        ['llfReportedBy', 'llfEquipment', 'llfLocation', 'inputDeskripsiStage', 'llfStart', 'llfEnd'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('llfNotif').value = llfToday();
+        document.getElementById('inputStatusStage').value = 'Open';
+    }
 
     function bukaDetailStage(namaStage, stageId) {
         activeStageName = namaStage;
         activeStageId = stageId;
-        
+        llfWork = (databaseLLFStage[stageId] || []).map(x => Object.assign({}, x));
+        llfDirty = false;
+
         document.getElementById('judulModalStage').innerHTML = `<i class="bi bi-folder2-open me-2"></i> Rincian Temuan — ${namaStage}`;
+        llfResetForm();
         muatTabelStage();
 
         var myModal = new bootstrap.Modal(document.getElementById('modalDetailStage'));
         myModal.show();
     }
 
+    function llfShowHint() {
+        const hint = document.getElementById('llfDirtyHint');
+        if (hint && hint.classList) hint.classList.toggle('d-none', !llfDirty);
+    }
+
     function muatTabelStage() {
         const tbody = document.getElementById('tabelBodyStage');
         tbody.innerHTML = '';
+        llfShowHint();
 
-        let listTemuan = databaseLLFStage[activeStageId] || [];
+        let listTemuan = llfWork || [];
 
         if (listTemuan.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Belum ada temuan tercatat.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">Belum ada temuan tercatat.</td></tr>`;
             return;
         }
 
@@ -560,61 +593,93 @@
             let badgeClass = item.status === 'Closed' ? 'bg-success' : 'bg-warning text-dark';
             tbody.innerHTML += `
                 <tr>
-                    <td>${item.tanggal}</td>
-                    <td>${item.deskripsi}</td>
-                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
-                    <td>
+                    <td>${llfEsc(item.notifDate)}</td>
+                    <td>${llfEsc(item.reportedBy)}</td>
+                    <td>${llfEsc(item.equipment)}</td>
+                    <td>${llfEsc(item.location)}</td>
+                    <td>${llfEsc(item.deskripsi)}</td>
+                    <td><input type="date" class="form-control form-control-sm" value="${pmDateToInput(item.start)}" onchange="llfEdit(${index}, 'start', pmDateFromInput(this.value))"></td>
+                    <td><input type="date" class="form-control form-control-sm" value="${pmDateToInput(item.end)}" onchange="llfEdit(${index}, 'end', pmDateFromInput(this.value))"></td>
+                    <td><span class="badge ${badgeClass}">${llfEsc(item.status)}</span></td>
+                    <td class="text-nowrap">
                         <button class="btn btn-sm btn-info text-white py-0 px-2" onclick="ubahStatusStage(${index})" title="Ubah Status"><i class="bi bi-arrow-repeat"></i></button>
                         <button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusTemuanStage(${index})" title="Hapus"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
             `;
         });
-
-        hitungClosedRateStage(activeStageId);
     }
 
+    // "Simpan" = tambah ke tabel (draft). Belum masuk database sebelum tombol Update ditekan.
     function simpanTemuanStage() {
         const deskripsi = document.getElementById('inputDeskripsiStage').value.trim();
-        const status = document.getElementById('inputStatusStage').value;
-
         if (!deskripsi) {
-            alert('Deskripsi temuan wajib diisi!');
+            alert('Description wajib diisi!');
             return;
         }
+        const today = pmDateFromInput(llfToday());
 
-        const options = { day: '2-digit', month: 'short', year: 'numeric' };
-        const tanggalHariIni = new Date().toLocaleDateString('id-ID', options);
-
-        if (!databaseLLFStage[activeStageId]) {
-            databaseLLFStage[activeStageId] = [];
-        }
-
-        databaseLLFStage[activeStageId].push({
-            tanggal: tanggalHariIni,
+        if (!llfWork) llfWork = [];
+        llfWork.push({
+            reportedBy: document.getElementById('llfReportedBy').value.trim(),
+            equipment: document.getElementById('llfEquipment').value.trim(),
+            location: document.getElementById('llfLocation').value.trim(),
             deskripsi: deskripsi,
-            status: status
+            notifDate: pmDateFromInput(document.getElementById('llfNotif').value) || today,
+            start: pmDateFromInput(document.getElementById('llfStart').value),
+            end: pmDateFromInput(document.getElementById('llfEnd').value),
+            status: document.getElementById('inputStatusStage').value
         });
+        llfDirty = true;
 
-        // Reset input
-        document.getElementById('inputDeskripsiStage').value = '';
-        document.getElementById('inputStatusStage').value = 'Open';
-
+        llfResetForm();
         muatTabelStage();
     }
 
+    // Edit tanggal Malfunct. start / end langsung di tabel (draft)
+    function llfEdit(index, field, value) {
+        if (!llfWork || !llfWork[index]) return;
+        llfWork[index][field] = value;
+        llfDirty = true;
+        llfShowHint();
+    }
+
     function ubahStatusStage(index) {
-        let item = databaseLLFStage[activeStageId][index];
+        let item = llfWork[index];
         item.status = item.status === 'Closed' ? 'Open' : 'Closed';
+        llfDirty = true;
         muatTabelStage();
     }
 
     function hapusTemuanStage(index) {
         if (confirm('Yakin ingin menghapus temuan ini?')) {
-            databaseLLFStage[activeStageId].splice(index, 1);
+            llfWork.splice(index, 1);
+            llfDirty = true;
             muatTabelStage();
         }
     }
+
+    // Tombol Update: kirim daftar temuan stage ini ke Spreadsheet
+    function updateLLFStage() {
+        if (!llfWork || !llfDirty) return;                       // tidak ada perubahan
+        if (DB_ENABLED && !pmLoaded) {
+            alert('Data dari Spreadsheet belum selesai dimuat / gagal dimuat. Perubahan belum tersimpan, coba lagi.');
+            return;
+        }
+        const rows = llfWork.map(x => ({
+            reportedBy: x.reportedBy, equipment: x.equipment, location: x.location, deskripsi: x.deskripsi,
+            notifDate: x.notifDate, start: x.start, end: x.end, status: x.status
+        }));
+        databaseLLFStage[activeStageId] = rows.map(x => Object.assign({}, x));
+        apiQueue('llfSave', { area: LLF_STAGE_NAMES[activeStageId] || activeStageName, rows: rows });
+        llfWork = null;
+        llfDirty = false;
+        hitungClosedRateStage(activeStageId);
+        refreshDashboard();
+    }
+
+    // Modal ditutup tanpa Update -> buang draft
+    function llfDiscard() { llfWork = null; llfDirty = false; }
 
     function hitungClosedRateStage(stageId) {
         let listTemuan = databaseLLFStage[stageId] || [];
@@ -2564,9 +2629,10 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbw2TD2dhA0nkxEyZlVjK6Iw3vJofKYbR_MYuNw9TVLQSOo3wiqGo9jL7bne2Jb39ZLntA/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbwTCCIf1XHHojS1p7n-F8_P67XOgeOxEtajQYhMp62jzEy8CHw_03IS0hq1fLDm0qbo_g/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
+        const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
         // Dataset PM -> tab di Spreadsheet + isi kolom "Sub Category"
@@ -2776,6 +2842,8 @@
             Object.keys(pmDraft).forEach(k => { if (refs.indexOf(k.split('|')[0]) >= 0) delete pmDraft[k]; });
         }
         function pmBindModals() {
+            const dm = document.getElementById('modalDetailStage');
+            if (dm && dm.addEventListener) dm.addEventListener('hidden.bs.modal', llfDiscard);
             Object.keys(PM_MODALS).forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.addEventListener) el.addEventListener('hidden.bs.modal', () => pmDiscardModal(id));
@@ -2829,6 +2897,23 @@
             });
         }
 
+        function applyLLF(rows) {
+            const idByName = {};
+            Object.keys(LLF_STAGE_NAMES).forEach(id => { idByName[LLF_STAGE_NAMES[id].toLowerCase()] = id; });
+            const grouped = {};
+            rows.forEach(r => {
+                const id = idByName[String(r.area || '').toLowerCase().trim()];
+                if (!id) return;
+                (grouped[id] = grouped[id] || []).push({
+                    reportedBy: r.reportedBy, equipment: r.equipment, location: r.location, deskripsi: r.deskripsi,
+                    notifDate: r.notifDate, start: r.start, end: r.end,
+                    status: String(r.status).toLowerCase() === 'closed' ? 'Closed' : 'Open'
+                });
+            });
+            databaseLLFStage = grouped;
+            Object.keys(LLF_STAGE_NAMES).forEach(hitungClosedRateStage);
+        }
+
         async function loadFromSheet() {
             if (!DB_ENABLED) { setSync('local'); return; }
             setSync('loading');
@@ -2837,6 +2922,7 @@
                 const r = await res.json();
                 if (!r.ok) throw new Error(r.error || 'Server error');
                 applyPM(r.pm || []);
+                applyLLF(r.llf || []);
                 pmLoaded = true;
                 renderUtilityStage1Table(); renderUtilityStage2Table(); renderBiomassTable();
                 renderProsesStage1Table(); renderProsesStage2Table();
@@ -2849,9 +2935,15 @@
         }
 
         // ---------- Dashboard PM dihitung dari data (minggu yang dipilih, default W38) ----------
-        let chartPMInst = null;
+        let chartPMInst = null, chartLLFInst = null;
 
         function refreshDashboard() {
+            if (chartLLFInst) {
+                const all = [].concat(...Object.values(databaseLLFStage));
+                const closed = all.filter(i => i.status === 'Closed').length;
+                chartLLFInst.data.datasets[0].data = [closed, all.length - closed];
+                chartLLFInst.update();
+            }
             if (!chartPMInst) return;
             const pct = refs => {
                 let total = 0, done = 0;
@@ -3159,7 +3251,7 @@
 
             const chartLLFEl = document.getElementById('chartLLF');
             if(chartLLFEl) {
-                new Chart(chartLLFEl.getContext('2d'), {
+                chartLLFInst = new Chart(chartLLFEl.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Closed', 'Open'],
@@ -3194,6 +3286,7 @@
             }
 
             pmBindModals();
+            Object.keys(LLF_STAGE_NAMES).forEach(hitungClosedRateStage);
             if (DB_ENABLED) { loadFromSheet(); } else { setSync('local'); }
         };
     </script>
