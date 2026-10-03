@@ -166,6 +166,12 @@
 </head>
 <body>
 
+    <!-- Status koneksi database -->
+    <div id="syncBadge" class="badge bg-secondary shadow" onclick="syncBadgeClick()"
+         style="position:fixed; right:15px; bottom:15px; z-index:3000; cursor:pointer; font-size:0.78rem; padding:8px 12px;">
+        <i class="bi bi-database me-1"></i><span id="syncText">Memuat...</span>
+    </div>
+
     <nav id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <h6 class="fw-bold mb-0 text-white"><i class="bi bi-cpu me-2"></i>Maintenance Management System</h6>
@@ -584,11 +590,15 @@
             databaseLLFStage[activeStageId] = [];
         }
 
-        databaseLLFStage[activeStageId].push({
+        const itemBaru = {
+            id: newId(),
             tanggal: tanggalHariIni,
             deskripsi: deskripsi,
             status: status
-        });
+        };
+        databaseLLFStage[activeStageId].push(itemBaru);
+        apiQueue('llfAdd', { id: itemBaru.id, stage: activeStageId, tanggal: itemBaru.tanggal, deskripsi: itemBaru.deskripsi, status: itemBaru.status });
+        refreshDashboard();
 
         // Reset input
         document.getElementById('inputDeskripsiStage').value = '';
@@ -600,13 +610,18 @@
     function ubahStatusStage(index) {
         let item = databaseLLFStage[activeStageId][index];
         item.status = item.status === 'Closed' ? 'Open' : 'Closed';
+        apiQueue('llfStatus', { id: item.id, status: item.status });
         muatTabelStage();
+        refreshDashboard();
     }
 
     function hapusTemuanStage(index) {
         if (confirm('Yakin ingin menghapus temuan ini?')) {
-            databaseLLFStage[activeStageId].splice(index, 1);
+            const removed = databaseLLFStage[activeStageId].splice(index, 1)[0];
+            if (removed) apiQueue('llfDelete', { id: removed.id });
             muatTabelStage();
+            hitungClosedRateStage(activeStageId);
+            refreshDashboard();
         }
     }
 
@@ -970,7 +985,9 @@
             };
         }
 
+        newItem.id = newId();
         databaseInventory[key].push(newItem);
+        apiQueue('invAdd', Object.assign({ kategori: currentKategori, stage: currentStage }, newItem));
         renderTabelData();
         
         // Reset form inputs
@@ -980,7 +997,8 @@
     function hapusData(index) {
         if (confirm('Yakin ingin menghapus data ini?')) {
             const key = currentKategori + '_' + currentStage;
-            databaseInventory[key].splice(index, 1);
+            const removed = databaseInventory[key].splice(index, 1)[0];
+            if (removed) apiQueue('invDelete', { id: removed.id });
             renderTabelData();
         }
     }
@@ -2552,6 +2570,224 @@
             { si: 16, eq: "PAVO120 FBS L06", work: "MESIN PACKING", freq: "1 WEEKLY", planned: "22.09.2026", comp: "", remarks: "" }
         ];
 
+        // =====================================================
+        // KONEKSI DATABASE (Google Spreadsheet via Apps Script)
+        // =====================================================
+        // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
+        // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
+        const API_URL = 'https://script.google.com/macros/s/AKfycbz6FuEC0sWwow1xI8KzG0L46myt4c7-FSditgGiH4SA5MKKnKL0eIV2L7vn9lBKy8xzuw/exec';
+        const DB_ENABLED = API_URL.trim() !== '';
+
+        function newId() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+
+        // Daftar semua dataset PM (nama -> array)
+        function pmDatasets() {
+            return {
+                utilityStage1Data, utilityStage2Data, biomassData,
+                prosesCKData, prosesMHSData, prosesGDRMData, prosesStage2Data,
+                packingLine1Data, packingLine2Data, packingLine3Data, packingLine4Data, packingLine5Data,
+                packingStage2Line1, packingStage2Line2, packingStage2Line3, packingStage2Line4, packingStage2Line5
+            };
+        }
+
+        // ---------- Indikator status ----------
+        let syncChain = Promise.resolve();
+        let syncPending = 0;
+        let syncFailed = [];
+
+        function setSync(state, msg) {
+            const badge = document.getElementById('syncBadge');
+            const text = document.getElementById('syncText');
+            if (!badge || !text) return;
+            const map = {
+                local:   ['bg-secondary', 'Mode lokal (database belum disambungkan)'],
+                loading: ['bg-info text-dark', 'Memuat data dari Spreadsheet...'],
+                saving:  ['bg-warning text-dark', 'Menyimpan...'],
+                ok:      ['bg-success', 'Terhubung ke Spreadsheet'],
+                error:   ['bg-danger', 'Gagal sinkron' + (msg ? ': ' + msg : '') + ' (klik untuk coba lagi)']
+            };
+            badge.className = 'badge shadow ' + map[state][0];
+            text.textContent = map[state][1];
+        }
+
+        function syncBadgeClick() {
+            if (!DB_ENABLED) return;
+            if (syncFailed.length) {
+                const f = syncFailed; syncFailed = [];
+                f.forEach(t => apiQueue(t.action, t.payload));
+            } else if (syncPending === 0) {
+                loadFromSheet();
+            }
+        }
+
+        // ---------- Kirim data (berurutan) ----------
+        function apiQueue(action, payload) {
+            if (!DB_ENABLED) return;
+            syncPending++;
+            setSync('saving');
+            syncChain = syncChain
+                .then(() => fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // text/plain = tanpa preflight CORS
+                    body: JSON.stringify({ action: action, payload: payload })
+                }))
+                .then(res => res.json())
+                .then(r => { if (!r.ok) throw new Error(r.error || 'Server error'); })
+                .then(() => { syncPending--; if (syncPending === 0) setSync(syncFailed.length ? 'error' : 'ok'); })
+                .catch(err => { syncPending--; syncFailed.push({ action, payload }); setSync('error', err.message); });
+        }
+
+        // ---------- PM: simpan perubahan (digabung per 0,7 detik) ----------
+        const pmDirty = new Map();
+        let pmTimer = null;
+
+        function pmRowPayload(ref, index) {
+            const it = pmDatasets()[ref][index];
+            return { dataset: ref, index: index, si: it.si, eq: it.eq, work: it.work,
+                     freq: it.freq, planned: it.planned, comp: it.comp, remarks: it.remarks };
+        }
+
+        function pmUpdate(ref, index, field, value) {
+            const ds = pmDatasets()[ref];
+            if (!ds || !ds[index]) return;
+            ds[index][field] = value;
+            pmDirty.set(ref + '|' + index, { ref: ref, index: index });
+            clearTimeout(pmTimer);
+            pmTimer = setTimeout(flushPM, 700);
+            refreshDashboard();
+        }
+
+        function flushPM() {
+            if (!pmDirty.size) return;
+            const rows = [...pmDirty.values()].map(d => pmRowPayload(d.ref, d.index));
+            pmDirty.clear();
+            apiQueue('pmSave', { rows: rows });
+        }
+
+        // ---------- Muat data dari Spreadsheet ----------
+        async function loadFromSheet() {
+            if (!DB_ENABLED) { setSync('local'); return; }
+            setSync('loading');
+            try {
+                const res = await fetch(API_URL + '?action=readAll');
+                const r = await res.json();
+                if (!r.ok) throw new Error(r.error || 'Server error');
+
+                applyPM(r.pm, r.seeded.pm);
+                applyLLF(r.llf, r.seeded.llf);
+                applyInventory(r.inv, r.seeded.inv);
+
+                renderAllPM();
+                ['util1','util2','pros1','pros2','pack1','pack2','biom'].forEach(hitungClosedRateStage);
+                refreshDashboard();
+                if (syncPending === 0) setSync(syncFailed.length ? 'error' : 'ok');
+            } catch (err) {
+                setSync('error', err.message);
+            }
+        }
+
+        function renderAllPM() {
+            renderUtilityStage1Table(); renderUtilityStage2Table(); renderBiomassTable();
+            renderProsesStage1Table(); renderProsesStage2Table();
+            renderPackingStage1Table(); renderPackingStage2Table();
+        }
+
+        function applyPM(rows, seeded) {
+            const all = pmDatasets();
+            if (!seeded) {                       // Sheet masih kosong -> isi dengan data awal aplikasi
+                const seed = [];
+                Object.keys(all).forEach(ref => all[ref].forEach((_, i) => seed.push(pmRowPayload(ref, i))));
+                apiQueue('pmSave', { rows: seed });
+                return;
+            }
+            rows.forEach(row => {
+                const ds = all[row.dataset];
+                const i = Number(row.index);
+                if (!ds || !ds[i]) return;
+                ds[i].freq = row.freq;
+                ds[i].planned = row.planned;
+                ds[i].comp = row.comp;
+                ds[i].remarks = row.remarks;
+            });
+        }
+
+        function applyLLF(rows, seeded) {
+            if (!seeded) {
+                const seed = [];
+                Object.keys(databaseLLFStage).forEach(stage => {
+                    databaseLLFStage[stage].forEach(it => {
+                        it.id = it.id || newId();
+                        seed.push({ id: it.id, stage: stage, tanggal: it.tanggal, deskripsi: it.deskripsi, status: it.status });
+                    });
+                });
+                apiQueue('llfAddMany', { rows: seed });
+                return;
+            }
+            const grouped = {};
+            rows.forEach(r => {
+                const s = String(r.stage);
+                (grouped[s] = grouped[s] || []).push({ id: r.id, tanggal: r.tanggal, deskripsi: r.deskripsi, status: r.status });
+            });
+            databaseLLFStage = grouped;
+        }
+
+        function applyInventory(rows, seeded) {
+            if (!seeded) {
+                const seed = [];
+                Object.keys(databaseInventory).forEach(key => {
+                    const p = key.lastIndexOf('_');
+                    databaseInventory[key].forEach(it => {
+                        it.id = it.id || newId();
+                        seed.push(Object.assign({ kategori: key.slice(0, p), stage: key.slice(p + 1) }, it));
+                    });
+                });
+                apiQueue('invAddMany', { rows: seed });
+                return;
+            }
+            const grouped = {};
+            rows.forEach(r => {
+                const key = r.kategori + '_' + r.stage;
+                const item = Object.assign({}, r);
+                delete item.kategori; delete item.stage; delete item.updatedAt;
+                (grouped[key] = grouped[key] || []).push(item);
+            });
+            ['On PR','On Order','On PO'].forEach(k => ['1112','1113'].forEach(s => { grouped[k + '_' + s] = grouped[k + '_' + s] || []; }));
+            databaseInventory = grouped;
+        }
+
+        // ---------- Dashboard dihitung dari data nyata ----------
+        let chartPMInst = null, chartLLFInst = null;
+
+        function refreshDashboard() {
+            const d = pmDatasets();
+            const pct = groups => {
+                const all = [].concat(...groups);
+                if (!all.length) return 0;
+                const done = all.filter(i => pmNormalizeRemarks(i.remarks) === 'PM sudah terselesaikan').length;
+                return Math.round(done / all.length * 100);
+            };
+            if (chartPMInst) {
+                chartPMInst.data.datasets[0].data = [
+                    pct([d.utilityStage1Data]),
+                    pct([d.utilityStage2Data]),
+                    pct([d.prosesCKData, d.prosesMHSData, d.prosesGDRMData]),
+                    pct([d.prosesStage2Data]),
+                    pct([d.packingLine1Data, d.packingLine2Data, d.packingLine3Data, d.packingLine4Data, d.packingLine5Data]),
+                    pct([d.packingStage2Line1, d.packingStage2Line2, d.packingStage2Line3, d.packingStage2Line4, d.packingStage2Line5]),
+                    pct([d.biomassData])
+                ];
+                chartPMInst.update();
+            }
+            if (chartLLFInst) {
+                const all = [].concat(...Object.values(databaseLLFStage));
+                const closed = all.filter(i => i.status === 'Closed').length;
+                chartLLFInst.data.datasets[0].data = [closed, all.length - closed];
+                chartLLFInst.update();
+            }
+        }
+
         // =========================
         // PM COMPLIANCE - EDITABLE
         // =========================
@@ -2598,7 +2834,7 @@
             const current = pmNormalizeFrequency(item.freq);
             return `
                 <select class="form-select form-select-sm pm-frequency"
-                        onchange="${dataRef}[${index}].freq = this.value">
+                        onchange="pmUpdate('${dataRef}', ${index}, 'freq', this.value)">
                     <option value="WEEKLY" ${current === 'WEEKLY' ? 'selected' : ''}>WEEKLY</option>
                     <option value="MONTHLY" ${current === 'MONTHLY' ? 'selected' : ''}>MONTHLY</option>
                     <option value="YEARLY" ${current === 'YEARLY' ? 'selected' : ''}>YEARLY</option>
@@ -2611,7 +2847,7 @@
                 <input type="date"
                        class="form-control form-control-sm pm-date"
                        value="${pmDateToInput(value)}"
-                       onchange="${dataRef}[${index}].${field} = pmDateFromInput(this.value)"
+                       onchange="pmUpdate('${dataRef}', ${index}, '${field}', pmDateFromInput(this.value))"
                        title="Pilih tanggal dengan kalender">
             `;
         }
@@ -2620,7 +2856,7 @@
             const current = pmNormalizeRemarks(item.remarks);
             return `
                 <select class="form-select form-select-sm pm-remarks"
-                        onchange="${dataRef}[${index}].remarks = this.value">
+                        onchange="pmUpdate('${dataRef}', ${index}, 'remarks', this.value)">
                     <option value="" ${current === '' ? 'selected' : ''}>Pilih status PM</option>
                     <option value="PM sudah terselesaikan" ${current === 'PM sudah terselesaikan' ? 'selected' : ''}>PM sudah terselesaikan</option>
                     <option value="PM belum terselesaikan" ${current === 'PM belum terselesaikan' ? 'selected' : ''}>PM belum terselesaikan</option>
@@ -2822,7 +3058,7 @@
 
             const chartPMEl = document.getElementById('chartPM');
             if(chartPMEl) {
-                new Chart(chartPMEl.getContext('2d'), {
+                chartPMInst = new Chart(chartPMEl.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: ['Utility 1', 'Utility 2', 'Proses 1', 'Proses 2', 'Packing 1', 'Packing 2', 'Biomass'],
@@ -2834,7 +3070,7 @@
 
             const chartLLFEl = document.getElementById('chartLLF');
             if(chartLLFEl) {
-                new Chart(chartLLFEl.getContext('2d'), {
+                chartLLFInst = new Chart(chartLLFEl.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Closed', 'Open'],
@@ -2867,6 +3103,9 @@
                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
                 });
             }
+
+            refreshDashboard();
+            loadFromSheet();
         };
     </script>
 </body>
