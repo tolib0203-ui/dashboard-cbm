@@ -590,15 +590,11 @@
             databaseLLFStage[activeStageId] = [];
         }
 
-        const itemBaru = {
-            id: newId(),
+        databaseLLFStage[activeStageId].push({
             tanggal: tanggalHariIni,
             deskripsi: deskripsi,
             status: status
-        };
-        databaseLLFStage[activeStageId].push(itemBaru);
-        apiQueue('llfAdd', { id: itemBaru.id, stage: activeStageId, tanggal: itemBaru.tanggal, deskripsi: itemBaru.deskripsi, status: itemBaru.status });
-        refreshDashboard();
+        });
 
         // Reset input
         document.getElementById('inputDeskripsiStage').value = '';
@@ -610,18 +606,13 @@
     function ubahStatusStage(index) {
         let item = databaseLLFStage[activeStageId][index];
         item.status = item.status === 'Closed' ? 'Open' : 'Closed';
-        apiQueue('llfStatus', { id: item.id, status: item.status });
         muatTabelStage();
-        refreshDashboard();
     }
 
     function hapusTemuanStage(index) {
         if (confirm('Yakin ingin menghapus temuan ini?')) {
-            const removed = databaseLLFStage[activeStageId].splice(index, 1)[0];
-            if (removed) apiQueue('llfDelete', { id: removed.id });
+            databaseLLFStage[activeStageId].splice(index, 1);
             muatTabelStage();
-            hitungClosedRateStage(activeStageId);
-            refreshDashboard();
         }
     }
 
@@ -985,9 +976,7 @@
             };
         }
 
-        newItem.id = newId();
         databaseInventory[key].push(newItem);
-        apiQueue('invAdd', Object.assign({ kategori: currentKategori, stage: currentStage }, newItem));
         renderTabelData();
         
         // Reset form inputs
@@ -997,8 +986,7 @@
     function hapusData(index) {
         if (confirm('Yakin ingin menghapus data ini?')) {
             const key = currentKategori + '_' + currentStage;
-            const removed = databaseInventory[key].splice(index, 1)[0];
-            if (removed) apiQueue('invDelete', { id: removed.id });
+            databaseInventory[key].splice(index, 1);
             renderTabelData();
         }
     }
@@ -1292,6 +1280,7 @@
                     if(i === 38) opt.selected = true;
                     dropdown.appendChild(opt);
                 }
+                dropdown.onchange = function () { pmWeekChanged(id); };
             });
         }
 
@@ -2575,14 +2564,31 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz6FuEC0sWwow1xI8KzG0L46myt4c7-FSditgGiH4SA5MKKnKL0eIV2L7vn9lBKy8xzuw/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxhFRbwsd_p0Rf_ahDrFAm3gJ-lifouD-IZqqOH46gy5_OgWf8BvaL5xV3Ip6bVzo4lig/exec';
         const DB_ENABLED = API_URL.trim() !== '';
+        const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
-        function newId() {
-            return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-        }
+        // Dataset PM -> tab di Spreadsheet + isi kolom "Sub Category"
+        const PM_MAP = {
+            utilityStage1Data:  { sheet: 'PM Utility stage 1', sub: '',              week: 'weekDropdown1',        render: 'renderUtilityStage1Table' },
+            utilityStage2Data:  { sheet: 'PM Utility stage 2', sub: '',              week: 'weekDropdown2',        render: 'renderUtilityStage2Table' },
+            biomassData:        { sheet: 'PM Biomass',         sub: '',              week: 'weekDropdownBiomass',  render: 'renderBiomassTable' },
+            prosesCKData:       { sheet: 'PM Proses satge 1',  sub: 'PM CK',         week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
+            prosesMHSData:      { sheet: 'PM Proses satge 1',  sub: 'PM MHS',        week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
+            prosesGDRMData:     { sheet: 'PM Proses satge 1',  sub: 'PM GDRM',       week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
+            prosesStage2Data:   { sheet: 'PM Proses stage 2',  sub: '',              week: 'weekDropdownProses2',  render: 'renderProsesStage2Table' },
+            packingLine1Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 1.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine2Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 2.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine3Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 3.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine4Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 4.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine5Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 5.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingStage2Line1: { sheet: 'PM Packing stage 2', sub: 'PM LINE 1.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line2: { sheet: 'PM Packing stage 2', sub: 'PM LINE 2.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line3: { sheet: 'PM Packing stage 2', sub: 'PM LINE 3.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line4: { sheet: 'PM Packing stage 2', sub: 'PM LINE 4.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line5: { sheet: 'PM Packing stage 2', sub: 'PM LINE 5.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' }
+        };
 
-        // Daftar semua dataset PM (nama -> array)
         function pmDatasets() {
             return {
                 utilityStage1Data, utilityStage2Data, biomassData,
@@ -2639,21 +2645,58 @@
                 .catch(err => { syncPending--; syncFailed.push({ action, payload }); setSync('error', err.message); });
         }
 
-        // ---------- PM: simpan perubahan (digabung per 0,7 detik) ----------
+        // ---------- PM: data per minggu ----------
+        // pmWeekData[ref][week][index] = { freq, planned, comp, remarks }  (hanya yang tersimpan/diubah)
+        const pmWeekData = {};
+
+        function pmWeekOf(ref) {
+            const el = document.getElementById(PM_MAP[ref].week);
+            return (el && el.value) ? el.value : 'W' + PM_BASE_WEEK;
+        }
+
+        // Tanggal bawaan minggu lain = tanggal minggu acuan digeser 7 hari per minggu
+        function pmShiftDate(str, week) {
+            const n = parseInt(String(week).replace(/\D/g, ''), 10) || PM_BASE_WEEK;
+            const p = String(str || '').split('.');
+            if (p.length !== 3 || n === PM_BASE_WEEK) return str || '';
+            const d = new Date(Date.UTC(+p[2], +p[1] - 1, +p[0]) + (n - PM_BASE_WEEK) * 7 * 86400000);
+            return String(d.getUTCDate()).padStart(2, '0') + '.' + String(d.getUTCMonth() + 1).padStart(2, '0') + '.' + d.getUTCFullYear();
+        }
+
+        // Nilai yang ditampilkan: dari database bila ada, selain itu bawaan template
+        function pmEffective(ref, index, week) {
+            const base = pmDatasets()[ref][index];
+            const ov = pmWeekData[ref] && pmWeekData[ref][week] && pmWeekData[ref][week][index];
+            return {
+                si: base.si, eq: base.eq, work: base.work,
+                freq: ov ? ov.freq : pmNormalizeFrequency(base.freq),
+                planned: ov ? ov.planned : pmShiftDate(base.planned, week),
+                comp: ov ? ov.comp : '',
+                remarks: ov ? ov.remarks : ''
+            };
+        }
+
         const pmDirty = new Map();
         let pmTimer = null;
 
-        function pmRowPayload(ref, index) {
-            const it = pmDatasets()[ref][index];
-            return { dataset: ref, index: index, si: it.si, eq: it.eq, work: it.work,
+        function pmRowPayload(ref, index, week) {
+            const it = pmEffective(ref, index, week);
+            return { sheet: PM_MAP[ref].sheet, sub: PM_MAP[ref].sub, week: week,
+                     si: it.si, eq: it.eq, work: it.work,
                      freq: it.freq, planned: it.planned, comp: it.comp, remarks: it.remarks };
         }
 
         function pmUpdate(ref, index, field, value) {
             const ds = pmDatasets()[ref];
             if (!ds || !ds[index]) return;
-            ds[index][field] = value;
-            pmDirty.set(ref + '|' + index, { ref: ref, index: index });
+            const week = pmWeekOf(ref);
+            const cur = pmEffective(ref, index, week);
+            cur[field] = value;
+            pmWeekData[ref] = pmWeekData[ref] || {};
+            pmWeekData[ref][week] = pmWeekData[ref][week] || {};
+            pmWeekData[ref][week][index] = { freq: cur.freq, planned: cur.planned, comp: cur.comp, remarks: cur.remarks };
+
+            pmDirty.set(ref + '|' + week + '|' + index, { ref: ref, index: index, week: week });
             clearTimeout(pmTimer);
             pmTimer = setTimeout(flushPM, 700);
             refreshDashboard();
@@ -2661,12 +2704,51 @@
 
         function flushPM() {
             if (!pmDirty.size) return;
-            const rows = [...pmDirty.values()].map(d => pmRowPayload(d.ref, d.index));
+            const rows = [...pmDirty.values()].map(d => pmRowPayload(d.ref, d.index, d.week));
             pmDirty.clear();
             apiQueue('pmSave', { rows: rows });
         }
 
+        function pmWeekChanged(dropdownId) {
+            const seen = {};
+            Object.keys(PM_MAP).forEach(ref => {
+                const m = PM_MAP[ref];
+                if (m.week === dropdownId && !seen[m.render]) { seen[m.render] = true; window[m.render](); }
+            });
+            refreshDashboard();
+        }
+
         // ---------- Muat data dari Spreadsheet ----------
+        function pmKeyName(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+        function pmKeySub(s)  { return String(s || '').toUpperCase().replace(/^PM\s*/, '').replace(/[^A-Z0-9]/g, ''); }
+
+        function applyPM(rows) {
+            Object.keys(pmWeekData).forEach(k => delete pmWeekData[k]);       // database = sumber kebenaran
+            const all = pmDatasets();
+            const refBySheetSub = {};
+            Object.keys(PM_MAP).forEach(ref => { refBySheetSub[PM_MAP[ref].sheet + '|' + pmKeySub(PM_MAP[ref].sub)] = ref; });
+            const idxByRef = {};
+
+            rows.forEach(r => {
+                const ref = refBySheetSub[r.sheet + '|' + pmKeySub(r.sub)];
+                if (!ref) return;
+                if (!idxByRef[ref]) {
+                    idxByRef[ref] = {};
+                    all[ref].forEach((it, i) => { idxByRef[ref][String(it.si) + '|' + pmKeyName(it.eq)] = i; });
+                }
+                const i = idxByRef[ref][String(r.si) + '|' + pmKeyName(r.eq)];
+                if (i === undefined) return;
+                pmWeekData[ref] = pmWeekData[ref] || {};
+                pmWeekData[ref][r.week] = pmWeekData[ref][r.week] || {};
+                pmWeekData[ref][r.week][i] = {
+                    freq: pmNormalizeFrequency(r.freq) || 'WEEKLY',
+                    planned: r.planned || '',
+                    comp: r.comp || '',
+                    remarks: pmNormalizeRemarks(r.remarks)
+                };
+            });
+        }
+
         async function loadFromSheet() {
             if (!DB_ENABLED) { setSync('local'); return; }
             setSync('loading');
@@ -2674,13 +2756,10 @@
                 const res = await fetch(API_URL + '?action=readAll');
                 const r = await res.json();
                 if (!r.ok) throw new Error(r.error || 'Server error');
-
-                applyPM(r.pm, r.seeded.pm);
-                applyLLF(r.llf, r.seeded.llf);
-                applyInventory(r.inv, r.seeded.inv);
-
-                renderAllPM();
-                ['util1','util2','pros1','pros2','pack1','pack2','biom'].forEach(hitungClosedRateStage);
+                applyPM(r.pm || []);
+                renderUtilityStage1Table(); renderUtilityStage2Table(); renderBiomassTable();
+                renderProsesStage1Table(); renderProsesStage2Table();
+                renderPackingStage1Table(); renderPackingStage2Table();
                 refreshDashboard();
                 if (syncPending === 0) setSync(syncFailed.length ? 'error' : 'ok');
             } catch (err) {
@@ -2688,104 +2767,32 @@
             }
         }
 
-        function renderAllPM() {
-            renderUtilityStage1Table(); renderUtilityStage2Table(); renderBiomassTable();
-            renderProsesStage1Table(); renderProsesStage2Table();
-            renderPackingStage1Table(); renderPackingStage2Table();
-        }
-
-        function applyPM(rows, seeded) {
-            const all = pmDatasets();
-            if (!seeded) {                       // Sheet masih kosong -> isi dengan data awal aplikasi
-                const seed = [];
-                Object.keys(all).forEach(ref => all[ref].forEach((_, i) => seed.push(pmRowPayload(ref, i))));
-                apiQueue('pmSave', { rows: seed });
-                return;
-            }
-            rows.forEach(row => {
-                const ds = all[row.dataset];
-                const i = Number(row.index);
-                if (!ds || !ds[i]) return;
-                ds[i].freq = row.freq;
-                ds[i].planned = row.planned;
-                ds[i].comp = row.comp;
-                ds[i].remarks = row.remarks;
-            });
-        }
-
-        function applyLLF(rows, seeded) {
-            if (!seeded) {
-                const seed = [];
-                Object.keys(databaseLLFStage).forEach(stage => {
-                    databaseLLFStage[stage].forEach(it => {
-                        it.id = it.id || newId();
-                        seed.push({ id: it.id, stage: stage, tanggal: it.tanggal, deskripsi: it.deskripsi, status: it.status });
-                    });
-                });
-                apiQueue('llfAddMany', { rows: seed });
-                return;
-            }
-            const grouped = {};
-            rows.forEach(r => {
-                const s = String(r.stage);
-                (grouped[s] = grouped[s] || []).push({ id: r.id, tanggal: r.tanggal, deskripsi: r.deskripsi, status: r.status });
-            });
-            databaseLLFStage = grouped;
-        }
-
-        function applyInventory(rows, seeded) {
-            if (!seeded) {
-                const seed = [];
-                Object.keys(databaseInventory).forEach(key => {
-                    const p = key.lastIndexOf('_');
-                    databaseInventory[key].forEach(it => {
-                        it.id = it.id || newId();
-                        seed.push(Object.assign({ kategori: key.slice(0, p), stage: key.slice(p + 1) }, it));
-                    });
-                });
-                apiQueue('invAddMany', { rows: seed });
-                return;
-            }
-            const grouped = {};
-            rows.forEach(r => {
-                const key = r.kategori + '_' + r.stage;
-                const item = Object.assign({}, r);
-                delete item.kategori; delete item.stage; delete item.updatedAt;
-                (grouped[key] = grouped[key] || []).push(item);
-            });
-            ['On PR','On Order','On PO'].forEach(k => ['1112','1113'].forEach(s => { grouped[k + '_' + s] = grouped[k + '_' + s] || []; }));
-            databaseInventory = grouped;
-        }
-
-        // ---------- Dashboard dihitung dari data nyata ----------
-        let chartPMInst = null, chartLLFInst = null;
+        // ---------- Dashboard PM dihitung dari data (minggu yang dipilih, default W38) ----------
+        let chartPMInst = null;
 
         function refreshDashboard() {
-            const d = pmDatasets();
-            const pct = groups => {
-                const all = [].concat(...groups);
-                if (!all.length) return 0;
-                const done = all.filter(i => pmNormalizeRemarks(i.remarks) === 'PM sudah terselesaikan').length;
-                return Math.round(done / all.length * 100);
+            if (!chartPMInst) return;
+            const pct = refs => {
+                let total = 0, done = 0;
+                refs.forEach(ref => {
+                    const week = pmWeekOf(ref);
+                    pmDatasets()[ref].forEach((_, i) => {
+                        total++;
+                        if (pmNormalizeRemarks(pmEffective(ref, i, week).remarks) === 'PM sudah terselesaikan') done++;
+                    });
+                });
+                return total ? Math.round(done / total * 100) : 0;
             };
-            if (chartPMInst) {
-                chartPMInst.data.datasets[0].data = [
-                    pct([d.utilityStage1Data]),
-                    pct([d.utilityStage2Data]),
-                    pct([d.prosesCKData, d.prosesMHSData, d.prosesGDRMData]),
-                    pct([d.prosesStage2Data]),
-                    pct([d.packingLine1Data, d.packingLine2Data, d.packingLine3Data, d.packingLine4Data, d.packingLine5Data]),
-                    pct([d.packingStage2Line1, d.packingStage2Line2, d.packingStage2Line3, d.packingStage2Line4, d.packingStage2Line5]),
-                    pct([d.biomassData])
-                ];
-                chartPMInst.update();
-            }
-            if (chartLLFInst) {
-                const all = [].concat(...Object.values(databaseLLFStage));
-                const closed = all.filter(i => i.status === 'Closed').length;
-                chartLLFInst.data.datasets[0].data = [closed, all.length - closed];
-                chartLLFInst.update();
-            }
+            chartPMInst.data.datasets[0].data = [
+                pct(['utilityStage1Data']),
+                pct(['utilityStage2Data']),
+                pct(['prosesCKData', 'prosesMHSData', 'prosesGDRMData']),
+                pct(['prosesStage2Data']),
+                pct(['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data']),
+                pct(['packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5']),
+                pct(['biomassData'])
+            ];
+            chartPMInst.update();
         }
 
         // =========================
@@ -2890,9 +2897,10 @@
             const tbody = document.getElementById(tbodyId);
             if (!tbody) return;
 
+            const week = pmWeekOf(dataRef);
             tbody.innerHTML = '';
-            dataset.forEach((item, index) => {
-                tbody.innerHTML += renderPMRow(item, index, dataRef);
+            dataset.forEach((_, index) => {
+                tbody.innerHTML += renderPMRow(pmEffective(dataRef, index, week), index, dataRef);
             });
         }
 
@@ -3070,7 +3078,7 @@
 
             const chartLLFEl = document.getElementById('chartLLF');
             if(chartLLFEl) {
-                chartLLFInst = new Chart(chartLLFEl.getContext('2d'), {
+                new Chart(chartLLFEl.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Closed', 'Open'],
@@ -3104,8 +3112,7 @@
                 });
             }
 
-            refreshDashboard();
-            loadFromSheet();
+            if (DB_ENABLED) { loadFromSheet(); } else { setSync('local'); }
         };
     </script>
 </body>
