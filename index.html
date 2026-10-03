@@ -1062,7 +1062,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('utilityStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1091,7 +1091,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('utilityStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1120,7 +1120,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('biomassModal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1154,7 +1154,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('prosesStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1183,7 +1183,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('prosesStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1219,7 +1219,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('packingStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -1255,7 +1255,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('packingStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -2564,7 +2564,8 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyTLac4nADFq1W-UaoRMnj307z_17n5oZL5WcHhBqlJEwOI-2ftKu8BR4NVUs2c55OOnA/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbz2XrGxJJGlXem-xD8pKBSDGCjr3N7EIonhPpYE8iktIHa5inzL3O8wNpeAK9yLCobP8Q/exec';
+        try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
@@ -2608,7 +2609,7 @@
             const text = document.getElementById('syncText');
             if (!badge || !text) return;
             const map = {
-                local:   ['bg-secondary', 'Mode lokal (database belum disambungkan)'],
+                local:   ['bg-secondary', 'Belum terhubung ke database - klik di sini untuk isi URL'],
                 loading: ['bg-info text-dark', 'Memuat data dari Spreadsheet...'],
                 saving:  ['bg-warning text-dark', 'Menyimpan...'],
                 ok:      ['bg-success', 'Terhubung ke Spreadsheet'],
@@ -2619,7 +2620,16 @@
         }
 
         function syncBadgeClick() {
-            if (!DB_ENABLED) return;
+            if (!DB_ENABLED) {                       // belum ada URL -> minta URL Web App
+                const u = prompt('Tempel URL Web App Google Apps Script (berakhiran /exec):');
+                if (u && /^https:\/\/script\.google\.com\/.+\/exec/.test(u.trim())) {
+                    try { localStorage.setItem('pm_api_url', u.trim()); } catch (e) {}
+                    location.reload();
+                } else if (u) {
+                    alert('URL tidak valid. Harus berawalan https://script.google.com/ dan berakhiran /exec');
+                }
+                return;
+            }
             if (syncFailed.length) {
                 const f = syncFailed; syncFailed = [];
                 f.forEach(t => apiQueue(t.action, t.payload));
@@ -2705,20 +2715,71 @@
                      freq: it.freq, planned: it.planned, comp: it.comp, remarks: it.remarks };
         }
 
+        // ---------- Draft: perubahan di modal TIDAK dikirim sampai tombol "Simpan Perubahan" ditekan ----------
+        const pmDraft = {};          // 'ref|week|index' -> { freq, planned, comp, remarks }
+
+        const PM_MODALS = {
+            utilityStage1Modal: ['utilityStage1Data'],
+            utilityStage2Modal: ['utilityStage2Data'],
+            biomassModal:       ['biomassData'],
+            prosesStage1Modal:  ['prosesCKData', 'prosesMHSData', 'prosesGDRMData'],
+            prosesStage2Modal:  ['prosesStage2Data'],
+            packingStage1Modal: ['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data'],
+            packingStage2Modal: ['packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5']
+        };
+
+        // Nilai yang tampil di tabel: draft (belum disimpan) di atas data tersimpan
+        function pmView(ref, index, week) {
+            const base = pmEffective(ref, index, week);
+            const d = pmDraft[ref + '|' + week + '|' + index];
+            return d ? Object.assign({}, base, d) : base;
+        }
+
         function pmUpdate(ref, index, field, value) {
             const ds = pmDatasets()[ref];
             if (!ds || !ds[index]) return;
             const week = pmWeekOf(ref);
-            const cur = pmEffective(ref, index, week);
-            cur[field] = value;
-            pmWeekData[ref] = pmWeekData[ref] || {};
-            pmWeekData[ref][week] = pmWeekData[ref][week] || {};
-            pmWeekData[ref][week][index] = { freq: cur.freq, planned: cur.planned, comp: cur.comp, remarks: cur.remarks };
+            const k = ref + '|' + week + '|' + index;
+            const cur = pmView(ref, index, week);
+            pmDraft[k] = { freq: cur.freq, planned: cur.planned, comp: cur.comp, remarks: cur.remarks };
+            pmDraft[k][field] = value;
+        }
 
-            pmDirty.set(ref + '|' + week + '|' + index, { ref: ref, index: index, week: week });
+        // Tombol "Simpan Perubahan": kirim semua draft modal ini ke Spreadsheet
+        function pmSaveModal(modalId) {
+            const refs = PM_MODALS[modalId] || [];
+            const keys = Object.keys(pmDraft).filter(k => refs.indexOf(k.split('|')[0]) >= 0);
+            if (!keys.length) return;                                    // tidak ada perubahan
+            if (DB_ENABLED && !pmLoaded) {
+                alert('Data dari Spreadsheet belum selesai dimuat / gagal dimuat. Perubahan belum tersimpan, coba lagi.');
+                return;
+            }
+            const weeks = {};
+            keys.forEach(k => {
+                const [ref, week, idx] = k.split('|');
+                pmWeekData[ref] = pmWeekData[ref] || {};
+                pmWeekData[ref][week] = pmWeekData[ref][week] || {};
+                pmWeekData[ref][week][idx] = Object.assign({}, pmDraft[k]);
+                pmDirty.set(ref + '|' + week + '|' + idx, { ref: ref, index: Number(idx), week: week });
+                weeks[ref + '|' + week] = { ref: ref, week: week };
+                delete pmDraft[k];
+            });
+            Object.keys(weeks).forEach(w => pmSeedWeek(weeks[w].ref, weeks[w].week));   // lengkapi daftar equipment minggu tsb
             clearTimeout(pmTimer);
-            pmTimer = setTimeout(flushPM, 700);
+            flushPM();
             refreshDashboard();
+        }
+
+        // Modal ditutup tanpa simpan -> buang draft
+        function pmDiscardModal(modalId) {
+            const refs = PM_MODALS[modalId] || [];
+            Object.keys(pmDraft).forEach(k => { if (refs.indexOf(k.split('|')[0]) >= 0) delete pmDraft[k]; });
+        }
+        function pmBindModals() {
+            Object.keys(PM_MODALS).forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.addEventListener) el.addEventListener('hidden.bs.modal', () => pmDiscardModal(id));
+            });
         }
 
         function flushPM() {
@@ -2918,10 +2979,9 @@
             if (!tbody) return;
 
             const week = pmWeekOf(dataRef);
-            pmSeedWeek(dataRef, week);
             tbody.innerHTML = '';
             dataset.forEach((_, index) => {
-                tbody.innerHTML += renderPMRow(pmEffective(dataRef, index, week), index, dataRef);
+                tbody.innerHTML += renderPMRow(pmView(dataRef, index, week), index, dataRef);
             });
         }
 
@@ -3133,6 +3193,7 @@
                 });
             }
 
+            pmBindModals();
             if (DB_ENABLED) { loadFromSheet(); } else { setSync('local'); }
         };
     </script>
