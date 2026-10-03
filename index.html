@@ -1062,7 +1062,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('utilityStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('utilityStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -1091,7 +1091,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('utilityStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('utilityStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -1120,7 +1120,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('biomassModal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('biomassModal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -1154,7 +1154,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('prosesStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('prosesStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -1183,7 +1183,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('prosesStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('prosesStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -1219,7 +1219,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('packingStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('packingStage1Modal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -1255,7 +1255,7 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('packingStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="pmSaveModal('packingStage2Modal')" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
                 </div>
             </div>
         </div>
@@ -2564,30 +2564,30 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbz2XrGxJJGlXem-xD8pKBSDGCjr3N7EIonhPpYE8iktIHa5inzL3O8wNpeAK9yLCobP8Q/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbw2TD2dhA0nkxEyZlVjK6Iw3vJofKYbR_MYuNw9TVLQSOo3wiqGo9jL7bne2Jb39ZLntA/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
         // Dataset PM -> tab di Spreadsheet + isi kolom "Sub Category"
         const PM_MAP = {
-            utilityStage1Data:  { sheet: 'PM Utility stage 1', sub: '',              week: 'weekDropdown1',        render: 'renderUtilityStage1Table' },
-            utilityStage2Data:  { sheet: 'PM Utility stage 2', sub: '',              week: 'weekDropdown2',        render: 'renderUtilityStage2Table' },
-            biomassData:        { sheet: 'PM Biomass',         sub: '',              week: 'weekDropdownBiomass',  render: 'renderBiomassTable' },
-            prosesCKData:       { sheet: 'PM Proses satge 1',  sub: 'PM CK',         week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
-            prosesMHSData:      { sheet: 'PM Proses satge 1',  sub: 'PM MHS',        week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
-            prosesGDRMData:     { sheet: 'PM Proses satge 1',  sub: 'PM GDRM',       week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
-            prosesStage2Data:   { sheet: 'PM Proses stage 2',  sub: '',              week: 'weekDropdownProses2',  render: 'renderProsesStage2Table' },
-            packingLine1Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 1.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
-            packingLine2Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 2.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
-            packingLine3Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 3.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
-            packingLine4Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 4.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
-            packingLine5Data:   { sheet: 'PM Packing stage 1', sub: 'PM LINE 5.1',   week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
-            packingStage2Line1: { sheet: 'PM Packing stage 2', sub: 'PM LINE 1.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
-            packingStage2Line2: { sheet: 'PM Packing stage 2', sub: 'PM LINE 2.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
-            packingStage2Line3: { sheet: 'PM Packing stage 2', sub: 'PM LINE 3.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
-            packingStage2Line4: { sheet: 'PM Packing stage 2', sub: 'PM LINE 4.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
-            packingStage2Line5: { sheet: 'PM Packing stage 2', sub: 'PM LINE 5.2',   week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' }
+            utilityStage1Data:  { sheet: 'PM Utility stage 1',     line: '',            week: 'weekDropdown1',        render: 'renderUtilityStage1Table' },
+            utilityStage2Data:  { sheet: 'PM Utility stage 2',     line: '',            week: 'weekDropdown2',        render: 'renderUtilityStage2Table' },
+            biomassData:        { sheet: 'PM Biomass',             line: '',            week: 'weekDropdownBiomass',  render: 'renderBiomassTable' },
+            prosesCKData:       { sheet: 'PM Proses CK stage 1',   line: '',            week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
+            prosesMHSData:      { sheet: 'PM Proses MHS stage 1',  line: '',            week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
+            prosesGDRMData:     { sheet: 'PM Proses GDRM stage 1', line: '',            week: 'weekDropdownProses1',  render: 'renderProsesStage1Table' },
+            prosesStage2Data:   { sheet: 'PM Proses CK stage 2',   line: '',            week: 'weekDropdownProses2',  render: 'renderProsesStage2Table' },
+            packingLine1Data:   { sheet: 'PM Packing stage 1',     line: 'PM LINE 1.1', week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine2Data:   { sheet: 'PM Packing stage 1',     line: 'PM LINE 2.1', week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine3Data:   { sheet: 'PM Packing stage 1',     line: 'PM LINE 3.1', week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine4Data:   { sheet: 'PM Packing stage 1',     line: 'PM LINE 4.1', week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingLine5Data:   { sheet: 'PM Packing stage 1',     line: 'PM LINE 5.1', week: 'weekDropdownPacking1', render: 'renderPackingStage1Table' },
+            packingStage2Line1: { sheet: 'PM Packing stage 2',     line: 'PM LINE 1.2', week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line2: { sheet: 'PM Packing stage 2',     line: 'PM LINE 2.2', week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line3: { sheet: 'PM Packing stage 2',     line: 'PM LINE 3.2', week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line4: { sheet: 'PM Packing stage 2',     line: 'PM LINE 4.2', week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' },
+            packingStage2Line5: { sheet: 'PM Packing stage 2',     line: 'PM LINE 5.2', week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' }
         };
 
         function pmDatasets() {
@@ -2710,7 +2710,7 @@
 
         function pmRowPayload(ref, index, week) {
             const it = pmEffective(ref, index, week);
-            return { sheet: PM_MAP[ref].sheet, sub: PM_MAP[ref].sub, week: week,
+            return { sheet: PM_MAP[ref].sheet, sub: '', line: PM_MAP[ref].line, week: week,
                      si: it.si, eq: it.eq, work: it.work,
                      freq: it.freq, planned: it.planned, comp: it.comp, remarks: it.remarks };
         }
@@ -2806,11 +2806,11 @@
             Object.keys(pmWeekData).forEach(k => delete pmWeekData[k]);       // database = sumber kebenaran
             const all = pmDatasets();
             const refBySheetSub = {};
-            Object.keys(PM_MAP).forEach(ref => { refBySheetSub[PM_MAP[ref].sheet + '|' + pmKeySub(PM_MAP[ref].sub)] = ref; });
+            Object.keys(PM_MAP).forEach(ref => { refBySheetSub[PM_MAP[ref].sheet + '|' + pmKeySub(PM_MAP[ref].line)] = ref; });
             const idxByRef = {};
 
             rows.forEach(r => {
-                const ref = refBySheetSub[r.sheet + '|' + pmKeySub(r.sub)];
+                const ref = refBySheetSub[r.sheet + '|' + pmKeySub(r.line || r.sub)];
                 if (!ref) return;
                 if (!idxByRef[ref]) {
                     idxByRef[ref] = {};
