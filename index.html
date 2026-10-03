@@ -806,7 +806,7 @@
 
 <!-- Modal Detail & Input Inventory Terpadu (Taruh di luar tab / di bawah sebelum </body>) -->
 <div class="modal fade" id="modalInventoryDetail" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl" style="max-width: 95vw;">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="judulModalInv"><i class="bi bi-journal-text me-2"></i> Rincian Material</h5>
@@ -830,7 +830,9 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <span id="invDirtyHint" class="text-warning fw-bold small me-auto d-none"><i class="bi bi-exclamation-triangle me-1"></i>Ada perubahan yang belum di-Update</span>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="updateInventory()" data-bs-dismiss="modal"><i class="bi bi-cloud-arrow-up me-1"></i> Update</button>
             </div>
         </div>
     </div>
@@ -838,28 +840,76 @@
 
 <!-- Skrip JavaScript Inventory -->
 <script>
-    let databaseInventory = {
+    // Data diisi dari Spreadsheet (tab "On Order / On PR / On PO ... bawah 5 jt")
+    let databaseInventory = {};
+
+    const INV_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const invNorm = t => String(t === null || t === undefined ? '' : t).toLowerCase().replace(/\s+/g, ' ').trim();
+    const invEsc = t => String(t === null || t === undefined ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    // k = nama field di aplikasi, h = nama HEADER di spreadsheet, t = jenis input (text/date/select/month/auto), w = lebar kolom form
+    const IC = {
+        kode:     (h, label) => ({ k: 'kode',     h: h, label: label || h, t: 'text', w: 3 }),
+        nama:     (h, label) => ({ k: 'nama',     h: h, label: label || h, t: 'text', w: 3 }),
+        prNum:    ()         => ({ k: 'prNum',    h: 'PR NUMBER',          label: 'PR Number', t: 'text', w: 2 }),
+        prDate:   ()         => ({ k: 'prDate',   h: 'PR DATE',            label: 'PR Date', t: 'date', w: 2 }),
+        delDate:  ()         => ({ k: 'delDate',  h: 'PR DELIVERY DATE',   label: 'PR Delivery Date', t: 'date', w: 2 }),
+        prQty:    ()         => ({ k: 'qty',      h: 'PR QUANTITY',        label: 'PR Quantity', t: 'text', w: 2 }),
+        poNum:    ()         => ({ k: 'poNum',    h: 'PO NUMBER',          label: 'PO Number', t: 'text', w: 2 }),
+        poDate:   ()         => ({ k: 'poDate',   h: 'PO DATE',            label: 'PO Date', t: 'date', w: 2 }),
+        poQty:    ()         => ({ k: 'poQty',    h: 'PO QUANTITY',        label: 'PO Quantity', t: 'text', w: 2 }),
+        poStatus: (k)        => ({ k: k || 'poStatus', h: 'PO STATUS',     label: 'PO Status', t: 'text', w: 2 }),
+        mapNo:    ()         => ({ k: 'mapNo',    h: 'MAP NO',             label: 'MAP No', t: 'text', w: 2 }),
+        ket:      (h)        => ({ k: 'ket',      h: h || 'KET',          label: 'Ket', t: 'text', w: 4 }),
+        bulan:    ()         => ({ k: 'bulan',    h: 'BULAN',              label: 'Bulan', t: 'month', w: 2 })
+    };
+
+    const ON_ORDER_COLS = [
+        IC.kode('Kode Material'), IC.nama('Nama Material'),
+        { k: 'tanggal', h: 'Tanggal', label: 'Tanggal', t: 'date', w: 2 },
+        { k: 'qty', h: 'Quantity', label: 'Quantity', t: 'text', w: 2 },
+        { k: 'status', h: 'Status', label: 'Status', t: 'text', w: 2 },
+        IC.ket('Ket')
+    ];
+
+    // Susunan kolom tiap tab (sesuai header di spreadsheet)
+    const INV_CFG = {
+        'On Order_1112': ON_ORDER_COLS,
+        'On Order_1113': ON_ORDER_COLS,
         'On PR_1112': [
-            { no: 1, kode: "MAT-001", nama: "Bearing 6205 ZZ", prNum: "PR-2026-001", prDate: "25 Sep 2026", delDate: "10 Okt 2026", qty: "10 Pcs", status: "Approved", ket: "Urgent" }
+            IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.prNum(), IC.prDate(), IC.delDate(), IC.prQty(),
+            { k: 'status', h: 'STATUS', label: 'Status', t: 'select', opts: ['Approved', 'Waiting', 'Draft'], w: 2 },
+            IC.ket(), IC.bulan()
         ],
-        'On PR_1113': [],
-        'On Order_1112': [
-            { kode: "MAT-201", nama: "Mechanical Seal", tanggal: "20 Sep 2026", qty: "2 Pcs", status: "In Transit", ket: "Kirim ekspedisi" }
+        'On PR_1113': [
+            IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.prNum(), IC.prDate(), IC.delDate(), IC.prQty(),
+            IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(), IC.mapNo(), IC.bulan()
         ],
-        'On Order_1113': [],
         'On PO_1112': [
-            { kode: "MAT-301", nama: "Contactor LC1D", prNum: "PR-2026-001", poNum: "PO-501", poDate: "15 Sep 2026", status: "Delivered", mapNo: "MAP-01" }
+            { k: 'no', h: 'NO', label: 'No', t: 'auto' },
+            IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.prNum(), IC.poNum(), IC.poDate(),
+            IC.poStatus('status'), IC.mapNo(), IC.bulan()
         ],
-        'On PO_1113': []
+        'On PO_1113': [
+            IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.prNum(), IC.poNum(), IC.poDate(),
+            IC.poStatus('status'), IC.ket(), IC.bulan()
+        ]
     };
 
     let currentKategori = '';
     let currentStage = '';
+    let invWork = null;       // salinan kerja (draft) tab yang sedang dibuka
+    let invDirty = false;
+
+    function invKey() { return currentKategori + '_' + currentStage; }
+    function invCols() { return INV_CFG[invKey()] || []; }
 
     function bukaModalInventory(kategori, stage) {
         currentKategori = kategori;
         currentStage = stage;
-        
+        invWork = (databaseInventory[invKey()] || []).map(x => Object.assign({}, x));
+        invDirty = false;
+
         document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${kategori} — Stage ${stage}`;
         renderFormInput();
         renderTabelData();
@@ -868,207 +918,120 @@
         myModal.show();
     }
 
+    function invShowHint() {
+        const hint = document.getElementById('invDirtyHint');
+        if (hint && hint.classList) hint.classList.toggle('d-none', !invDirty);
+    }
+
     function renderFormInput() {
         const container = document.getElementById('formContainerDynamic');
-        container.innerHTML = '';
-
-        if (currentKategori === 'On PR') {
-            container.innerHTML = `
-                <div class="col-md-3"><input type="text" id="inKode" class="form-control form-control-sm" placeholder="Material Code"></div>
-                <div class="col-md-3"><input type="text" id="inNama" class="form-control form-control-sm" placeholder="Material Name"></div>
-                <div class="col-md-2"><input type="text" id="inPrNum" class="form-control form-control-sm" placeholder="PR Number"></div>
-                <div class="col-md-2"><input type="date" id="inPrDate" class="form-control form-control-sm"></div>
-                <div class="col-md-2"><input type="date" id="inDelDate" class="form-control form-control-sm"></div>
-                <div class="col-md-2 mt-2"><input type="text" id="inQty" class="form-control form-control-sm" placeholder="PR Quantity"></div>
-                <div class="col-md-2 mt-2">
-                    <select id="inStatus" class="form-select form-select-sm">
-                        <option value="Approved">Approved</option>
-                        <option value="Waiting">Waiting</option>
-                        <option value="Draft">Draft</option>
-                    </select>
-                </div>
-                <div class="col-md-6 mt-2"><input type="text" id="inKet" class="form-control form-control-sm" placeholder="Keterangan (Ket)"></div>
-                <div class="col-md-2 mt-2"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="tambahDataInventory()">Simpan</button></div>
-            `;
-        } else if (currentKategori === 'On PO') {
-            container.innerHTML = `
-                <div class="col-md-3"><input type="text" id="inKode" class="form-control form-control-sm" placeholder="Material Code"></div>
-                <div class="col-md-3"><input type="text" id="inNama" class="form-control form-control-sm" placeholder="Material Name"></div>
-                <div class="col-md-2"><input type="text" id="inPrNum" class="form-control form-control-sm" placeholder="PR Number"></div>
-                <div class="col-md-2"><input type="text" id="inPoNum" class="form-control form-control-sm" placeholder="PO Number"></div>
-                <div class="col-md-2"><input type="date" id="inPoDate" class="form-control form-control-sm"></div>
-                <div class="col-md-3 mt-2"><input type="text" id="inStatus" class="form-control form-control-sm" placeholder="PO Status"></div>
-                <div class="col-md-3 mt-2"><input type="text" id="inMapNo" class="form-control form-control-sm" placeholder="MAP No"></div>
-                <div class="col-md-3 mt-2"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="tambahDataInventory()">Simpan</button></div>
-            `;
-        } else if (currentKategori === 'On Order') {
-            container.innerHTML = `
-                <div class="col-md-3"><input type="text" id="inKode" class="form-control form-control-sm" placeholder="Kode Material"></div>
-                <div class="col-md-3"><input type="text" id="inNama" class="form-control form-control-sm" placeholder="Nama Material"></div>
-                <div class="col-md-2"><input type="date" id="inTanggal" class="form-control form-control-sm"></div>
-                <div class="col-md-2"><input type="text" id="inQty" class="form-control form-control-sm" placeholder="Quantity"></div>
-                <div class="col-md-2"><input type="text" id="inStatus" class="form-control form-control-sm" placeholder="Status"></div>
-                <div class="col-md-4 mt-2"><input type="text" id="inKet" class="form-control form-control-sm" placeholder="Ket"></div>
-                <div class="col-md-2 mt-2"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="tambahDataInventory()">Simpan</button></div>
-            `;
-        }
+        let html = '';
+        invCols().forEach(c => {
+            if (c.t === 'auto') return;
+            let input = '';
+            if (c.t === 'date') {
+                input = `<input type="date" id="inv_${c.k}" class="form-control form-control-sm">`;
+            } else if (c.t === 'select') {
+                input = `<select id="inv_${c.k}" class="form-select form-select-sm">${c.opts.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
+            } else if (c.t === 'month') {
+                const cur = new Date().getMonth();
+                input = `<select id="inv_${c.k}" class="form-select form-select-sm">${INV_MONTHS.map((m, i) => `<option value="${m}"${i === cur ? ' selected' : ''}>${m}</option>`).join('')}</select>`;
+            } else {
+                input = `<input type="text" id="inv_${c.k}" class="form-control form-control-sm" placeholder="${c.label}">`;
+            }
+            html += `<div class="col-md-${c.w || 2}"><label class="form-label small fw-bold mb-0">${c.label}</label>${input}</div>`;
+        });
+        html += `<div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="tambahDataInventory()"><i class="bi bi-save"></i> Simpan</button></div>`;
+        container.innerHTML = html;
     }
 
     function renderTabelData() {
-        const key = currentKategori + '_' + currentStage;
-        const listData = databaseInventory[key] || [];
+        const cols = invCols();
+        const listData = invWork || [];
         const thead = document.getElementById('tabelHeaderInv');
         const tbody = document.getElementById('tabelBodyInv');
-        tbody.innerHTML = '';
+        const badge = currentKategori === 'On PO' ? 'bg-primary' : (currentKategori === 'On PR' ? 'bg-success' : 'bg-warning text-dark');
+        invShowHint();
 
-        if (currentKategori === 'On PR') {
-            thead.innerHTML = `
-                <tr>
-                    <th>No</th>
-                    <th>Material Code</th>
-                    <th>Material Name</th>
-                    <th>PR Number</th>
-                    <th>PR Date</th>
-                    <th>PR Delivery Date</th>
-                    <th>PR Quantity</th>
-                    <th>Status</th>
-                    <th>Ket</th>
-                    <th>Aksi</th>
-                </tr>
-            `;
-            if (listData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">Belum ada data.</td></tr>`;
-            } else {
-                listData.forEach((item, index) => {
-                    tbody.innerHTML = tbody.innerHTML + `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td class="fw-bold">${item.kode}</td>
-                            <td>${item.nama}</td>
-                            <td>${item.prNum}</td>
-                            <td>${item.prDate}</td>
-                            <td>${item.delDate}</td>
-                            <td>${item.qty}</td>
-                            <td><span class="badge bg-success">${item.status}</span></td>
-                            <td>${item.ket}</td>
-                            <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusData(${index})"><i class="bi bi-trash"></i></button></td>
-                        </tr>
-                    `;
-                });
-            }
-        } else if (currentKategori === 'On PO') {
-            thead.innerHTML = `
-                <tr>
-                    <th>Material Code</th>
-                    <th>Material Name</th>
-                    <th>PR Number</th>
-                    <th>PO Number</th>
-                    <th>PO Date</th>
-                    <th>PO Status</th>
-                    <th>MAP No</th>
-                    <th>Aksi</th>
-                </tr>
-            `;
-            if (listData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Belum ada data.</td></tr>`;
-            } else {
-                listData.forEach((item, index) => {
-                    tbody.innerHTML = tbody.innerHTML + `
-                        <tr>
-                            <td class="fw-bold">${item.kode}</td>
-                            <td>${item.nama}</td>
-                            <td>${item.prNum}</td>
-                            <td>${item.poNum}</td>
-                            <td>${item.poDate}</td>
-                            <td><span class="badge bg-primary">${item.status}</span></td>
-                            <td>${item.mapNo}</td>
-                            <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusData(${index})"><i class="bi bi-trash"></i></button></td>
-                        </tr>
-                    `;
-                });
-            }
-        } else if (currentKategori === 'On Order') {
-            thead.innerHTML = `
-                <tr>
-                    <th>Kode Material</th>
-                    <th>Nama Material</th>
-                    <th>Tanggal</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
-                    <th>Ket</th>
-                    <th>Aksi</th>
-                </tr>
-            `;
-            if (listData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Belum ada data.</td></tr>`;
-            } else {
-                listData.forEach((item, index) => {
-                    tbody.innerHTML = tbody.innerHTML + `
-                        <tr>
-                            <td class="fw-bold">${item.kode}</td>
-                            <td>${item.nama}</td>
-                            <td>${item.tanggal}</td>
-                            <td>${item.qty}</td>
-                            <td><span class="badge bg-warning text-dark">${item.status}</span></td>
-                            <td>${item.ket}</td>
-                            <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusData(${index})"><i class="bi bi-trash"></i></button></td>
-                        </tr>
-                    `;
-                });
-            }
+        thead.innerHTML = '<tr>' + (cols.some(c => c.t === 'auto') ? '' : '<th>No</th>') +
+            cols.map(c => `<th>${c.label}</th>`).join('') + '<th>Aksi</th></tr>';
+
+        if (listData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="text-center text-muted">Belum ada data.</td></tr>`;
+            return;
         }
+
+        tbody.innerHTML = listData.map((item, index) => {
+            let tds = cols.some(c => c.t === 'auto') ? '' : `<td>${index + 1}</td>`;
+            cols.forEach(c => {
+                if (c.t === 'auto') tds += `<td>${index + 1}</td>`;
+                else if (c.k === 'status' || c.k === 'poStatus') tds += `<td><span class="badge ${badge}">${invEsc(item[c.k])}</span></td>`;
+                else if (c.k === 'kode') tds += `<td class="fw-bold">${invEsc(item[c.k])}</td>`;
+                else tds += `<td>${invEsc(item[c.k])}</td>`;
+            });
+            return `<tr>${tds}<td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusData(${index})"><i class="bi bi-trash"></i></button></td></tr>`;
+        }).join('');
     }
 
+    // "Simpan" = tambah ke tabel (draft). Belum masuk database sebelum tombol Update ditekan.
     function tambahDataInventory() {
-        const key = currentKategori + '_' + currentStage;
-        if (!databaseInventory[key]) databaseInventory[key] = [];
+        const cols = invCols();
+        const newItem = {};
+        cols.forEach(c => {
+            if (c.t === 'auto') return;
+            let v = document.getElementById('inv_' + c.k).value;
+            if (c.t === 'date') v = pmDateFromInput(v);
+            else v = String(v).trim();
+            newItem[c.k] = v;
+        });
+        if (!newItem.kode) { alert('Kode material wajib diisi!'); return; }
 
-        let newItem = {};
-        if (currentKategori === 'On PR') {
-            newItem = {
-                kode: document.getElementById('inKode').value,
-                nama: document.getElementById('inNama').value,
-                prNum: document.getElementById('inPrNum').value,
-                prDate: document.getElementById('inPrDate').value,
-                delDate: document.getElementById('inDelDate').value,
-                qty: document.getElementById('inQty').value,
-                status: document.getElementById('inStatus').value,
-                ket: document.getElementById('inKet').value
-            };
-        } else if (currentKategori === 'On PO') {
-            newItem = {
-                kode: document.getElementById('inKode').value,
-                nama: document.getElementById('inNama').value,
-                prNum: document.getElementById('inPrNum').value,
-                poNum: document.getElementById('inPoNum').value,
-                poDate: document.getElementById('inPoDate').value,
-                status: document.getElementById('inStatus').value,
-                mapNo: document.getElementById('inMapNo').value
-            };
-        } else if (currentKategori === 'On Order') {
-            newItem = {
-                kode: document.getElementById('inKode').value,
-                nama: document.getElementById('inNama').value,
-                tanggal: document.getElementById('inTanggal').value,
-                qty: document.getElementById('inQty').value,
-                status: document.getElementById('inStatus').value,
-                ket: document.getElementById('inKet').value
-            };
-        }
-
-        databaseInventory[key].push(newItem);
+        if (!invWork) invWork = [];
+        invWork.push(newItem);
+        invDirty = true;
+        renderFormInput();          // reset form
         renderTabelData();
-        
-        // Reset form inputs
-        document.querySelectorAll('#formContainerDynamic input').forEach(input => input.value = '');
     }
 
     function hapusData(index) {
         if (confirm('Yakin ingin menghapus data ini?')) {
-            const key = currentKategori + '_' + currentStage;
-            databaseInventory[key].splice(index, 1);
+            invWork.splice(index, 1);
+            invDirty = true;
             renderTabelData();
         }
+    }
+
+    // Tombol Update: ganti seluruh isi tab Inventory ini dengan daftar terbaru
+    function updateInventory() {
+        if (!invWork || !invDirty) return;
+        if (DB_ENABLED && !pmLoaded) {
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan bawah). Perubahan belum tersimpan.');
+            return;
+        }
+        const cols = invCols();
+        const rows = invWork.map((it, i) => {
+            const o = {};
+            cols.forEach(c => { o[c.h] = c.t === 'auto' ? i + 1 : (it[c.k] === undefined ? '' : it[c.k]); });
+            return o;
+        });
+        databaseInventory[invKey()] = invWork.map(x => Object.assign({}, x));
+        apiQueue('invSave', { key: invKey(), rows: rows });
+        invWork = null;
+        invDirty = false;
+    }
+
+    function invDiscard() { invWork = null; invDirty = false; }
+
+    // Isi data dari Spreadsheet (dipanggil saat load)
+    function applyInventory(invData) {
+        Object.keys(INV_CFG).forEach(key => {
+            const cols = INV_CFG[key];
+            databaseInventory[key] = ((invData || {})[key] || []).map(row => {
+                const item = {};
+                cols.forEach(c => { if (c.t !== 'auto') item[c.k] = row[invNorm(c.h)] === undefined ? '' : row[invNorm(c.h)]; });
+                return item;
+            });
+        });
     }
 </script>
 
@@ -2644,11 +2607,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxEZrAygnkWlnZ5EMcjBUR1QAn5X9vdKVVJa9TI-K0tZpPOqa0LjbNpaEp8A_3gIg552Q/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbyLwFHTD0_YSuXEwZYwW7uqnTixvq9sGIh970Ywu3nywMD1O1T7Lbehh9WpcYwib1N7Yg/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 3;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 4;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
@@ -2859,6 +2822,8 @@
             Object.keys(pmDraft).forEach(k => { if (refs.indexOf(k.split('|')[0]) >= 0) delete pmDraft[k]; });
         }
         function pmBindModals() {
+            const im = document.getElementById('modalInventoryDetail');
+            if (im && im.addEventListener) im.addEventListener('hidden.bs.modal', invDiscard);
             const dm = document.getElementById('modalDetailStage');
             if (dm && dm.addEventListener) dm.addEventListener('hidden.bs.modal', llfDiscard);
             Object.keys(PM_MODALS).forEach(id => {
@@ -2950,6 +2915,11 @@
                 }
                 applyPM(r.pm || []);
                 applyLLF(r.llf || []);
+                applyInventory(r.inv || {});
+                if ((r.invMissing || []).length && !window._invMissingAlerted) {
+                    window._invMissingAlerted = true;
+                    alert('Tab Inventory berikut tidak ditemukan di spreadsheet:\n- ' + r.invMissing.join('\n- ') + '\n\nCek nama tab-nya (spasi di awal tidak masalah).');
+                }
                 pmLoaded = true;
                 renderUtilityStage1Table(); renderUtilityStage2Table(); renderBiomassTable();
                 renderProsesStage1Table(); renderProsesStage2Table();
