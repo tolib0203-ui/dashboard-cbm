@@ -678,7 +678,7 @@
     function updateLLFStage() {
         if (!llfWork || !llfDirty) return;                       // tidak ada perubahan
         if (DB_ENABLED && !pmLoaded) {
-            alert('Data dari Spreadsheet belum selesai dimuat / gagal dimuat. Perubahan belum tersimpan, coba lagi.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan bawah). Perubahan belum tersimpan.');
             return;
         }
         const rows = llfWork.map(x => ({
@@ -2644,10 +2644,12 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxr03_X4gquJ6gKUFJ98ii0fQhI4NfCjM4JqJ7FUWfHcIIa7KSsBB0UXysusa_-f8SWjQ/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbxEZrAygnkWlnZ5EMcjBUR1QAn5X9vdKVVJa9TI-K0tZpPOqa0LjbNpaEp8A_3gIg552Q/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
+        const EXPECTED_API_VERSION = 3;   // harus sama dengan API_VERSION di Code.gs
+        let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
         // Dataset PM -> tab di Spreadsheet + isi kolom "Sub Category"
@@ -2832,7 +2834,7 @@
             const keys = Object.keys(pmDraft).filter(k => refs.indexOf(k.split('|')[0]) >= 0);
             if (!keys.length) return;                                    // tidak ada perubahan
             if (DB_ENABLED && !pmLoaded) {
-                alert('Data dari Spreadsheet belum selesai dimuat / gagal dimuat. Perubahan belum tersimpan, coba lagi.');
+                alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan bawah). Perubahan belum tersimpan.');
                 return;
             }
             const weeks = {};
@@ -2937,6 +2939,15 @@
                 const res = await fetch(API_URL + '?action=readAll');
                 const r = await res.json();
                 if (!r.ok) throw new Error(r.error || 'Server error');
+                if (r.version !== EXPECTED_API_VERSION) {            // Apps Script di Google belum diperbarui
+                    pmLoaded = false;
+                    setSync('error', 'Apps Script masih versi lama');
+                    if (!versionAlerted) {
+                        versionAlerted = true;
+                        alert('Apps Script di Google masih versi LAMA, jadi data belum bisa disimpan dengan benar.\n\nPerbaiki: buka Apps Script -> tempel Code.gs terbaru -> Deploy -> Manage deployments -> ikon pensil -> Version: New version -> Deploy.\nLalu refresh halaman ini.');
+                    }
+                    return;
+                }
                 applyPM(r.pm || []);
                 applyLLF(r.llf || []);
                 pmLoaded = true;
