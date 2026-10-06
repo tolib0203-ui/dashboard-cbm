@@ -947,7 +947,7 @@
         { k: 'tanggal', h: 'Tanggal', label: 'Tanggal', t: 'date', w: 2 },
         { k: 'qty', h: 'Quantity', label: 'Quantity', t: 'text', w: 2 },
         { k: 'status', h: 'Status', label: 'Status', t: 'text', w: 2 },
-        IC.ket('Ket')
+        IC.ket('Ket'), IC.bulan()
     ];
 
     // Susunan kolom tiap tab (sesuai header di spreadsheet)
@@ -2701,11 +2701,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxKV9yOiLqYGlJV2j8UNVfxr1yl5mC4iet8blj274kvmbF_-uSV2EqThmrrITyqOGOHtg/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbxrV9l0sUiBsF3ex9Y9r6dBrsp6rPepLi7Sv7iYwVFpSiy8wmyWzlD4br3EsRp18jzbzw/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 6;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 7;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
