@@ -978,10 +978,10 @@
     Object.keys(INV_CFG).forEach(k => { INV_CFG[k + '_atas'] = INV_CFG[k]; });
     const PR_ATAS_COLS = () => [
         IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.prNum(), IC.prDate(), IC.delDate(), IC.prQty(),
-        IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(), IC.mapNo()
+        IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(), IC.mapNo(), IC.bulan()
     ];
     const PO_ATAS_COLS = () => [
-        IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(), IC.statusBA()
+        IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(), IC.statusBA(), IC.bulan()
     ];
     ['1112', '1113'].forEach(pl => {
         INV_CFG['On PR_' + pl + '_atas'] = PR_ATAS_COLS();
@@ -2701,7 +2701,7 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxofVd7kKzlzzeWOa738oc6TuRCDzQvqhwcrRXUwCLyPu9rZCoiqhdtSRnQ6SrIwc6QNQ/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbxKV9yOiLqYGlJV2j8UNVfxr1yl5mC4iet8blj274kvmbF_-uSV2EqThmrrITyqOGOHtg/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
