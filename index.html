@@ -879,6 +879,58 @@
             </div>
         </div>
     </div>
+
+    <div class="row g-4 mt-1">
+        <!-- KELOMPOK PR SPP BUDGET OPEX -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-top border-primary border-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-file-earmark-text text-primary me-1"></i> PR SPP Diatas 5 jt Budget OPEX</h5>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Plant 1112</span>
+                            <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="bukaModalInventory('PR SPP', '1112')">Detail</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Plant 1113</span>
+                            <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="bukaModalInventory('PR SPP', '1113')">Detail</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KELOMPOK PO SPP BUDGET OPEX -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-top border-dark border-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam text-dark me-1"></i> PO SPP Diatas 5 jt Budget OPEX</h5>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Plant 1112</span>
+                            <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark fw-bold px-3" onclick="bukaModalInventory('PO SPP', '1112')">Detail</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Plant 1113</span>
+                            <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark fw-bold px-3" onclick="bukaModalInventory('PO SPP', '1113')">Detail</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Detail & Input Inventory Terpadu (Taruh di luar tab / di bawah sebelum </body>) -->
@@ -983,9 +1035,18 @@
     const PO_ATAS_COLS = () => [
         IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(), IC.statusBA(), IC.bulan()
     ];
+    // PO SPP: Plant 1112 punya kolom "Status BA", Plant 1113 punya "MAP NO" (beda dari satu sama lain).
+    // Keduanya dimasukkan sbg field opsional; yang kolomnya tidak ada di tab tsb otomatis diabaikan saat disimpan.
+    const PO_SPP_COLS = () => [
+        IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'), IC.poNum(), IC.poDate(), IC.poQty(), IC.poStatus(),
+        { k: 'statusBA', h: 'Status BA', label: 'Status BA', t: 'text', w: 2 },
+        IC.mapNo(), IC.bulan()
+    ];
     ['1112', '1113'].forEach(pl => {
         INV_CFG['On PR_' + pl + '_atas'] = PR_ATAS_COLS();
         INV_CFG['On PO_' + pl + '_atas'] = PO_ATAS_COLS();
+        INV_CFG['PR SPP_' + pl] = PR_ATAS_COLS();
+        INV_CFG['PO SPP_' + pl] = PO_SPP_COLS();
     });
 
     let currentKategori = '';
@@ -1004,7 +1065,12 @@
         invWork = (databaseInventory[invKey()] || []).map(x => Object.assign({}, x));
         invDirty = false;
 
-        document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${kategori} ${currentTier === 'atas' ? 'Diatas' : 'Dibawah'} 5 jt — Plant ${stage}`;
+        const INV_TITLE = {
+            'PR SPP': 'PR SPP Diatas 5 jt (Budget OPEX)',
+            'PO SPP': 'PO SPP Diatas 5 jt (Budget OPEX)'
+        };
+        const invTitleText = INV_TITLE[kategori] || (kategori + ' ' + (currentTier === 'atas' ? 'Diatas' : 'Dibawah') + ' 5 jt');
+        document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${invTitleText} — Plant ${stage}`;
         renderFormInput();
         renderTabelData();
 
@@ -2701,11 +2767,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxrV9l0sUiBsF3ex9Y9r6dBrsp6rPepLi7Sv7iYwVFpSiy8wmyWzlD4br3EsRp18jzbzw/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbzdebvKvPViT0Xon50xqayGXHVvONwuZfKUse8_iZTwqM-7W_knX8pi7odIR-5MApD46Q/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 7;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 9;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
