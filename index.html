@@ -1047,6 +1047,13 @@
                 </div>
 
                 <!-- Tabel Data -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="input-group input-group-sm" style="max-width: 320px;">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" id="invSearchBox" class="form-control" placeholder="Cari data..." oninput="renderTabelData()">
+                    </div>
+                    <span id="invSearchCount" class="small text-muted"></span>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle small">
                         <thead class="table-dark" id="tabelHeaderInv"></thead>
@@ -1200,6 +1207,7 @@
         currentTier = tier === 'atas' ? 'atas' : 'bawah';
         invWork = (databaseInventory[invKey()] || []).map(x => Object.assign({}, x));
         invDirty = false;
+        document.getElementById('invSearchBox').value = '';
 
         const INV_TITLE = {
             'PR PROJECT CAPEX': 'PR Project CAPEX',
@@ -1243,24 +1251,36 @@
 
     function renderTabelData() {
         const cols = invCols();
-        const listData = invWork || [];
+        const allData = invWork || [];
         const thead = document.getElementById('tabelHeaderInv');
         const tbody = document.getElementById('tabelBodyInv');
+        const countEl = document.getElementById('invSearchCount');
         const badge = /^(On PO|PO )/.test(currentKategori) ? 'bg-primary' : (/^(On PR|PR )/.test(currentKategori) ? 'bg-success' : 'bg-warning text-dark');
         invShowHint();
 
         thead.innerHTML = '<tr>' + (cols.some(c => c.t === 'auto') ? '' : '<th>No</th>') +
             cols.map(c => `<th>${c.label}</th>`).join('') + '<th>Aksi</th></tr>';
 
-        if (listData.length === 0) {
+        // Cari di semua kolom sekaligus (tidak peduli huruf besar/kecil)
+        const q = (document.getElementById('invSearchBox').value || '').trim().toLowerCase();
+        const rows = allData.map((item, index) => ({ item, index }))
+            .filter(r => !q || cols.some(c => String(r.item[c.k] || '').toLowerCase().indexOf(q) >= 0));
+
+        if (countEl) countEl.textContent = q ? `${rows.length} dari ${allData.length} data ditemukan` : (allData.length ? `${allData.length} data` : '');
+
+        if (allData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="text-center text-muted">Belum ada data.</td></tr>`;
             return;
         }
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="text-center text-muted">Tidak ada data yang cocok dengan pencarian.</td></tr>`;
+            return;
+        }
 
-        tbody.innerHTML = listData.map((item, index) => {
-            let tds = cols.some(c => c.t === 'auto') ? '' : `<td>${index + 1}</td>`;
+        tbody.innerHTML = rows.map(({ item, index }, no) => {
+            let tds = cols.some(c => c.t === 'auto') ? '' : `<td>${no + 1}</td>`;
             cols.forEach(c => {
-                if (c.t === 'auto') tds += `<td>${index + 1}</td>`;
+                if (c.t === 'auto') tds += `<td>${no + 1}</td>`;
                 else if (c.k === 'status' || c.k === 'poStatus') tds += `<td><span class="badge ${badge}">${invEsc(item[c.k])}</span></td>`;
                 else if (c.k === 'kode') tds += `<td class="fw-bold">${invEsc(item[c.k])}</td>`;
                 else tds += `<td>${invEsc(item[c.k])}</td>`;
@@ -2904,7 +2924,7 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbzMO9pb_ab7e7_mNfC5H6KUELpHrfm1Zl8UYL3FrRpilIPiorCyImFfxWFrSmPJzyg6Sg/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbx3snWP_fYwEKn7jtrQkXCOKxpfz-VIQjpLHlMEZS5PVrrtdC1xbaT3p3Zop-Eq3JDysA/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
