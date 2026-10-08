@@ -3063,7 +3063,7 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxich3QLsuDYS0Dju8-mXz3xHplrzVZiRfvzS4Wu-ASpqO0Ry_UjorvoKiRBTiWBnM0Qw/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbx6iGB21oYIliL-mHWiZwLijy-cxKPZQR6_UotF8UiZaoXmTbOfqTkT9nUlzpc7cZrHsQ/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
@@ -3439,6 +3439,10 @@
         function indWeekDT(stage, week) {
             return (indDT[stage] || []).reduce((t, r) => t + (indNum(r.week) === indNum(week) ? indNum(r.mnt) : 0), 0);
         }
+        const IND_LINES = [1, 2, 3, 4, 5];
+        function indWeekLineDT(stage, week, line) {
+            return (indDT[stage] || []).reduce((t, r) => t + (indNum(r.week) === indNum(week) && indNum(r.line) === indNum(line) ? indNum(r.mnt) : 0), 0);
+        }
         function indWeekPct(stage, week) {
             const wt = indWTMinutes(stage, week);
             return wt ? (indWeekDT(stage, week) / wt) * 100 : 0;
@@ -3483,11 +3487,13 @@
             fam.groups.forEach(g => { h += `<th colspan="${g.subs.length}" style="${cs}">${g.title}</th>`; });
             IND_TEXT_FIELDS.forEach(f => { h += `<th rowspan="2" style="${cs}">${f.lab}</th>`; });
             if (fam.hasMesin) h += `<th rowspan="2" style="${cs}">JUMLAH MESIN BUNGKUS (SESUAI PLANNING)</th>`;
-            h += `<th colspan="2" style="${cs}">WT PER WEEK</th><th rowspan="2" style="${cs}">DT PER WEEK<br>(MENIT)</th><th rowspan="2" style="${cs}background:#0b5ed7;">TOTAL DT PER WEEK<br>(%)</th></tr><tr>`;
+            h += `<th colspan="2" style="${cs}">WT PER WEEK</th><th colspan="${IND_LINES.length}" style="${cs}">DT PER LINE (MENIT)</th><th rowspan="2" style="${cs}">DT PER WEEK<br>(MENIT)</th><th rowspan="2" style="${cs}background:#0b5ed7;">TOTAL DT PER WEEK<br>(%)</th></tr><tr>`;
             fam.groups.forEach(g => { g.subs.forEach(s => { h += `<th style="${cs}">${s.lab}</th>`; }); });
-            h += `<th style="${cs}">JAM</th><th style="${cs}">MENIT</th></tr></thead><tbody>`;
+            h += `<th style="${cs}">JAM</th><th style="${cs}">MENIT</th>`;
+            IND_LINES.forEach(L => { h += `<th style="${cs}">LINE ${L}</th>`; });
+            h += `</tr></thead><tbody>`;
             if (!rows.length) {
-                const colCount = IND_BASE_FIELDS.length + fam.groups.reduce((t, g) => t + g.subs.length, 0) + IND_TEXT_FIELDS.length + (fam.hasMesin ? 1 : 0) + 4;
+                const colCount = IND_BASE_FIELDS.length + fam.groups.reduce((t, g) => t + g.subs.length, 0) + IND_TEXT_FIELDS.length + (fam.hasMesin ? 1 : 0) + 4 + IND_LINES.length;
                 h += `<tr><td colspan="${colCount}" class="text-center text-muted">Belum ada data downtime. Klik "Kelola Data" untuk menambah event.</td></tr>`;
             }
             rows.forEach((r, i) => {
@@ -3504,6 +3510,10 @@
                 if (fam.hasMesin) h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(indWeekOf(indStage, week).mesin))}</td>`;
                 h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(indWeekOf(indStage, week).jam))}</td>`;
                 h += `<td class="text-center" style="${cs}">${indFmtNum(indWTMinutes(indStage, week))}</td>`;
+                IND_LINES.forEach(L => {
+                    const lv = indWeekLineDT(indStage, week, L);
+                    h += `<td class="text-center" style="${cs}${lv > 0 ? 'background:#fff3cd;font-weight:700;' : ''}">${indFmtNum(lv)}</td>`;
+                });
                 h += `<td class="text-center" style="${cs}background:#f1f8f4;font-weight:700;">${indFmtNum(indWeekDT(indStage, week))}</td>`;
                 h += `<td class="text-center" style="${cs}background:#e7f1ff;font-weight:700;">${indFmtPct(indWeekPct(indStage, week))}</td>`;
                 h += `</tr>`;
