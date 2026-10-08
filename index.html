@@ -226,7 +226,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card p-4">
-                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-1"></i> 4. Indicator Performance (Jam)</h6>
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-1"></i> 4. Indicator Performance &mdash; Total DT (%) per Stage</h6>
                         <div style="position: relative; height: 200px;"><canvas id="chartInd"></canvas></div>
                     </div>
                 </div>
@@ -1070,6 +1070,62 @@
     </div>
 </div>
 
+<!-- Modal Kelola Data Indicator Performance (log downtime per event) -->
+<div class="modal fade" id="modalIndicatorDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="max-width: 95vw;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-speedometer2 me-2"></i> Kelola Data Indicator Performance &mdash; <span id="indModalStageName"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-3" id="indCards"></div>
+                <div class="card bg-light mb-4 p-3 border-0 shadow-sm">
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-plus-circle me-1"></i> Tambah / Update Event Downtime</h6>
+                    <div class="row g-2" id="indFormWrap"></div>
+                </div>
+                <div class="table-responsive mb-4" style="max-height:30vh;overflow:auto;">
+                    <table class="table table-bordered table-hover align-middle small mb-0">
+                        <thead class="table-dark">
+                            <tr><th>#</th><th>Line</th><th>Tgl</th><th>Week</th><th>Mesin</th><th>Jenis Kerusakan</th><th>Mnt</th><th>Aksi</th></tr>
+                        </thead>
+                        <tbody id="tabelBodyIndicator"></tbody>
+                    </table>
+                </div>
+                <div id="indTableWrap"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal WT per Week -->
+<div class="modal fade" id="modalIndicatorWT" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i> WT per Week &mdash; <span id="indWTStageName"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">Isi jam kerja (WT) per week. Untuk Packing, isi juga jumlah mesin bungkus sesuai planning. WT (MENIT) = JAM &times; 60 (&times; jumlah mesin untuk Packing).</p>
+                <div class="table-responsive" style="max-height:50vh;overflow:auto;">
+                    <table class="table table-bordered align-middle small mb-0">
+                        <thead class="table-dark"><tr><th>Week</th><th>WT (JAM)</th><th id="indWTMesinHead" class="d-none">JUMLAH MESIN BUNGKUS</th></tr></thead>
+                        <tbody id="indWTBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="indWTSave()" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Skrip JavaScript Inventory -->
 <script>
     // Data diisi dari Spreadsheet (tab "On Order / On PR / On PO ... bawah 5 jt")
@@ -1354,12 +1410,95 @@
 
         <!-- INDICATOR TAB -->
         <div id="page-ind" class="tab-pane">
-            <h4 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>4. Indicator Performance</h4>
-            <div class="row g-3">
-                <div class="col-md-3"><div class="card p-4 metric-card"><small class="text-muted d-block mb-1">BAP (Qty)</small><b class="text-dark fs-3">12 Jam</b></div></div>
-                <div class="col-md-3"><div class="card p-4 metric-card"><small class="text-muted d-block mb-1">BNP (Qty)</small><b class="text-dark fs-3">4 Jam</b></div></div>
-                <div class="col-md-3"><div class="card p-4 metric-card"><small class="text-muted d-block mb-1">MTBR (Qty)</small><b class="text-primary fs-3">250 Jam</b></div></div>
-                <div class="col-md-3"><div class="card p-4 metric-card"><small class="text-muted d-block mb-1">MTBF (Qty)</small><b class="text-success fs-3">320 Jam</b></div></div>
+            <h4 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>4. Indicator Performance &mdash; Downtime per Stage</h4>
+
+            <div class="row g-4">
+                <!-- DT PROSES -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-top border-primary border-4 h-100">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-gear text-primary me-1"></i> DT Proses</h5>
+                            <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                                <div>
+                                    <span class="fw-bold small text-secondary">Stage 1</span>
+                                    <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pros1','wt')">WT</button>
+                                    <button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="indOpenStage('pros1','detail')">Detail</button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <div>
+                                    <span class="fw-bold small text-secondary">Stage 2</span>
+                                    <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pros2','wt')">WT</button>
+                                    <button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="indOpenStage('pros2','detail')">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DT PACKING -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-top border-success border-4 h-100">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam text-success me-1"></i> DT Packing</h5>
+                            <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                                <div>
+                                    <span class="fw-bold small text-secondary">Stage 1</span>
+                                    <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pack1','wt')">WT</button>
+                                    <button class="btn btn-sm btn-outline-success fw-bold px-3" onclick="indOpenStage('pack1','detail')">Detail</button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <div>
+                                    <span class="fw-bold small text-secondary">Stage 2</span>
+                                    <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pack2','wt')">WT</button>
+                                    <button class="btn btn-sm btn-outline-success fw-bold px-3" onclick="indOpenStage('pack2','detail')">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DT UTILITY -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-top border-info border-4 h-100">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-lightning-charge text-info me-1"></i> DT Utility</h5>
+                            <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                                <div>
+                                    <span class="fw-bold small text-secondary">Stage 1</span>
+                                    <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('util1','wt')">WT</button>
+                                    <button class="btn btn-sm btn-outline-info fw-bold px-3" onclick="indOpenStage('util1','detail')">Detail</button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <div>
+                                    <span class="fw-bold small text-secondary">Stage 2</span>
+                                    <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('util2','wt')">WT</button>
+                                    <button class="btn btn-sm btn-outline-info fw-bold px-3" onclick="indOpenStage('util2','detail')">Detail</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2924,11 +3063,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbx3snWP_fYwEKn7jtrQkXCOKxpfz-VIQjpLHlMEZS5PVrrtdC1xbaT3p3Zop-Eq3JDysA/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbxich3QLsuDYS0Dju8-mXz3xHplrzVZiRfvzS4Wu-ASpqO0Ry_UjorvoKiRBTiWBnM0Qw/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 10;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 12;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
@@ -3141,6 +3280,8 @@
         function pmBindModals() {
             const im = document.getElementById('modalInventoryDetail');
             if (im && im.addEventListener) im.addEventListener('hidden.bs.modal', invDiscard);
+            const idm = document.getElementById('modalIndicatorDetail');
+            if (idm && idm.addEventListener) idm.addEventListener('hidden.bs.modal', indDiscard);
             const dm = document.getElementById('modalDetailStage');
             if (dm && dm.addEventListener) dm.addEventListener('hidden.bs.modal', llfDiscard);
             Object.keys(PM_MODALS).forEach(id => {
@@ -3214,6 +3355,377 @@
             Object.keys(LLF_STAGE_NAMES).forEach(hitungClosedRateStage);
         }
 
+        // ---------- Indicator Performance (log downtime per stage, format spreadsheet MMS) ----------
+        const IND_STAGES = {
+            pros1: { fam: 'pros', title: 'DT PROSES STAGE 1' },
+            pros2: { fam: 'pros', title: 'DT PROSES STAGE 2' },
+            pack1: { fam: 'packing', title: 'DT PACKING STAGE 1' },
+            pack2: { fam: 'packing', title: 'DT PACKING STAGE 2' },
+            util1: { fam: 'utility', title: 'DT UTILITY STAGE 1' },
+            util2: { fam: 'utility', title: 'DT UTILITY STAGE 2' }
+        };
+        const IND_BASE_FIELDS = [
+            { key: 'line', lab: 'LINE', type: 'number', kind: 'line' },
+            { key: 'tgl', lab: 'TGL', type: 'text', kind: 'date' },
+            { key: 'week', lab: 'WEEK', type: 'number', kind: 'week' },
+            { key: 'group', lab: 'GROUP', type: 'text', kind: 'group' },
+            { key: 'mesin', lab: 'MESIN', type: 'text' },
+            { key: 'jenis', lab: 'JENIS KERUSAKAN', type: 'text' },
+            { key: 'start', lab: 'START', type: 'text', kind: 'time' },
+            { key: 'finish', lab: 'FINISH', type: 'text', kind: 'time' },
+            { key: 'mnt', lab: 'MNT (OTOMATIS)', type: 'number', kind: 'mnt' }
+        ];
+        const IND_TEXT_FIELDS = [
+            { key: 'analisa', lab: 'ANALISA PENYEBAB' },
+            { key: 'perbaikan', lab: 'PERBAIKAN' },
+            { key: 'pic', lab: 'PIC' }
+        ];
+        const IND_FAM_LABEL = { pros: 'Proses', packing: 'Packing', utility: 'Utility' };
+        const IND_FAM = {
+            pros: {
+                hasMesin: false,
+                groups: [
+                    { title: 'DURASI OVEN STOP (MENIT)', subs: [{ key: 'ovenMech', lab: '* Mechanical', edit: true }, { lab: 'TOTAL', sum: ['ovenMech'] }] },
+                    { title: 'DURASI REDUCE SPEED (MENIT)', subs: [{ key: 'redMech', lab: '* Mechanical', edit: true }, { lab: 'TOTAL', sum: ['redMech'] }] },
+                    { title: 'TECHNICAL BREAKDOWN PROSES', subs: [{ key: 'tbMech', lab: '* Mechanical', edit: true }, { lab: 'TOTAL', sum: ['tbMech'] }] },
+                    { title: 'TECHNICAL BREAKDOWN PROSES', subs: [{ key: 'tbElec', lab: '* Electrical', edit: true }, { lab: 'TOTAL', sum: ['tbElec'] }] }
+                ]
+            },
+            packing: {
+                hasMesin: true,
+                groups: [
+                    { title: 'DURASI MESIN BUNGKUS STOP (MENIT)', subs: [{ key: 'mech', lab: '* Mechanical', edit: true }, { lab: 'TOTAL', sum: ['mech'] }] },
+                    { title: 'DURASI MESIN BUNGKUS STOP (MENIT)', subs: [{ key: 'elec', lab: '* Electrical', edit: true }, { lab: 'TOTAL', sum: ['elec'] }] },
+                    { title: 'DURASI MESIN BUNGKUS STOP (MENIT)', subs: [{ lab: 'TOTAL', sum: ['mech', 'elec'] }] }
+                ]
+            },
+            utility: {
+                hasMesin: false,
+                groups: [
+                    { title: 'DOWNTIME UTILITY', subs: [{ key: 'util', lab: '* Utility', edit: true }, { lab: 'TOTAL', sum: ['util'] }] }
+                ]
+            }
+        };
+        const IND_WEEK_RANGE = [];
+        for (let w = 27; w <= 52; w++) IND_WEEK_RANGE.push(w);
+
+        let indDT = {};   // indDT[stage] = [ { line, tgl, week, ... } ]
+        let indWT = {};   // indWT[stage] = { week: { jam, mesin } }
+        let indStage = 'pros1';
+        let indEditIndex = -1;
+
+        (function indInitStorage() {
+            let saved = null;
+            try { saved = JSON.parse(localStorage.getItem('pm_ind_dt_v2') || 'null'); } catch (e) {}
+            Object.keys(IND_STAGES).forEach(s => {
+                indDT[s] = (saved && saved.dt && Array.isArray(saved.dt[s])) ? saved.dt[s] : [];
+                indWT[s] = (saved && saved.wt && saved.wt[s]) ? saved.wt[s] : {};
+            });
+        })();
+
+        function indNum(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+        function indEsc(s) { return String(s === undefined || s === null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function indFmtPct(v) { return v.toFixed(2).replace('.', ',') + '%'; }
+
+        function indWeekOf(stage, week) {
+            const w = indWT[stage] && indWT[stage][week];
+            return w || { jam: 0, mesin: 0 };
+        }
+        function indWTMinutes(stage, week) {
+            const w = indWeekOf(stage, week);
+            const mult = IND_FAM[IND_STAGES[stage].fam].hasMesin ? (indNum(w.mesin)) : 1;
+            return indNum(w.jam) * 60 * mult;
+        }
+        function indWeekDT(stage, week) {
+            return (indDT[stage] || []).reduce((t, r) => t + (indNum(r.week) === indNum(week) ? indNum(r.mnt) : 0), 0);
+        }
+        function indWeekPct(stage, week) {
+            const wt = indWTMinutes(stage, week);
+            return wt ? (indWeekDT(stage, week) / wt) * 100 : 0;
+        }
+        function indSemester(stage) {
+            let dt = 0, wt = 0;
+            const weeks = {};
+            (indDT[stage] || []).forEach(r => { weeks[indNum(r.week)] = 1; });
+            Object.keys(indWT[stage] || {}).forEach(w => { weeks[w] = 1; });
+            Object.keys(weeks).forEach(w => { dt += indWeekDT(stage, w); wt += indWTMinutes(stage, w); });
+            return { dt: dt, wtJam: wt / 60, wtMin: wt, pct: wt ? dt / wt * 100 : 0, events: (indDT[stage] || []).length };
+        }
+
+        function indPersist() {
+            try { localStorage.setItem('pm_ind_dt_v2', JSON.stringify({ dt: indDT, wt: indWT })); } catch (e) {}
+            apiQueue('indSave', { dt: indDT, wt: indWT });
+        }
+
+        function indRenderCards() {
+            const el = document.getElementById('indCards');
+            if (!el) return;
+            const s = indSemester(indStage);
+            const cards = [
+                ['JUMLAH EVENT', String(s.events), 'text-dark'],
+                ['WT (JAM) SEMESTER', indFmtNum(s.wtJam), 'text-dark'],
+                ['DT (MENIT) SEMESTER', indFmtNum(s.dt), 'text-danger'],
+                ['TOTAL DT (%) SEMESTER', indFmtPct(s.pct), 'text-primary']
+            ];
+            el.innerHTML = cards.map(c => `<div class="col-6 col-md-3"><div class="card p-3 metric-card"><small class="text-muted d-block mb-1">${c[0]}</small><b class="${c[2]} fs-5">${c[1]}</b></div></div>`).join('');
+        }
+        function indFmtNum(v) { const r = Math.round(v * 100) / 100; return Number.isInteger(r) ? String(r) : String(r).replace('.', ','); }
+
+        function indRenderTable() {
+            const wrap = document.getElementById('indTableWrap');
+            if (!wrap) return;
+            const fam = IND_FAM[IND_STAGES[indStage].fam];
+            const cs = 'font-size:.72rem;padding:.2rem .3rem;white-space:nowrap;';
+            const rows = indDT[indStage] || [];
+            let h = `<div class="card p-3"><h6 class="fw-bold text-primary mb-2"><i class="bi bi-table me-1"></i>${IND_STAGES[indStage].title}</h6>`;
+            h += `<div class="table-responsive" style="max-height:70vh;overflow:auto;"><table class="table table-bordered align-middle mb-0" style="font-size:.72rem;"><thead class="table-dark text-center"><tr>`;
+            IND_BASE_FIELDS.forEach(f => { h += `<th rowspan="2" style="${cs}">${f.lab}</th>`; });
+            fam.groups.forEach(g => { h += `<th colspan="${g.subs.length}" style="${cs}">${g.title}</th>`; });
+            IND_TEXT_FIELDS.forEach(f => { h += `<th rowspan="2" style="${cs}">${f.lab}</th>`; });
+            if (fam.hasMesin) h += `<th rowspan="2" style="${cs}">JUMLAH MESIN BUNGKUS (SESUAI PLANNING)</th>`;
+            h += `<th colspan="2" style="${cs}">WT PER WEEK</th><th rowspan="2" style="${cs}">DT PER WEEK<br>(MENIT)</th><th rowspan="2" style="${cs}background:#0b5ed7;">TOTAL DT PER WEEK<br>(%)</th></tr><tr>`;
+            fam.groups.forEach(g => { g.subs.forEach(s => { h += `<th style="${cs}">${s.lab}</th>`; }); });
+            h += `<th style="${cs}">JAM</th><th style="${cs}">MENIT</th></tr></thead><tbody>`;
+            if (!rows.length) {
+                const colCount = IND_BASE_FIELDS.length + fam.groups.reduce((t, g) => t + g.subs.length, 0) + IND_TEXT_FIELDS.length + (fam.hasMesin ? 1 : 0) + 4;
+                h += `<tr><td colspan="${colCount}" class="text-center text-muted">Belum ada data downtime. Klik "Kelola Data" untuk menambah event.</td></tr>`;
+            }
+            rows.forEach((r, i) => {
+                const week = indNum(r.week);
+                h += `<tr>`;
+                IND_BASE_FIELDS.forEach(f => { h += `<td class="text-center" style="${cs}">${indEsc(r[f.key])}</td>`; });
+                fam.groups.forEach(g => {
+                    g.subs.forEach(s => {
+                        const v = s.sum ? s.sum.reduce((t, k) => t + indNum(r[k]), 0) : indNum(r[s.key]);
+                        h += `<td class="text-center" style="${cs}${s.sum ? 'background:#f1f8f4;font-weight:700;' : ''}">${indFmtNum(v)}</td>`;
+                    });
+                });
+                IND_TEXT_FIELDS.forEach(f => { h += `<td style="${cs}max-width:220px;white-space:normal;">${indEsc(r[f.key])}</td>`; });
+                if (fam.hasMesin) h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(indWeekOf(indStage, week).mesin))}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(indWeekOf(indStage, week).jam))}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(indWTMinutes(indStage, week))}</td>`;
+                h += `<td class="text-center" style="${cs}background:#f1f8f4;font-weight:700;">${indFmtNum(indWeekDT(indStage, week))}</td>`;
+                h += `<td class="text-center" style="${cs}background:#e7f1ff;font-weight:700;">${indFmtPct(indWeekPct(indStage, week))}</td>`;
+                h += `</tr>`;
+            });
+            h += `</tbody></table></div></div>`;
+            wrap.innerHTML = h;
+        }
+
+        function indEditableSubs() {
+            const fam = IND_FAM[IND_STAGES[indStage].fam];
+            const out = [];
+            fam.groups.forEach(g => g.subs.forEach(s => { if (s.edit) out.push(Object.assign({}, s, { groupTitle: g.title })); }));
+            return out;
+        }
+
+        function indToDateInput(v) {
+            const m = String(v === null || v === undefined ? '' : v).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (!m) return '';
+            return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+        }
+        function indFromDateInput(v) {
+            const m = String(v === null || v === undefined ? '' : v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!m) return String(v === null || v === undefined ? '' : v);
+            return m[3] + '/' + m[2] + '/' + m[1];
+        }
+        function indTimeToMin(v) {
+            const m = String(v === null || v === undefined ? '' : v).match(/^(\d{1,2}):(\d{2})$/);
+            if (!m) return null;
+            return (+m[1]) * 60 + (+m[2]);
+        }
+        function indCalcMnt() {
+            const s = document.getElementById('indf_start');
+            const f = document.getElementById('indf_finish');
+            const o = document.getElementById('indf_mnt');
+            if (!s || !f || !o) return;
+            const a = indTimeToMin(s.value);
+            const b = indTimeToMin(f.value);
+            if (a === null || b === null) { o.value = ''; return; }
+            let d = b - a;
+            if (d < 0) d += 24 * 60;
+            o.value = d;
+        }
+
+        function indFormControl(f, row) {
+            const id = 'indf_' + f.key;
+            const cls = 'form-control form-control-sm';
+            const val = indEsc(row[f.key]);
+            if (f.kind === 'line') {
+                const opts = [1, 2, 3, 4, 5].map(n => `<option value="${n}"${indNum(row[f.key]) === n ? ' selected' : ''}>Line ${n}</option>`).join('');
+                return `<select id="${id}" class="form-select form-select-sm">${opts}</select>`;
+            }
+            if (f.kind === 'group') {
+                const cur = row[f.key] || IND_FAM_LABEL[IND_STAGES[indStage].fam];
+                const opts = Object.values(IND_FAM_LABEL).map(g => `<option value="${g}"${cur === g ? ' selected' : ''}>${g}</option>`).join('');
+                return `<select id="${id}" class="form-select form-select-sm">${opts}</select>`;
+            }
+            if (f.kind === 'date') return `<input type="date" id="${id}" class="${cls}" value="${indToDateInput(row[f.key])}">`;
+            if (f.kind === 'time') return `<input type="time" id="${id}" class="${cls}" value="${val}">`;
+            if (f.kind === 'week') {
+                const opts = IND_WEEK_RANGE.map(w => `<option value="${w}"${indNum(row[f.key]) === w ? ' selected' : ''}>Week ${w}</option>`).join('');
+                return `<select id="${id}" class="form-select form-select-sm">${opts}</select>`;
+            }
+            if (f.kind === 'mnt') return `<input type="number" step="any" id="${id}" class="${cls} bg-light" value="${val}" readonly title="Otomatis = FINISH - START">`;
+            return `<input type="${f.type === 'number' ? 'number' : 'text'}" step="any" id="${id}" class="${cls}" value="${val}">`;
+        }
+
+        function indBuildForm() {
+            const wrap = document.getElementById('indFormWrap');
+            if (!wrap) return;
+            const subs = indEditableSubs();
+            const fields = [].concat(
+                IND_BASE_FIELDS,
+                subs.map(s => ({ key: s.key, lab: s.lab + ' \u2014 ' + String(s.groupTitle || '').replace(/\s*\(MENIT\)\s*$/, ''), type: 'number' })),
+                IND_TEXT_FIELDS
+            );
+            const row = indEditIndex >= 0 ? (indDT[indStage][indEditIndex] || {}) : {};
+            wrap.innerHTML = fields.map(f => `
+                <div class="col-6 col-md-3">
+                    <label class="form-label small fw-bold mb-0">${f.lab}</label>
+                    ${indFormControl(f, row)}
+                </div>`).join('') + `
+                <div class="col-12 d-flex gap-2 align-items-end">
+                    <button class="btn btn-primary btn-sm fw-bold px-4" onclick="indFormSave()"><i class="bi bi-save me-1"></i> Simpan Event</button>
+                    ${indEditIndex >= 0 ? '<button class="btn btn-secondary btn-sm" onclick="indEditIndex=-1;indBuildForm();">Batal Edit</button>' : ''}
+                </div>`;
+            const sEl = document.getElementById('indf_start');
+            const fEl = document.getElementById('indf_finish');
+            if (sEl) sEl.addEventListener('change', indCalcMnt);
+            if (fEl) fEl.addEventListener('change', indCalcMnt);
+            indCalcMnt();
+        }
+
+        function indFormSave() {
+            const subs = indEditableSubs();
+            const row = {};
+            IND_BASE_FIELDS.forEach(f => {
+                const el = document.getElementById('indf_' + f.key);
+                if (f.key === 'tgl') row[f.key] = indFromDateInput(el.value);
+                else if (f.type === 'number') row[f.key] = indNum(el.value);
+                else row[f.key] = el.value;
+            });
+            subs.forEach(s => { row[s.key] = indNum(document.getElementById('indf_' + s.key).value); });
+            IND_TEXT_FIELDS.forEach(f => { row[f.key] = document.getElementById('indf_' + f.key).value; });
+            if (!indDT[indStage]) indDT[indStage] = [];
+            if (indEditIndex >= 0) indDT[indStage][indEditIndex] = row; else indDT[indStage].push(row);
+            indEditIndex = -1;
+            indPersist();
+            indBuildForm();
+            indRenderModalList();
+            indRenderCards();
+            indRenderTable();
+            renderIndicatorSummary();
+        }
+
+        function indRenderModalList() {
+            const tbody = document.getElementById('tabelBodyIndicator');
+            if (!tbody) return;
+            const rows = indDT[indStage] || [];
+            if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada data.</td></tr>'; return; }
+            tbody.innerHTML = rows.map((r, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${indEsc(r.line)}</td>
+                    <td>${indEsc(r.tgl)}</td>
+                    <td>${indEsc(r.week)}</td>
+                    <td>${indEsc(r.mesin)}</td>
+                    <td>${indEsc(r.jenis)}</td>
+                    <td>${indEsc(r.mnt)}</td>
+                    <td class="text-nowrap">
+                        <button class="btn btn-sm btn-warning py-0 px-2" onclick="indEditRow(${i})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-danger py-0 px-2" onclick="indDelRow(${i})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function indEditRow(i) { indEditIndex = i; indBuildForm(); }
+        function indDelRow(i) {
+            if (confirm('Yakin ingin menghapus event downtime ini?')) {
+                indDT[indStage].splice(i, 1);
+                indEditIndex = -1;
+                indPersist();
+                indBuildForm();
+                indRenderModalList();
+                indRenderCards();
+                indRenderTable();
+                renderIndicatorSummary();
+            }
+        }
+
+        function bukaModalIndicator() {
+            indEditIndex = -1;
+            const nm = document.getElementById('indModalStageName');
+            if (nm) nm.textContent = IND_STAGES[indStage].title;
+            indBuildForm();
+            indRenderModalList();
+            indRenderCards();
+            indRenderTable();
+            new bootstrap.Modal(document.getElementById('modalIndicatorDetail')).show();
+        }
+
+        function indOpenStage(key, mode) {
+            indStage = key;
+            indEditIndex = -1;
+            if (mode === 'wt') bukaModalWT(); else bukaModalIndicator();
+        }
+
+        function bukaModalWT() {
+            const nm = document.getElementById('indWTStageName');
+            if (nm) nm.textContent = IND_STAGES[indStage].title;
+            const hasMesin = IND_FAM[IND_STAGES[indStage].fam].hasMesin;
+            const head = document.getElementById('indWTMesinHead');
+            if (head) head.classList.toggle('d-none', !hasMesin);
+            const tbody = document.getElementById('indWTBody');
+            tbody.innerHTML = IND_WEEK_RANGE.map(w => {
+                const cur = indWeekOf(indStage, w);
+                return `<tr>
+                    <td class="fw-bold">Week ${w}</td>
+                    <td><input type="number" step="any" class="form-control form-control-sm" id="indwt_jam_${w}" value="${indNum(cur.jam)}"></td>
+                    ${hasMesin ? `<td><input type="number" step="any" class="form-control form-control-sm" id="indwt_mesin_${w}" value="${indNum(cur.mesin)}"></td>` : ''}
+                </tr>`;
+            }).join('');
+            new bootstrap.Modal(document.getElementById('modalIndicatorWT')).show();
+        }
+
+        function indWTSave() {
+            const hasMesin = IND_FAM[IND_STAGES[indStage].fam].hasMesin;
+            indWT[indStage] = indWT[indStage] || {};
+            IND_WEEK_RANGE.forEach(w => {
+                const jamEl = document.getElementById('indwt_jam_' + w);
+                const mesinEl = document.getElementById('indwt_mesin_' + w);
+                indWT[indStage][w] = {
+                    jam: jamEl ? indNum(jamEl.value) : 0,
+                    mesin: hasMesin && mesinEl ? indNum(mesinEl.value) : 0
+                };
+            });
+            indPersist();
+            indRenderCards();
+            indRenderTable();
+            renderIndicatorSummary();
+        }
+
+        function indDiscard() { indEditIndex = -1; }
+
+        function applyIndicator(obj) {
+            if (!obj || typeof obj !== 'object') return;
+            if (obj.dt) Object.keys(IND_STAGES).forEach(s => { if (Array.isArray(obj.dt[s])) indDT[s] = obj.dt[s]; });
+            if (obj.wt) Object.keys(IND_STAGES).forEach(s => { if (obj.wt[s]) indWT[s] = obj.wt[s]; });
+        }
+
+        // Grafik Dashboard #4: DT (%) semester per stage
+        function renderIndicatorSummary() {
+            if (!chartIndInst) return;
+            chartIndInst.data.labels = Object.keys(IND_STAGES).map(s => IND_STAGES[s].title.replace('DT ', ''));
+            chartIndInst.data.datasets = [{
+                label: 'Total DT per Week (%)',
+                data: Object.keys(IND_STAGES).map(s => Math.round(indSemester(s).pct * 100) / 100),
+                backgroundColor: ['#0d6efd', '#6610f2', '#fd7e14', '#ffc107', '#20c997', '#0dcaf0'],
+                borderRadius: 6
+            }];
+            chartIndInst.update();
+        }
+
         async function loadFromSheet() {
             if (!DB_ENABLED) { setSync('local'); return; }
             setSync('loading');
@@ -3233,6 +3745,7 @@
                 applyPM(r.pm || []);
                 applyLLF(r.llf || []);
                 applyInventory(r.inv || {});
+                applyIndicator(r.ind || []);
                 if (((r.invMissing || []).length || (r.invBad || []).length) && !window._invMissingAlerted) {
                     window._invMissingAlerted = true;
                     let msg = '';
@@ -3245,6 +3758,7 @@
                 renderProsesStage1Table(); renderProsesStage2Table();
                 renderPackingStage1Table(); renderPackingStage2Table();
                 refreshDashboard();
+                renderIndicatorSummary();
                 if (syncPending === 0) setSync(syncFailed.length ? 'error' : 'ok');
             } catch (err) {
                 setSync('error', err.message);
@@ -3252,7 +3766,7 @@
         }
 
         // ---------- Dashboard PM dihitung dari data (minggu yang dipilih, default W38) ----------
-        let chartPMInst = null, chartLLFInst = null;
+        let chartPMInst = null, chartLLFInst = null, chartIndInst = null;
 
         function refreshDashboard() {
             if (chartLLFInst) {
@@ -3592,17 +4106,18 @@
 
             const chartIndEl = document.getElementById('chartInd');
             if(chartIndEl) {
-                new Chart(chartIndEl.getContext('2d'), {
+                chartIndInst = new Chart(chartIndEl.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['BAP', 'BNP', 'MTBR', 'MTBF'],
-                        datasets: [{ data: [12, 4, 250, 320], backgroundColor: ['#6f42c1', '#fd7e14', '#20c997', '#0dcaf0'], borderRadius: 6 }]
+                        labels: ['Proses Stage 1', 'Proses Stage 2', 'Packing Stage 1', 'Packing Stage 2', 'Utility Stage 1', 'Utility Stage 2'],
+                        datasets: [{ data: [0, 0, 0, 0, 0, 0], backgroundColor: ['#6f42c1', '#fd7e14', '#20c997', '#0dcaf0', '#dc3545', '#0d6efd'], borderRadius: 6 }]
                     },
                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
                 });
             }
 
             pmBindModals();
+            renderIndicatorSummary();
             Object.keys(LLF_STAGE_NAMES).forEach(hitungClosedRateStage);
             if (DB_ENABLED) { loadFromSheet(); } else { setSync('local'); }
         };
