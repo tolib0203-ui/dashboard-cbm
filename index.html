@@ -3072,11 +3072,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbyTv5cH6fof0pZSVtbPTyKuiNBKtGApMOH-zjlIyOSjPKW914FXkVszpnntLJ9ChNjEcQ/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbyXZy7csZLM1IzC61jORt7Hf-le7H8Rm70HrCVjTzb23z6QoYlowaXoFWv4pQoc5zqIBw/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 12;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 13;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
@@ -3539,8 +3539,9 @@
             '1112': { title: 'TECHNICAL BREAKDOWN 1112', stages: ['pros1', 'pack1', 'util1'] },
             '1113': { title: 'TECHNICAL BREAKDOWN 1113', stages: ['pros2', 'pack2', 'util2'] }
         };
+        // Hanya grup "TECHNICAL BREAKDOWN PROSES" yang dihitung - oven stop & reduce speed bukan breakdown.
         function indTBSplit(fam, ev) {
-            if (fam === 'pros') return { mech: indNum(ev.ovenMech) + indNum(ev.redMech) + indNum(ev.tbMech), elec: indNum(ev.tbElec), util: 0 };
+            if (fam === 'pros') return { mech: indNum(ev.tbMech), elec: indNum(ev.tbElec), util: 0 };
             if (fam === 'packing') return { mech: indNum(ev.mech), elec: indNum(ev.elec), util: 0 };
             return { mech: 0, elec: 0, util: indNum(ev.util) };
         }
@@ -3792,8 +3793,16 @@
         function indDiscard() { indEditIndex = -1; }
 
         function applyIndicator(obj) {
-            if (!obj || typeof obj !== 'object') return;
-            if (obj.dt) Object.keys(IND_STAGES).forEach(s => { if (Array.isArray(obj.dt[s])) indDT[s] = obj.dt[s]; });
+            if (!obj || typeof obj !== 'object' || !obj.dt) return;
+            let kirimLokal = false;
+            Object.keys(IND_STAGES).forEach(s => {
+                const masuk = obj.dt[s];
+                if (!Array.isArray(masuk)) return;
+                // Tab DT di Spreadsheet masih kosong tapi ada data lokal -> jangan hapus, kirim data lokal ke atas
+                if (!masuk.length && (indDT[s] || []).length) { kirimLokal = true; return; }
+                indDT[s] = masuk;
+            });
+            if (kirimLokal) indPersist();
         }
 
         // Grafik Dashboard #4: DT (%) semester per stage
