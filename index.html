@@ -162,14 +162,34 @@
             box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
         }
 
+        /* Badge status koneksi: di kanan atas, di bawah modal, tidak menutupi konten di HP */
+        .sync-badge {
+            position: fixed;
+            top: 74px;
+            right: 14px;
+            z-index: 1030;
+            cursor: pointer;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 7px 12px;
+            max-width: 42vw;
+            white-space: normal;
+            line-height: 1.25;
+        }
+
+        @media (max-width: 767.98px) {
+            .sync-badge { top: 68px; right: 10px; font-size: 0.66rem; padding: 5px 9px; max-width: 34vw; }
+            #syncTextExt { display: none; }
+        }
+
     </style>
 </head>
 <body>
 
     <!-- Status koneksi database -->
-    <div id="syncBadge" class="badge bg-secondary shadow" onclick="syncBadgeClick()"
-         style="position:fixed; right:15px; bottom:15px; z-index:3000; cursor:pointer; font-size:0.78rem; padding:8px 12px;">
-        <i class="bi bi-database me-1"></i><span id="syncText">Memuat...</span>
+    <div id="syncBadge" class="sync-badge bg-secondary shadow" onclick="syncBadgeClick()">
+        <i class="bi bi-database me-1"></i><span id="syncText">Memuat...</span><span id="syncTextExt"></span>
     </div>
 
     <nav id="sidebar" class="sidebar">
@@ -1511,28 +1531,46 @@
     </div>
 </div>
 
+<!-- Modal History per Area & Stage -->
+<div class="modal fade" id="modalHistory" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i> History &mdash; <span id="histTitle"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1">TANGGAL</label><input type="date" id="histf_tgl" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-md-6"><label class="form-label small fw-bold mb-1">CATATAN</label><input id="histf_isi" class="form-control form-control-sm" placeholder="Tulis catatan riwayat..." onkeydown="if(event.key==='Enter')histAdd()"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold mb-1">PIC</label><input id="histf_pic" class="form-control form-control-sm" placeholder="Nama PIC"></div>
+                    <div class="col-12 col-md-1"><button type="button" class="btn btn-primary btn-sm w-100" onclick="histAdd()"><i class="bi bi-plus-lg"></i></button></div>
+                </div>
+                <div id="histWrap"></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button></div>
+        </div>
+    </div>
+</div>
+
         <!-- HISTORY TAB -->
         <div id="page-hist" class="tab-pane">
             <h4 class="fw-bold text-dark mb-4"><i class="bi bi-clock-history text-primary me-2"></i>5. History per Area & Stage</h4>
-            <div class="card p-4">
-                <p class="text-muted mb-0">Arsip riwayat lengkap pemeliharaan rutin dan perbaikan tersusun per area secara terpisah.</p>
-            </div>
+            <div class="row g-3" id="histCards"></div>
+            <p class="text-muted small mt-3 mb-0">Buku catatan riwayat per area &amp; stage: tulis temuan, tindakan perbaikan, serah terima, atau hasil evaluasi. Tersimpan di perangkat ini (localStorage <code>pm_hist_note_v1</code>).</p>
         </div>
 
         <!-- CALIBRATION TAB -->
         <div id="page-cal" class="tab-pane">
             <h4 class="fw-bold text-dark mb-4"><i class="bi bi-sliders text-primary me-2"></i>6. Calibration Matrix</h4>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="card p-4">
-                        <h6 class="fw-bold text-primary mb-3">Internal Calibration</h6>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between">Mass <span class="badge bg-secondary">Scheduled</span></li>
-                            <li class="list-group-item d-flex justify-content-between">Dimensions <span class="badge bg-success">Verified</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            <div class="row g-3" id="calCards"></div>
+            <p class="text-muted small mt-3 mb-0">Mengikuti 4 tab di Spreadsheet: <b>INTERNAL CALIBRATION 1112/1113</b> (Masa, Dimensions, Pressure, Temperature) dan <b>EXTERNAL CALIBRATION 1112/1113</b> (Metal Detector, Gas, Steam, Water).
+                Status dihitung otomatis dari tanggal berikutnya &mdash;
+                <span class="badge bg-success">OK</span>
+                <span class="badge bg-warning text-dark">Hampir Jatuh Tempo</span>
+                <span class="badge bg-danger">Terlewat</span>
+                <span class="badge bg-secondary">Belum Dijadwalkan</span>.
+                Isian tersimpan di perangkat ini dan ikut terkirim ke Spreadsheet saat database terhubung.</p>
         </div>
 
         <!-- PROJECT TAB -->
@@ -3072,11 +3110,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbyXZy7csZLM1IzC61jORt7Hf-le7H8Rm70HrCVjTzb23z6QoYlowaXoFWv4pQoc5zqIBw/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbw7gifyPHNYy1Lx9QW2QtRkbgV2CT96SHisKHddiBFcaAdYNej2g1DO_boT-_viVc03jg/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 13;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 14;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
@@ -3118,16 +3156,18 @@
         function setSync(state, msg) {
             const badge = document.getElementById('syncBadge');
             const text = document.getElementById('syncText');
+            const ext = document.getElementById('syncTextExt');
             if (!badge || !text) return;
             const map = {
-                local:   ['bg-secondary', 'Belum terhubung ke database - klik di sini untuk isi URL'],
-                loading: ['bg-info text-dark', 'Memuat data dari Spreadsheet...'],
-                saving:  ['bg-warning text-dark', 'Menyimpan...'],
-                ok:      ['bg-success', 'Terhubung ke Spreadsheet'],
-                error:   ['bg-danger', 'Gagal sinkron' + (msg ? ': ' + msg : '') + ' (klik untuk coba lagi)']
-            };
-            badge.className = 'badge shadow ' + map[state][0];
-            text.textContent = map[state][1];
+                local:   ['bg-secondary', 'DB belum terhubung', ' - klik untuk isi URL'],
+                loading: ['bg-info text-dark', 'Memuat', ' data dari Spreadsheet...'],
+                saving:  ['bg-warning text-dark', 'Menyimpan', ' ke Spreadsheet...'],
+                ok:      ['bg-success', 'Terhubung', ' ke Spreadsheet'],
+                error:   ['bg-danger', 'Gagal sinkron', (msg ? ': ' + msg : '') + ' (klik untuk coba lagi)']
+            }[state] || ['bg-secondary', 'Status', ''];
+            badge.className = 'sync-badge shadow ' + map[0];
+            text.textContent = map[1];
+            if (ext) ext.textContent = map[2];
         }
 
         function syncBadgeClick() {
@@ -3607,6 +3647,188 @@
             new bootstrap.Modal(document.getElementById('modalIndicatorTB')).show();
         }
 
+        /* ================= 5. HISTORY PER AREA & STAGE ================= */
+        const HIST_AREAS = [
+            { title: 'UTILITY', border: 'border-primary', icon: 'bi-lightning-charge', stages: ['util1', 'util2'] },
+            { title: 'PROSES', border: 'border-info', icon: 'bi-gear', stages: ['pros1', 'pros2'] },
+            { title: 'PACKING', border: 'border-success', icon: 'bi-box-seam', stages: ['pack1', 'pack2'] },
+            { title: 'BIOMASS', border: 'border-warning', icon: 'bi-tree', stages: ['biom'] }
+        ];
+        const HIST_TITLES = { util1: 'UTILITY STAGE 1', util2: 'UTILITY STAGE 2', pros1: 'PROSES STAGE 1', pros2: 'PROSES STAGE 2', pack1: 'PACKING STAGE 1', pack2: 'PACKING STAGE 2', biom: 'BIOMASS' };
+        let histStage = 'util1';
+        let histNotes = {};
+        (function histInitStorage() {
+            try { const s = JSON.parse(localStorage.getItem('pm_hist_note_v1') || '{}'); if (s && typeof s === 'object') histNotes = s; } catch (e) {}
+            Object.keys(HIST_TITLES).forEach(k => { if (!Array.isArray(histNotes[k])) histNotes[k] = []; });
+        })();
+        function histPersist() { try { localStorage.setItem('pm_hist_note_v1', JSON.stringify(histNotes)); } catch (e) {} }
+        function histBtnLabel(s) { return s === 'biom' ? 'Detail' : 'Stage ' + (String(s).slice(-1) === '2' ? 2 : 1); }
+        function histTgl(iso) { const p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
+
+        function renderHistCards() {
+            const el = document.getElementById('histCards');
+            if (!el) return;
+            el.innerHTML = HIST_AREAS.map(a => {
+                const btns = a.stages.map(s => `<button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="histOpen('${s}')">${histBtnLabel(s)}</button>`).join('');
+                const n = a.stages.reduce((t, s) => t + (histNotes[s] || []).length, 0);
+                return `<div class="col-12 col-md-6 col-xl-3"><div class="card h-100 p-3 ${a.border}" style="border-top-width:4px;">
+                    <div class="d-flex align-items-center gap-2 mb-2"><i class="bi ${a.icon} text-primary fs-5"></i><h6 class="fw-bold text-dark mb-0">${a.title}</h6></div>
+                    <div class="d-flex flex-wrap gap-2 mb-2">${btns}</div>
+                    <small class="text-muted mb-0">${n} catatan tersimpan</small>
+                </div></div>`;
+            }).join('');
+        }
+
+        function histOpen(stage) {
+            histStage = stage;
+            const t = document.getElementById('histTitle');
+            if (t) t.textContent = HIST_TITLES[stage] || stage;
+            const now = new Date();
+            const tgl = document.getElementById('histf_tgl');
+            if (tgl && !tgl.value) tgl.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            histRender();
+            new bootstrap.Modal(document.getElementById('modalHistory')).show();
+        }
+
+        function histAdd() {
+            const isi = document.getElementById('histf_isi'), tgl = document.getElementById('histf_tgl'), pic = document.getElementById('histf_pic');
+            if (!isi || !isi.value.trim()) { isi.focus(); return; }
+            (histNotes[histStage] = histNotes[histStage] || []).unshift({ tgl: tgl ? tgl.value : '', isi: isi.value.trim(), pic: pic ? pic.value.trim() : '' });
+            isi.value = ''; if (pic) pic.value = '';
+            histPersist(); renderHistCards(); histRender();
+        }
+        function histDel(i) {
+            const rows = histNotes[histStage] || [];
+            if (i < 0 || i >= rows.length) return;
+            rows.splice(i, 1);
+            histPersist(); renderHistCards(); histRender();
+        }
+
+        function histRender() {
+            const wrap = document.getElementById('histWrap');
+            if (!wrap) return;
+            const rows = histNotes[histStage] || [];
+            const cs = 'font-size:.8rem;padding:.4rem .5rem;';
+            let h = `<div class="table-responsive" style="max-height:55vh;overflow:auto;"><table class="table table-bordered table-sm align-middle mb-0"><thead class="table-dark text-center"><tr>
+                <th style="${cs}">NO</th><th style="${cs}">TANGGAL</th><th style="${cs}">CATATAN</th><th style="${cs}">PIC</th><th style="${cs}">&nbsp;</th></tr></thead><tbody>`;
+            if (!rows.length) h += `<tr><td colspan="5" class="text-center text-muted py-4">Belum ada catatan untuk ${HIST_TITLES[histStage] || histStage}. Isi form di atas untuk menambah.</td></tr>`;
+            rows.forEach((r, i) => {
+                h += `<tr><td class="text-center" style="${cs}">${i + 1}</td><td class="text-center" style="${cs}white-space:nowrap;">${indEsc(histTgl(r.tgl))}</td><td style="${cs}white-space:normal;">${indEsc(r.isi)}</td><td style="${cs}white-space:normal;">${indEsc(r.pic)}</td>
+                    <td class="text-center" style="${cs}"><button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" onclick="histDel(${i})"><i class="bi bi-trash"></i></button></td></tr>`;
+            });
+            wrap.innerHTML = h + '</tbody></table></div>';
+        }
+
+        /* ================= 6. CALIBRATION MATRIX ================= */
+        // 4 tab di Spreadsheet: INTERNAL / EXTERNAL CALIBRATION 1112 / 1113.
+        // Tiap tab berisi 4 blok item (kolom A, I, Q, Y), tiap blok 7 kolom:
+        // ALAT/INSTRUMEN, AREA, RANGE/METODE, KALIBRASI (TGL), BERIKUTNYA, PIC/NO.SERTIFIKAT, STATUS.
+        const CAL_PLANTS = ['1112', '1113'];
+        const CAL_GROUPS = [
+            { key: 'internal', title: 'INTERNAL', border: 'border-primary', items: ['Masa', 'Dimensions', 'Pressure', 'Temperature'] },
+            { key: 'external', title: 'EXTERNAL', border: 'border-info', items: ['Metal Detector', 'Gas', 'Steam', 'Water'] }
+        ];
+        const CAL_FIELDS = [
+            { k: 'alat', lab: 'ALAT / INSTRUMEN', type: 'text', w: '150px' },
+            { k: 'area', lab: 'AREA', type: 'text', w: '100px' },
+            { k: 'range', lab: 'RANGE / METODE', type: 'text', w: '130px' },
+            { k: 'last', lab: 'KALIBRASI (TGL)', type: 'date', w: '135px' },
+            { k: 'next', lab: 'BERIKUTNYA', type: 'date', w: '135px' },
+            { k: 'pic', lab: 'PIC / NO. SERTIFIKAT', type: 'text', w: '135px' }
+        ];
+        let calPlant = '1112';
+        let calData = {};
+        function calEnsure() {
+            CAL_PLANTS.forEach(p => {
+                calData[p] = (calData[p] && typeof calData[p] === 'object') ? calData[p] : {};
+                CAL_GROUPS.forEach(g => {
+                    calData[p][g.key] = (calData[p][g.key] && typeof calData[p][g.key] === 'object') ? calData[p][g.key] : {};
+                    g.items.forEach(it => { if (!Array.isArray(calData[p][g.key][it])) calData[p][g.key][it] = []; });
+                });
+            });
+        }
+        (function calInitStorage() {
+            try { const s = JSON.parse(localStorage.getItem('pm_cal_v1') || '{}'); if (s && typeof s === 'object') calData = s; } catch (e) { calData = {}; }
+            calEnsure();
+        })();
+        function calPersist() {
+            try { localStorage.setItem('pm_cal_v1', JSON.stringify(calData)); } catch (e) {}
+            apiQueue('calSave', calData);
+        }
+        function calStatus(next) {
+            if (!next) return ['bg-secondary', 'Belum Dijadwalkan'];
+            const d = new Date(String(next) + 'T00:00:00').getTime(), now = new Date();
+            const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+            if (isNaN(d)) return ['bg-secondary', 'Belum Dijadwalkan'];
+            if (d < today) return ['bg-danger', 'Terlewat'];
+            if (d - today <= 30 * 86400000) return ['bg-warning text-dark', 'Hampir Jatuh Tempo'];
+            return ['bg-success', 'OK'];
+        }
+        function calSetPlant(p) { calPlant = p; renderCalMatrix(); }
+        function calAddRow(gk, item) { calData[calPlant][gk][item].push({}); calPersist(); renderCalMatrix(); }
+        function calDelRow(gk, item, i) { calData[calPlant][gk][item].splice(i, 1); calPersist(); renderCalMatrix(); }
+        function calSet(gk, item, i, k, v) {
+            const rows = calData[calPlant][gk][item];
+            if (!rows[i]) return;
+            rows[i][k] = v;
+            calPersist(); renderCalMatrix();
+        }
+        function renderCalMatrix() {
+            const el = document.getElementById('calCards');
+            if (!el) return;
+            const cs = 'font-size:.72rem;padding:.2rem .35rem;white-space:nowrap;';
+            const pills = CAL_PLANTS.map(p => `<button type="button" class="btn ${calPlant === p ? 'btn-primary' : 'btn-outline-primary'} fw-bold" onclick="calSetPlant('${p}')">PLANT ${p}</button>`).join('');
+            const groupCards = CAL_GROUPS.map(g => {
+                const blocks = g.items.map(it => {
+                    const rows = calData[calPlant][g.key][it] || [];
+                    let body = '';
+                    if (!rows.length) body = `<tr><td colspan="9" class="text-center text-muted py-2" style="font-size:.72rem;">Belum ada alat untuk ${it.toUpperCase()} &mdash; klik "Tambah Alat".</td></tr>`;
+                    rows.forEach((r, i) => {
+                        const st = calStatus(r.next);
+                        body += `<tr><td class="text-center" style="${cs}">${i + 1}</td>`;
+                        CAL_FIELDS.forEach(f => {
+                            body += `<td style="${cs}"><input type="${f.type}" class="form-control form-control-sm border-0 shadow-none px-1" style="font-size:.72rem;min-width:${f.w};" value="${indEsc(r[f.k] || '')}" onchange="calSet('${g.key}', '${it}', ${i}, '${f.k}', this.value)"></td>`;
+                        });
+                        body += `<td class="text-center" style="${cs}"><span class="badge ${st[0]}">${st[1]}</span></td>
+                            <td class="text-center" style="${cs}"><button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" onclick="calDelRow('${g.key}', '${it}', ${i})"><i class="bi bi-trash"></i></button></td></tr>`;
+                    });
+                    return `<div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <b class="small text-primary text-uppercase">${it}</b>
+                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:.7rem;" onclick="calAddRow('${g.key}', '${it}')"><i class="bi bi-plus-lg me-1"></i>Tambah Alat</button>
+                        </div>
+                        <div class="table-responsive"><table class="table table-bordered table-sm align-middle mb-0"><thead class="table-dark text-center"><tr>
+                            <th style="${cs}">NO</th>${CAL_FIELDS.map(f => `<th style="${cs}">${f.lab}</th>`).join('')}<th style="${cs}">STATUS</th><th style="${cs}">&nbsp;</th>
+                        </tr></thead><tbody>${body}</tbody></table></div></div>`;
+                }).join('');
+                const n = g.items.reduce((t, it) => t + (calData[calPlant][g.key][it] || []).length, 0);
+                const due = g.items.reduce((t, it) => t + (calData[calPlant][g.key][it] || []).filter(r => calStatus(r.next)[0] === 'bg-danger').length, 0);
+                return `<div class="col-12 col-xl-6"><div class="card p-3 h-100 ${g.border}" style="border-top-width:4px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-sliders text-primary me-2"></i>${g.title} CALIBRATION ${calPlant}</h6>
+                        <small class="${due ? 'text-danger fw-bold' : 'text-muted'}">${n} alat${due ? ' &bull; ' + due + ' terlewat' : ''}</small>
+                    </div>${blocks}</div></div>`;
+            }).join('');
+            el.innerHTML = `<div class="col-12"><div class="btn-group btn-group-sm flex-wrap" role="group">${pills}</div></div>` + groupCards;
+        }
+        function applyCalibration(obj) {
+            if (!obj || typeof obj !== 'object') return;
+            let kirimLokal = false;
+            calEnsure();
+            CAL_PLANTS.forEach(p => CAL_GROUPS.forEach(g => g.items.forEach(it => {
+                const masuk = obj[p] && obj[p][g.key] ? obj[p][g.key][it] : null;
+                if (!Array.isArray(masuk)) return;
+                const lokal = calData[p][g.key][it] || [];
+                // Tab calibration di Spreadsheet masih kosong tapi ada isian lokal -> jangan hapus, kirim ke atas
+                if (!masuk.length && lokal.length) { kirimLokal = true; return; }
+                calData[p][g.key][it] = masuk;
+            })));
+            renderCalMatrix();
+            if (kirimLokal) calPersist();
+        }
+        renderHistCards();
+        renderCalMatrix();
+
         function indEditableSubs() {
             const fam = IND_FAM[IND_STAGES[indStage].fam];
             const out = [];
@@ -3838,6 +4060,7 @@
                 applyLLF(r.llf || []);
                 applyInventory(r.inv || {});
                 applyIndicator(r.ind || []);
+                applyCalibration(r.cal || {});
                 if (((r.invMissing || []).length || (r.invBad || []).length) && !window._invMissingAlerted) {
                     window._invMissingAlerted = true;
                     let msg = '';
@@ -4126,6 +4349,9 @@
             document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
             if(element) element.classList.add('active');
             window.scrollTo(0, 0);
+
+            if (tabName === 'hist') renderHistCards();
+            if (tabName === 'cal') renderCalMatrix();
 
             if (window.innerWidth <= 991.98) {
                 let sidebar = document.getElementById('sidebar');
