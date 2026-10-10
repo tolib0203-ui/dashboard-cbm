@@ -1101,31 +1101,6 @@
     </div>
 </div>
 
-<!-- Modal WT per Week -->
-<div class="modal fade" id="modalIndicatorWT" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i> WT per Week &mdash; <span id="indWTStageName"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted small">Isi jam kerja (WT) per week. Untuk Packing, isi juga jumlah mesin bungkus sesuai planning. WT (MENIT) = JAM &times; 60 (&times; jumlah mesin untuk Packing).</p>
-                <div class="table-responsive" style="max-height:50vh;overflow:auto;">
-                    <table class="table table-bordered align-middle small mb-0">
-                        <thead class="table-dark"><tr><th>Week</th><th>WT (JAM)</th><th id="indWTMesinHead" class="d-none">JUMLAH MESIN BUNGKUS</th></tr></thead>
-                        <tbody id="indWTBody"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="indWTSave()" data-bs-dismiss="modal"><i class="bi bi-save me-1"></i> Simpan</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Skrip JavaScript Inventory -->
 <script>
     // Data diisi dari Spreadsheet (tab "On Order / On PR / On PO ... bawah 5 jt")
@@ -1424,7 +1399,6 @@
                                     <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pros1','wt')">WT</button>
                                     <button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="indOpenStage('pros1','detail')">Detail</button>
                                 </div>
                             </div>
@@ -1434,7 +1408,6 @@
                                     <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pros2','wt')">WT</button>
                                     <button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="indOpenStage('pros2','detail')">Detail</button>
                                 </div>
                             </div>
@@ -1453,7 +1426,6 @@
                                     <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pack1','wt')">WT</button>
                                     <button class="btn btn-sm btn-outline-success fw-bold px-3" onclick="indOpenStage('pack1','detail')">Detail</button>
                                 </div>
                             </div>
@@ -1463,7 +1435,6 @@
                                     <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('pack2','wt')">WT</button>
                                     <button class="btn btn-sm btn-outline-success fw-bold px-3" onclick="indOpenStage('pack2','detail')">Detail</button>
                                 </div>
                             </div>
@@ -1482,7 +1453,6 @@
                                     <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('util1','wt')">WT</button>
                                     <button class="btn btn-sm btn-outline-info fw-bold px-3" onclick="indOpenStage('util1','detail')">Detail</button>
                                 </div>
                             </div>
@@ -1492,7 +1462,6 @@
                                     <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary fw-bold px-2" onclick="indOpenStage('util2','wt')">WT</button>
                                     <button class="btn btn-sm btn-outline-info fw-bold px-3" onclick="indOpenStage('util2','detail')">Detail</button>
                                 </div>
                             </div>
@@ -1500,7 +1469,47 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TECHNICAL BREAKDOWN (otomatis dari DT) -->
+            <div class="row g-4 mt-1">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-top border-warning border-4 h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-wrench-adjustable text-warning me-1"></i> TECHNICAL BREAKDOWN 1112</h5>
+                                <span class="small text-muted">Otomatis dari DT Stage 1 (Proses, Packing, Utility)</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-warning fw-bold px-3" onclick="indTBOpen('1112')">Lihat</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-top border-danger border-4 h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-wrench-adjustable text-danger me-1"></i> TECHNICAL BREAKDOWN 1113</h5>
+                                <span class="small text-muted">Otomatis dari DT Stage 2 (Proses, Packing, Utility)</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger fw-bold px-3" onclick="indTBOpen('1113')">Lihat</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+<!-- Modal Technical Breakdown -->
+<div class="modal fade" id="modalIndicatorTB" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bi bi-wrench-adjustable me-2"></i> Technical Breakdown &mdash; <span id="indTBTitle"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body"><div id="indTBWrap"></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button></div>
+        </div>
+    </div>
+</div>
 
         <!-- HISTORY TAB -->
         <div id="page-hist" class="tab-pane">
@@ -3063,7 +3072,7 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbwdkO4opbSrHTjJmHdvA16Ig6YG_wNIoHQDmTf8fvCjP5JvtFZCxuXq-Qms1sQ3ivQ1NA/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbx-roXbOGIJ886jkQkWLfM-h_MEJpJ89xH8Z_7nawRI6MWz13k35xEXdrX1WnOF7LR3HA/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
@@ -3409,8 +3418,7 @@
         const IND_WEEK_RANGE = [];
         for (let w = 27; w <= 52; w++) IND_WEEK_RANGE.push(w);
 
-        let indDT = {};   // indDT[stage] = [ { line, tgl, week, ... } ]
-        let indWT = {};   // indWT[stage] = { week: { jam, mesin } }
+        let indDT = {};   // indDT[stage] = [ { line, tgl, week, ..., wtJam, mesinBungkus, wtMnt } ]
         let indStage = 'pros1';
         let indEditIndex = -1;
 
@@ -3419,7 +3427,6 @@
             try { saved = JSON.parse(localStorage.getItem('pm_ind_dt_v2') || 'null'); } catch (e) {}
             Object.keys(IND_STAGES).forEach(s => {
                 indDT[s] = (saved && saved.dt && Array.isArray(saved.dt[s])) ? saved.dt[s] : [];
-                indWT[s] = (saved && saved.wt && saved.wt[s]) ? saved.wt[s] : {};
             });
         })();
 
@@ -3427,14 +3434,16 @@
         function indEsc(s) { return String(s === undefined || s === null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
         function indFmtPct(v) { return v.toFixed(2).replace('.', ',') + '%'; }
 
-        function indWeekOf(stage, week) {
-            const w = indWT[stage] && indWT[stage][week];
-            return w || { jam: 0, mesin: 0 };
+        function indEvWtMnt(stage, ev) {
+            const mult = IND_FAM[IND_STAGES[stage].fam].hasMesin ? indNum(ev.mesinBungkus) : 1;
+            return indNum(ev.wtJam) * 60 * mult;
+        }
+        function indWTLine(stage, week, line) {
+            const ev = (indDT[stage] || []).find(r => indNum(r.week) === indNum(week) && indNum(r.line) === indNum(line));
+            return ev ? indEvWtMnt(stage, ev) : 0;
         }
         function indWTMinutes(stage, week) {
-            const w = indWeekOf(stage, week);
-            const mult = IND_FAM[IND_STAGES[stage].fam].hasMesin ? (indNum(w.mesin)) : 1;
-            return indNum(w.jam) * 60 * mult;
+            return IND_LINES.reduce((t, L) => t + indWTLine(stage, week, L), 0);
         }
         function indWeekDT(stage, week) {
             return (indDT[stage] || []).reduce((t, r) => t + (indNum(r.week) === indNum(week) ? indNum(r.mnt) : 0), 0);
@@ -3449,16 +3458,18 @@
         }
         function indSemester(stage) {
             let dt = 0, wt = 0;
-            const weeks = {};
-            (indDT[stage] || []).forEach(r => { weeks[indNum(r.week)] = 1; });
-            Object.keys(indWT[stage] || {}).forEach(w => { weeks[w] = 1; });
-            Object.keys(weeks).forEach(w => { dt += indWeekDT(stage, w); wt += indWTMinutes(stage, w); });
+            const seen = {};
+            (indDT[stage] || []).forEach(r => {
+                dt += indNum(r.mnt);
+                const k = indNum(r.week) + '|' + indNum(r.line);
+                if (!seen[k]) { seen[k] = 1; wt += indEvWtMnt(stage, r); }
+            });
             return { dt: dt, wtJam: wt / 60, wtMin: wt, pct: wt ? dt / wt * 100 : 0, events: (indDT[stage] || []).length };
         }
 
         function indPersist() {
-            try { localStorage.setItem('pm_ind_dt_v2', JSON.stringify({ dt: indDT, wt: indWT })); } catch (e) {}
-            apiQueue('indSave', { dt: indDT, wt: indWT });
+            try { localStorage.setItem('pm_ind_dt_v2', JSON.stringify({ dt: indDT })); } catch (e) {}
+            apiQueue('indSave', { dt: indDT });
         }
 
         function indRenderCards() {
@@ -3507,11 +3518,11 @@
                     });
                 });
                 IND_TEXT_FIELDS.forEach(f => { h += `<td style="${cs}max-width:220px;white-space:normal;">${indEsc(r[f.key])}</td>`; });
-                if (fam.hasMesin) h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(indWeekOf(indStage, week).mesin))}</td>`;
-                h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(indWeekOf(indStage, week).jam))}</td>`;
-                h += `<td class="text-center" style="${cs}">${indFmtNum(indWTMinutes(indStage, week))}</td>`;
+                if (fam.hasMesin) h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(r.mesinBungkus))}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(indNum(r.wtJam))}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(indEvWtMnt(indStage, r))}</td>`;
                 IND_LINES.forEach(L => {
-                    const wm = indWTMinutes(indStage, week);
+                    const wm = indWTLine(indStage, week, L);
                     const lp = wm ? (indWeekLineDT(indStage, week, L) / wm) * 100 : 0;
                     h += `<td class="text-center" style="${cs}${lp > 0 ? 'background:#fff3cd;font-weight:700;' : ''}">${indFmtPct(lp)}</td>`;
                 });
@@ -3521,6 +3532,78 @@
             });
             h += `</tbody></table></div></div>`;
             wrap.innerHTML = h;
+        }
+
+        /* ===== TECHNICAL BREAKDOWN (otomatis dari DT) ===== */
+        const IND_TB_PLANTS = {
+            '1112': { title: 'TECHNICAL BREAKDOWN 1112', stages: ['pros1', 'pack1', 'util1'] },
+            '1113': { title: 'TECHNICAL BREAKDOWN 1113', stages: ['pros2', 'pack2', 'util2'] }
+        };
+        function indTBSplit(fam, ev) {
+            if (fam === 'pros') return { mech: indNum(ev.ovenMech) + indNum(ev.redMech) + indNum(ev.tbMech), elec: indNum(ev.tbElec), util: 0 };
+            if (fam === 'packing') return { mech: indNum(ev.mech), elec: indNum(ev.elec), util: 0 };
+            return { mech: 0, elec: 0, util: indNum(ev.util) };
+        }
+        function indTBLine(plant, week, line) {
+            const agg = { mech: 0, elec: 0, util: 0, wt: 0 };
+            IND_TB_PLANTS[plant].stages.forEach(sk => {
+                const fam = IND_STAGES[sk].fam;
+                (indDT[sk] || []).forEach(ev => {
+                    if (indNum(ev.week) !== indNum(week) || indNum(ev.line) !== indNum(line)) return;
+                    const s = indTBSplit(fam, ev);
+                    agg.mech += s.mech; agg.elec += s.elec; agg.util += s.util;
+                    if (!agg.wt) agg.wt = indEvWtMnt(sk, ev);
+                });
+            });
+            return agg;
+        }
+        function indTBWeeks(plant) {
+            const set = {};
+            IND_TB_PLANTS[plant].stages.forEach(sk => (indDT[sk] || []).forEach(ev => { const w = indNum(ev.week); if (w) set[w] = 1; }));
+            return Object.keys(set).map(Number).sort((a, b) => a - b);
+        }
+        let indTBPlant = '1112';
+        let indTBLineSel = 1;
+        function indTBRender(plant) {
+            const wrap = document.getElementById('indTBWrap');
+            if (!wrap) return;
+            const cs = 'font-size:.75rem;padding:.3rem .5rem;white-space:nowrap;';
+            const weeks = indTBWeeks(plant);
+            let h = `<div class="btn-group btn-group-sm mb-2 flex-wrap" role="group">`;
+            IND_LINES.forEach(L => { h += `<button type="button" class="btn ${indTBLineSel === L ? 'btn-warning' : 'btn-outline-warning'} fw-bold" onclick="indTBSetLine(${L})">LINE ${L}</button>`; });
+            h += `</div>`;
+            h += `<div class="table-responsive" style="max-height:60vh;overflow:auto;"><table class="table table-bordered align-middle mb-0" style="font-size:.75rem;"><thead class="table-dark text-center"><tr>`;
+            ['WEEK', 'MECHANICAL (MENIT)', 'ELECTRICAL (MENIT)', 'UTILITY (MENIT)', 'TOTAL TECHNICAL DOWNTIME (MENIT)', 'TOTAL TECHNICAL DOWNTIME (%)', 'TOTAL DOWNTIME UTILITY (MENIT)', 'TOTAL DOWNTIME UTILITY (%)']
+                .forEach(t => { h += `<th style="${cs}">${t}</th>`; });
+            h += `</tr></thead><tbody>`;
+            if (!weeks.length) {
+                h += `<tr><td colspan="8" class="text-center text-muted">Belum ada data DT untuk dihitung.</td></tr>`;
+            }
+            weeks.forEach(w => {
+                const a = indTBLine(plant, w, indTBLineSel);
+                const ttd = a.mech + a.elec;
+                const ttdP = a.wt ? ttd / a.wt * 100 : 0;
+                const duP = a.wt ? a.util / a.wt * 100 : 0;
+                h += `<tr><td class="text-center fw-bold" style="${cs}">${w}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(a.mech)}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(a.elec)}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(a.util)}</td>`;
+                h += `<td class="text-center" style="${cs}background:#f1f8f4;font-weight:700;">${indFmtNum(ttd)}</td>`;
+                h += `<td class="text-center" style="${cs}background:#e7f1ff;font-weight:700;">${indFmtPct(ttdP)}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtNum(a.util)}</td>`;
+                h += `<td class="text-center" style="${cs}">${indFmtPct(duP)}</td></tr>`;
+            });
+            h += `</tbody></table></div>`;
+            wrap.innerHTML = h;
+        }
+        function indTBSetLine(L) { indTBLineSel = L; indTBRender(indTBPlant); }
+        function indTBOpen(plant) {
+            indTBPlant = plant;
+            indTBLineSel = 1;
+            const t = document.getElementById('indTBTitle');
+            if (t) t.textContent = IND_TB_PLANTS[plant].title;
+            indTBRender(plant);
+            new bootstrap.Modal(document.getElementById('modalIndicatorTB')).show();
         }
 
         function indEditableSubs() {
@@ -3558,6 +3641,22 @@
             o.value = d;
         }
 
+        function indWTFields() {
+            const fam = IND_FAM[IND_STAGES[indStage].fam];
+            const f = [];
+            if (fam.hasMesin) f.push({ key: 'mesinBungkus', lab: 'JUMLAH MESIN BUNGKUS (SESUAI PLANNING)', type: 'number' });
+            f.push({ key: 'wtJam', lab: 'WT PER WEEK (JAM)', type: 'number' });
+            f.push({ key: 'wtMnt', lab: 'WT PER WEEK (MENIT)', type: 'number', kind: 'wtmnt' });
+            return f;
+        }
+        function indCalcWtMnt() {
+            const o = document.getElementById('indf_wtMnt');
+            if (!o) return;
+            const jam = indNum((document.getElementById('indf_wtJam') || {}).value);
+            const mb = document.getElementById('indf_mesinBungkus');
+            o.value = jam * 60 * (mb ? indNum(mb.value) : 1);
+        }
+
         function indFormControl(f, row) {
             const id = 'indf_' + f.key;
             const cls = 'form-control form-control-sm';
@@ -3578,6 +3677,7 @@
                 return `<select id="${id}" class="form-select form-select-sm">${opts}</select>`;
             }
             if (f.kind === 'mnt') return `<input type="number" step="any" id="${id}" class="${cls} bg-light" value="${val}" readonly title="Otomatis = FINISH - START">`;
+            if (f.kind === 'wtmnt') return `<input type="number" step="any" id="${id}" class="${cls} bg-light" value="${val}" readonly title="Otomatis = JAM x 60 (x mesin bungkus untuk Packing)">`;
             return `<input type="${f.type === 'number' ? 'number' : 'text'}" step="any" id="${id}" class="${cls}" value="${val}">`;
         }
 
@@ -3588,7 +3688,8 @@
             const fields = [].concat(
                 IND_BASE_FIELDS,
                 subs.map(s => ({ key: s.key, lab: s.lab + ' \u2014 ' + String(s.groupTitle || '').replace(/\s*\(MENIT\)\s*$/, ''), type: 'number' })),
-                IND_TEXT_FIELDS
+                IND_TEXT_FIELDS,
+                indWTFields()
             );
             const row = indEditIndex >= 0 ? (indDT[indStage][indEditIndex] || {}) : {};
             wrap.innerHTML = fields.map(f => `
@@ -3605,6 +3706,11 @@
             if (sEl) sEl.addEventListener('change', indCalcMnt);
             if (fEl) fEl.addEventListener('change', indCalcMnt);
             indCalcMnt();
+            const wjEl = document.getElementById('indf_wtJam');
+            const mbEl = document.getElementById('indf_mesinBungkus');
+            if (wjEl) wjEl.addEventListener('change', indCalcWtMnt);
+            if (mbEl) mbEl.addEventListener('change', indCalcWtMnt);
+            indCalcWtMnt();
         }
 
         function indFormSave() {
@@ -3618,6 +3724,8 @@
             });
             subs.forEach(s => { row[s.key] = indNum(document.getElementById('indf_' + s.key).value); });
             IND_TEXT_FIELDS.forEach(f => { row[f.key] = document.getElementById('indf_' + f.key).value; });
+            indWTFields().forEach(f => { if (f.kind !== 'wtmnt') row[f.key] = indNum(document.getElementById('indf_' + f.key).value); });
+            row.wtMnt = indEvWtMnt(indStage, row);
             if (!indDT[indStage]) indDT[indStage] = [];
             if (indEditIndex >= 0) indDT[indStage][indEditIndex] = row; else indDT[indStage].push(row);
             indEditIndex = -1;
@@ -3678,42 +3786,7 @@
         function indOpenStage(key, mode) {
             indStage = key;
             indEditIndex = -1;
-            if (mode === 'wt') bukaModalWT(); else bukaModalIndicator();
-        }
-
-        function bukaModalWT() {
-            const nm = document.getElementById('indWTStageName');
-            if (nm) nm.textContent = IND_STAGES[indStage].title;
-            const hasMesin = IND_FAM[IND_STAGES[indStage].fam].hasMesin;
-            const head = document.getElementById('indWTMesinHead');
-            if (head) head.classList.toggle('d-none', !hasMesin);
-            const tbody = document.getElementById('indWTBody');
-            tbody.innerHTML = IND_WEEK_RANGE.map(w => {
-                const cur = indWeekOf(indStage, w);
-                return `<tr>
-                    <td class="fw-bold">Week ${w}</td>
-                    <td><input type="number" step="any" class="form-control form-control-sm" id="indwt_jam_${w}" value="${indNum(cur.jam)}"></td>
-                    ${hasMesin ? `<td><input type="number" step="any" class="form-control form-control-sm" id="indwt_mesin_${w}" value="${indNum(cur.mesin)}"></td>` : ''}
-                </tr>`;
-            }).join('');
-            new bootstrap.Modal(document.getElementById('modalIndicatorWT')).show();
-        }
-
-        function indWTSave() {
-            const hasMesin = IND_FAM[IND_STAGES[indStage].fam].hasMesin;
-            indWT[indStage] = indWT[indStage] || {};
-            IND_WEEK_RANGE.forEach(w => {
-                const jamEl = document.getElementById('indwt_jam_' + w);
-                const mesinEl = document.getElementById('indwt_mesin_' + w);
-                indWT[indStage][w] = {
-                    jam: jamEl ? indNum(jamEl.value) : 0,
-                    mesin: hasMesin && mesinEl ? indNum(mesinEl.value) : 0
-                };
-            });
-            indPersist();
-            indRenderCards();
-            indRenderTable();
-            renderIndicatorSummary();
+            bukaModalIndicator();
         }
 
         function indDiscard() { indEditIndex = -1; }
@@ -3721,7 +3794,6 @@
         function applyIndicator(obj) {
             if (!obj || typeof obj !== 'object') return;
             if (obj.dt) Object.keys(IND_STAGES).forEach(s => { if (Array.isArray(obj.dt[s])) indDT[s] = obj.dt[s]; });
-            if (obj.wt) Object.keys(IND_STAGES).forEach(s => { if (obj.wt[s]) indWT[s] = obj.wt[s]; });
         }
 
         // Grafik Dashboard #4: DT (%) semester per stage
