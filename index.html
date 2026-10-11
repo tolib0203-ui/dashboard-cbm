@@ -220,19 +220,33 @@
 
         <!-- DASHBOARD TAB -->
         <div id="page-dash" class="tab-pane active-tab">
-            <h4 class="fw-bold text-dark mb-4"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Dashboard & Visualisasi Seluruh Modul</h4>
-            
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Dashboard &amp; Visualisasi Seluruh Modul</h4>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="small fw-bold text-muted mb-0" for="dashWeek">Minggu PM</label>
+                    <select id="dashWeek" class="form-select form-select-sm" style="width:105px" onchange="refreshDashboard()"></select>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="dashReload()" title="Muat ulang data"><i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+            </div>
+
+            <div id="dashAlerts"></div>
+
+            <!-- Ringkasan angka utama: klik kartu untuk membuka modulnya -->
+            <div class="row g-3 mb-4" id="dashKpi"></div>
+
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <div class="card p-4">
-                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart me-1"></i> 1. PM Compliance Overview (%)</h6>
-                        <div style="position: relative; height: 220px;"><canvas id="chartPM"></canvas></div>
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-bar-chart me-1"></i> 1. PM Compliance Overview (%)</h6>
+                        <small class="text-muted d-block mb-3" id="dashPmWeekNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartPM"></canvas></div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card p-4">
-                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-graph-up me-1"></i> 2. Temuan LLF (Closed vs Open)</h6>
-                        <div style="position: relative; height: 220px;"><canvas id="chartLLF"></canvas></div>
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-graph-up me-1"></i> 2. Temuan LLF (Closed vs Open)</h6>
+                        <small class="text-muted d-block mb-3" id="dashLlfNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartLLF"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -240,14 +254,60 @@
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <div class="card p-4">
-                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam me-1"></i> 3. Inventory Progress (Qty & Value)</h6>
-                        <div style="position: relative; height: 200px;"><canvas id="chartInv"></canvas></div>
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-box-seam me-1"></i> 3. Inventory Sparepart (Jumlah Item)</h6>
+                        <small class="text-muted d-block mb-3" id="dashInvNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartInv"></canvas></div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card p-4">
-                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-speedometer2 me-1"></i> 4. Indicator Performance &mdash; Total DT (%) per Stage</h6>
-                        <div style="position: relative; height: 200px;"><canvas id="chartInd"></canvas></div>
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-speedometer2 me-1"></i> 4. Indicator Performance &mdash; Total DT (%) per Stage</h6>
+                        <small class="text-muted d-block mb-3" id="dashDtNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartInd"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-graph-up-arrow me-1"></i> 5. Tren Total DT (%) per Minggu</h6>
+                        <small class="text-muted d-block mb-3" id="dashTrendNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartTrend"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-sliders me-1"></i> 6. Calibration Matrix &mdash; Status Jatuh Tempo</h6>
+                        <small class="text-muted d-block mb-3" id="dashCalNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartCal"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-wrench-adjustable me-1"></i> 7. Technical Breakdown per Plant (menit)</h6>
+                        <small class="text-muted d-block mb-3" id="dashTbNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartTB"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-clock-history me-1"></i> 8. History &mdash; Jumlah Catatan per Area</h6>
+                        <small class="text-muted d-block mb-3" id="dashHistNote"></small>
+                        <div style="position: relative; height: 240px;"><canvas id="chartHist"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <div class="card p-4">
+                        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-exclamation-triangle me-1"></i> 9. Downtime Terlama (10 event terbesar)</h6>
+                        <small class="text-muted d-block mb-3" id="dashTopDtNote"></small>
+                        <div style="position: relative; height: 300px;"><canvas id="chartTopDt"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -698,7 +758,7 @@
     function updateLLFStage() {
         if (!llfWork || !llfDirty) return;                       // tidak ada perubahan
         if (DB_ENABLED && !pmLoaded) {
-            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan bawah). Perubahan belum tersimpan.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan atas). Perubahan belum tersimpan.');
             return;
         }
         const rows = llfWork.map(x => ({
@@ -1373,7 +1433,7 @@
     function updateInventory() {
         if (!invWork || !invDirty) return;
         if (DB_ENABLED && !pmLoaded) {
-            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan bawah). Perubahan belum tersimpan.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan atas). Perubahan belum tersimpan.');
             return;
         }
         const cols = invCols();
@@ -1384,6 +1444,7 @@
         });
         databaseInventory[invKey()] = invWork.map(x => Object.assign({}, x));
         apiQueue('invSave', { key: invKey(), rows: rows });
+        refreshDashboard();
         invWork = null;
         invDirty = false;
     }
@@ -3110,7 +3171,7 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbw7gifyPHNYy1Lx9QW2QtRkbgV2CT96SHisKHddiBFcaAdYNej2g1DO_boT-_viVc03jg/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbz_S26X3XLxt0J4RZTOmQqgRDO1gc7i3GqaE0NCnarAIwHLrsn-ebCCnri8F9QhOOOg/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
@@ -3302,7 +3363,7 @@
             const keys = Object.keys(pmDraft).filter(k => refs.indexOf(k.split('|')[0]) >= 0);
             if (!keys.length) return;                                    // tidak ada perubahan
             if (DB_ENABLED && !pmLoaded) {
-                alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan bawah). Perubahan belum tersimpan.');
+                alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan atas). Perubahan belum tersimpan.');
                 return;
             }
             const weeks = {};
@@ -3510,6 +3571,7 @@
         function indPersist() {
             try { localStorage.setItem('pm_ind_dt_v2', JSON.stringify({ dt: indDT })); } catch (e) {}
             apiQueue('indSave', { dt: indDT });
+            refreshDashboard();
         }
 
         function indRenderCards() {
@@ -3661,7 +3723,7 @@
             try { const s = JSON.parse(localStorage.getItem('pm_hist_note_v1') || '{}'); if (s && typeof s === 'object') histNotes = s; } catch (e) {}
             Object.keys(HIST_TITLES).forEach(k => { if (!Array.isArray(histNotes[k])) histNotes[k] = []; });
         })();
-        function histPersist() { try { localStorage.setItem('pm_hist_note_v1', JSON.stringify(histNotes)); } catch (e) {} }
+        function histPersist() { try { localStorage.setItem('pm_hist_note_v1', JSON.stringify(histNotes)); } catch (e) {} refreshDashboard(); }
         function histBtnLabel(s) { return s === 'biom' ? 'Detail' : 'Stage ' + (String(s).slice(-1) === '2' ? 2 : 1); }
         function histTgl(iso) { const p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
 
@@ -3754,6 +3816,7 @@
         function calPersist() {
             try { localStorage.setItem('pm_cal_v1', JSON.stringify(calData)); } catch (e) {}
             apiQueue('calSave', calData);
+            refreshDashboard();
         }
         function calStatus(next) {
             if (!next) return ['bg-secondary', 'Belum Dijadwalkan'];
@@ -4027,16 +4090,20 @@
             if (kirimLokal) indPersist();
         }
 
-        // Grafik Dashboard #4: DT (%) semester per stage
-        function renderIndicatorSummary() {
+        // Grafik Dashboard #4: DT (%) semester per stage + rincian untuk tooltip
+        function renderIndicatorSummary(m) {
             if (!chartIndInst) return;
-            chartIndInst.data.labels = Object.keys(IND_STAGES).map(s => IND_STAGES[s].title.replace('DT ', ''));
+            const minggu = m || dashWeekNum();
+            const dt = dashDT(minggu);
+            chartIndInst.$m = minggu;
+            chartIndInst.data.labels = dt.map(r => dashShort(r.name));
             chartIndInst.data.datasets = [{
-                label: 'Total DT per Week (%)',
-                data: Object.keys(IND_STAGES).map(s => Math.round(indSemester(s).pct * 100) / 100),
+                label: 'Total DT (%)',
+                data: dt.map(r => Math.round(r.pct * 100) / 100),
                 backgroundColor: ['#0d6efd', '#6610f2', '#fd7e14', '#ffc107', '#20c997', '#0dcaf0'],
                 borderRadius: 6
             }];
+            chartIndInst.$d = dt;
             chartIndInst.update();
         }
 
@@ -4080,38 +4147,495 @@
             }
         }
 
-        // ---------- Dashboard PM dihitung dari data (minggu yang dipilih, default W38) ----------
-        let chartPMInst = null, chartLLFInst = null, chartIndInst = null;
+        // ---------- Dashboard: semua angka dihitung dari data (bukan angka contoh) ----------
+        let chartPMInst = null, chartLLFInst = null, chartInvInst = null, chartIndInst = null, chartTrendInst = null, chartCalInst = null, chartTBInst = null, chartHistInst = null, chartTopDtInst = null;
+        const DASH_TABS = ['dash', 'pm', 'llf', 'inv', 'ind', 'hist', 'cal', 'proj'];
 
-        function refreshDashboard() {
-            if (chartLLFInst) {
-                const all = [].concat(...Object.values(databaseLLFStage));
-                const closed = all.filter(i => i.status === 'Closed').length;
-                chartLLFInst.data.datasets[0].data = [closed, all.length - closed];
-                chartLLFInst.update();
+        // Area PM = gabungan dataset yang tampil di satu modal
+        const DASH_PM_AREAS = [
+            { name: 'Utility Stage 1', refs: ['utilityStage1Data'] },
+            { name: 'Utility Stage 2', refs: ['utilityStage2Data'] },
+            { name: 'Proses Stage 1', refs: ['prosesCKData', 'prosesMHSData', 'prosesGDRMData'] },
+            { name: 'Proses Stage 2', refs: ['prosesStage2Data'] },
+            { name: 'Packing Stage 1', refs: ['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data'] },
+            { name: 'Packing Stage 2', refs: ['packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5'] },
+            { name: 'Biomass', refs: ['biomassData'] }
+        ];
+
+        // Tab Inventory yang dihitung (REPAIR tidak dipisah per plant)
+        const DASH_INV = [
+            { name: 'On Order SPF', a: 'On Order_1112', b: 'On Order_1113', grp: 'On Order' },
+            { name: 'On PR SPF', a: 'On PR_1112', b: 'On PR_1113', grp: 'On PR' },
+            { name: 'On PO SPF', a: 'On PO_1112', b: 'On PO_1113', grp: 'On PO' },
+            { name: 'On Order SPP', a: 'On Order_1112_atas', b: 'On Order_1113_atas', grp: 'On Order' },
+            { name: 'On PR SPP', a: 'On PR_1112_atas', b: 'On PR_1113_atas', grp: 'On PR' },
+            { name: 'On PO SPP', a: 'On PO_1112_atas', b: 'On PO_1113_atas', grp: 'On PO' },
+            { name: 'PR SRP', a: 'PR SRP_1112', b: 'PR SRP_1113', grp: 'SRP/JAP' },
+            { name: 'PO SRP', a: 'PO SRP_1112', b: 'PO SRP_1113', grp: 'SRP/JAP' },
+            { name: 'PR JAP', a: 'PR JAP_1112', b: 'PR JAP_1113', grp: 'SRP/JAP' },
+            { name: 'PO JAP', a: 'PO JAP_1112', b: 'PO JAP_1113', grp: 'SRP/JAP' },
+            { name: 'PR Project CAPEX', a: 'PR PROJECT CAPEX_1112', b: 'PR PROJECT CAPEX_1113', grp: 'SRP/JAP' },
+            { name: 'Repair', a: 'REPAIR_', b: '', gabung: true, grp: 'Repair' }
+        ];
+
+        function dashEsc(t) { return String(t === null || t === undefined ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function dashFmt(n) { return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+        function dashJam(menit) { const j = (Number(menit) || 0) / 60; return j >= 1 ? j.toFixed(1).replace('.', ',') + ' jam' : Math.round(Number(menit) || 0) + ' menit'; }
+        // Label grafik agar pendek tapi tetap jelas: "DT PROSES STAGE 1" / "Utility Stage 1" -> "PROSES S1" / "Utility S1"
+        function dashShort(s) { return String(s || '').replace(/STAGE\s*(\d)/i, 'S$1').replace(/\s+/g, ' ').trim(); }
+        // "140 menit (2,3 jam)" tanpa pengulangan kata menit untuk nilai < 1 jam
+        function dashMenit(m) { const v = Math.round(Number(m) || 0); return dashFmt(v) + ' menit' + (v >= 60 ? ' (' + dashJam(v) + ')' : ''); }
+        function dashRateBadge(pct) {
+            const cls = pct >= 95 ? 'bg-success' : pct >= 80 ? 'bg-primary' : pct >= 50 ? 'bg-warning text-dark' : 'bg-danger';
+            return `<span class="badge ${cls}">${pct}%</span>`;
+        }
+        // DT %: makin kecil makin baik (bandingkan dengan badge % selesai yang makin besar makin baik)
+        function dashDtBadge(pct) {
+            const cls = pct <= 1 ? 'bg-success' : pct <= 3 ? 'bg-warning text-dark' : 'bg-danger';
+            return `<span class="badge ${cls}">${pct.toFixed(2).replace('.', ',')}%</span>`;
+        }
+        function dashPctAtauTotal(pct, total) { return total ? dashRateBadge(pct) : '<span class="text-muted">-</span>'; }
+        function dashEmpty(kolom, teks) { return `<tr><td colspan="${kolom}" class="text-center text-muted py-3">${teks}</td></tr>`; }
+        function dashGo(tab) {
+            const links = document.querySelectorAll('.nav-link-custom');
+            const idx = DASH_TABS.indexOf(tab);
+            switchTab(tab, idx >= 0 && links[idx] ? links[idx] : null);
+            window.scrollTo(0, 0);
+        }
+        function dashReload() { if (DB_ENABLED) loadFromSheet(); else refreshDashboard(); }
+        function dashWeekValue() {
+            const el = document.getElementById('dashWeek');
+            return el && el.value ? el.value : 'W' + PM_BASE_WEEK;
+        }
+        // Default = minggu terakhir yang sudah punya data PM, supaya tampilan pertama tidak kosong
+        function initDashWeek() {
+            const el = document.getElementById('dashWeek');
+            if (!el) return;
+            let opt = '';
+            for (let i = 1; i <= 53; i++) opt += `<option value="W${i}">Week ${i}</option>`;
+            el.innerHTML = opt;
+            el.value = 'W' + PM_BASE_WEEK;
+            const refs = Object.keys(PM_MAP);
+            for (let w = 53; w >= 1; w--) {
+                const wk = 'W' + w;
+                if (refs.some(r => pmWeekData[r] && pmWeekData[r][wk])) { el.value = wk; break; }
             }
-            if (!chartPMInst) return;
-            const pct = refs => {
-                let total = 0, done = 0;
-                refs.forEach(ref => {
-                    const week = pmWeekOf(ref);
-                    pmDatasets()[ref].forEach((_, i) => {
+        }
+
+        // ---- helpers minggu: semua grafik di dashboard mengikuti pilihan #dashWeek ----
+        function dashWeekNum() {
+            const n = parseInt(String(dashWeekValue()).replace(/\D/g, ''), 10);
+            return n > 0 ? n : PM_BASE_WEEK;
+        }
+        // Tanggal boleh "yyyy-mm-dd" (History/Calibration) atau "dd/mm/yyyy" & "dd.mm.yyyy" (event DT/LLF)
+        function dashTglParse(str) {
+            const s = String(str || '').trim();
+            let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+            if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+            m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+            if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+            const d = new Date(s);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        // Tahun acuan: ikut tanggal data yang ada, supaya W ke-n tidak melompat tahun
+        function dashTahun() {
+            const kandidat = [];
+            Object.keys(indDT).forEach(k => (indDT[k] || []).slice(0, 4).forEach(ev => kandidat.push(ev && ev.tgl)));
+            Object.keys(histNotes).forEach(k => (histNotes[k] || []).slice(0, 2).forEach(n => kandidat.push(n && n.tgl)));
+            CAL_PLANTS.forEach(p => CAL_GROUPS.forEach(g => g.items.forEach(it => {
+                (((calData[p] || {})[g.key] || {})[it] || []).slice(0, 2).forEach(r => kandidat.push(r && (r.next || r.last)));
+            })));
+            for (const s of kandidat) { const d = dashTglParse(s); if (d) return d.getFullYear(); }
+            return new Date().getFullYear();
+        }
+        // Senin minggu ke-n (ISO 8601: minggu 1 = minggu yang berisi 1 Januari)
+        function dashMulaiMinggu(n, tahun) {
+            const y = tahun || dashTahun();
+            const jan4 = new Date(y, 0, 4);
+            jan4.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+            const senin = new Date(jan4);
+            senin.setDate(jan4.getDate() + (n - 1) * 7);
+            return senin;
+        }
+        // Nomor minggu ISO 8601 dari sebuah tanggal (untuk data yang hanya punya tanggal, mis. catatan History)
+        function dashMingguDariTanggal(str) {
+            const d = dashTglParse(str);
+            if (!d) return 0;
+            const kamis = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            kamis.setDate(kamis.getDate() - ((kamis.getDay() + 6) % 7) + 3);   // Kamis pada minggu yang sama
+            const k1 = new Date(kamis.getFullYear(), 0, 4);
+            k1.setDate(k1.getDate() - ((k1.getDay() + 6) % 7) + 3);            // Kamis minggu ISO ke-1 tahun itu
+            return 1 + Math.round((kamis - k1) / 604800000);
+        }
+        function dashNomorWeek(v) { const n = parseInt(String(v == null ? '' : v).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; }
+        // Minggu = hari terakhir minggu ISO terpilih (acuan "status pada saat itu")
+        function dashAkhirMinggu(n) { return new Date(dashMulaiMinggu(n).getTime() + 6 * 86400000); }
+        function dashTglFmt(d) { return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
+        function dashLabelMinggu(n) {
+            const mulai = dashMulaiMinggu(n), akhir = new Date(mulai.getTime() + 6 * 86400000);
+            return 'W' + n + ' (' + dashTglFmt(mulai) + ' - ' + dashTglFmt(akhir) + ')';
+        }
+        // Status kalibrasi diukur dari tanggal tertentu (bukan hari ini) agar bisa per minggu
+        function dashCalStatus(next, refTanggal) {
+            if (!next) return ['bg-secondary', 'Belum Dijadwalkan'];
+            const d = dashTglParse(next);
+            if (!d) return ['bg-secondary', 'Belum Dijadwalkan'];
+            const r = refTanggal || new Date();
+            const ref = Date.UTC(r.getFullYear(), r.getMonth(), r.getDate());
+            const tgl = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+            if (tgl < ref) return ['bg-danger', 'Terlewat'];
+            if (tgl - ref <= 30 * 86400000) return ['bg-warning text-dark', 'Hampir Jatuh Tempo'];
+            return ['bg-success', 'OK'];
+        }
+
+        function dashPM(week) {
+            return DASH_PM_AREAS.map(a => {
+                let total = 0, done = 0, belum = 0, kosong = 0;
+                a.refs.forEach(ref => {
+                    (pmDatasets()[ref] || []).forEach((_, i) => {
                         total++;
-                        if (pmNormalizeRemarks(pmEffective(ref, i, week).remarks) === 'PM sudah terselesaikan') done++;
+                        const r = pmNormalizeRemarks(pmView(ref, i, week).remarks);
+                        if (r === 'PM sudah terselesaikan') done++;
+                        else if (r === 'PM belum terselesaikan') belum++;
+                        else kosong++;
                     });
                 });
-                return total ? Math.round(done / total * 100) : 0;
-            };
-            chartPMInst.data.datasets[0].data = [
-                pct(['utilityStage1Data']),
-                pct(['utilityStage2Data']),
-                pct(['prosesCKData', 'prosesMHSData', 'prosesGDRMData']),
-                pct(['prosesStage2Data']),
-                pct(['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data']),
-                pct(['packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5']),
-                pct(['biomassData'])
+                return { name: a.name, total, done, belum, kosong, pct: total ? Math.round(done / total * 100) : 0 };
+            });
+        }
+
+        function dashLLF(m) {
+            const pakaiMinggu = Object.keys(LLF_STAGE_NAMES).some(k => (databaseLLFStage[k] || []).some(i => dashMingguLLF(i)));
+            const rows = Object.keys(LLF_STAGE_NAMES).map(k => {
+                const semua = databaseLLFStage[k] || [];
+                const list = pakaiMinggu ? semua.filter(i => dashMingguLLF(i) === m) : semua;
+                const closed = list.filter(i => i.status === 'Closed').length;
+                const open = list.length - closed;
+                return { name: LLF_STAGE_NAMES[k], total: list.length, closed, open, pct: list.length ? Math.round(closed / list.length * 100) : 0 };
+            });
+            const total = rows.reduce((s, r) => s + r.total, 0), closed = rows.reduce((s, r) => s + r.closed, 0);
+            return { rows, total, closed, open: total - closed, pct: total ? Math.round(closed / total * 100) : 0, pakaiMinggu };
+        }
+        // Temuan LLF punya kolom WEEK sendiri; kalau tidak ada, pakai tanggal laporan
+        function dashMingguLLF(i) { return dashNomorWeek(i.week) || dashMingguDariTanggal(i.notifDate); }
+
+        function dashInv() {
+            const rows = DASH_INV.map(g => {
+                const a = (databaseInventory[g.a] || []).length;
+                const b = g.gabung ? 0 : (databaseInventory[g.b] || []).length;
+                return { name: g.name, grp: g.grp, gabung: !!g.gabung, p1112: a, p1113: b, total: a + b };
+            });
+            const grp = {};
+            rows.forEach(r => { grp[r.grp] = grp[r.grp] || { a: 0, b: 0 }; grp[r.grp].a += r.p1112; grp[r.grp].b += r.p1113; });
+            return { rows, grp, total: rows.reduce((s, r) => s + r.total, 0) };
+        }
+
+        // DT per stage untuk satu minggu terpilih (sumber: kolom WEEK pada tab DT)
+        function dashDT(m) {
+            return Object.keys(IND_STAGES).map(s => {
+                const list = (indDT[s] || []).filter(ev => dashNomorWeek(ev.week) === m);
+                const seen = {};
+                let wt = 0;
+                list.forEach(ev => {
+                    const k = indNum(ev.line);
+                    if (!seen[k]) { seen[k] = 1; wt += indEvWtMnt(s, ev); }
+                });
+                const dt = list.reduce((t, ev) => t + indNum(ev.mnt), 0);
+                return { name: IND_STAGES[s].title.replace('DT ', ''), events: list.length, dt: dt, wt: wt, pct: wt ? dt / wt * 100 : 0 };
+            });
+        }
+        // Total semester tetap dipakai untuk keterangan, jadi angkanya tidak hilang saat memilih minggu
+        function dashDTSemester() {
+            return Object.keys(IND_STAGES).map(s => {
+                const r = indSemester(s);
+                return { name: IND_STAGES[s].title.replace('DT ', ''), events: r.events, dt: r.dt, wt: r.wtMin, pct: r.pct };
+            });
+        }
+
+        // Tren 8 minggu yang BERAKHIR di minggu terpilih (jadi ikut berubah saat minggu diganti)
+        function dashTrend(m) {
+            const perWeek = {};
+            Object.keys(IND_STAGES).forEach(sk => {
+                const seen = {};
+                (indDT[sk] || []).forEach(ev => {
+                    const w = dashNomorWeek(ev.week) || indNum(ev.week);
+                    if (!w) return;
+                    const p = perWeek[w] = perWeek[w] || { dt: 0, wt: 0, events: 0 };
+                    p.dt += indNum(ev.mnt);
+                    p.events++;
+                    const k = w + '|' + indNum(ev.line);
+                    if (!seen[k]) { seen[k] = 1; p.wt += indEvWtMnt(sk, ev); }
+                });
+            });
+            const dari = Math.max(1, m - 7);
+            const out = [];
+            for (let w = dari; w <= m; w++) {
+                const p = perWeek[w] || { dt: 0, wt: 0, events: 0 };
+                out.push({ week: w, dt: p.dt, wt: p.wt, events: p.events, pct: p.wt ? p.dt / p.wt * 100 : 0, terpilih: w === m });
+            }
+            return out;
+        }
+
+        // Technical Breakdown per plant untuk minggu terpilih. Sumber: kolom TB pada baris event DT
+        // (dihitung sendiri agar tidak bergantung format WEEK: "40" maupun "W40" sama-sama jalan)
+        function dashTB(m) {
+            return Object.keys(IND_TB_PLANTS).map(pl => {
+                const agg = { plant: pl, mech: 0, elec: 0, util: 0, detail: [] };
+                const perLine = {};
+                IND_TB_PLANTS[pl].stages.forEach(sk => (indDT[sk] || []).forEach(ev => {
+                    if (dashNomorWeek(ev.week) !== m) return;
+                    const s = indTBSplit(IND_STAGES[sk].fam, ev);
+                    agg.mech += s.mech; agg.elec += s.elec; agg.util += s.util;
+                    const L = indNum(ev.line) || 0;
+                    perLine[L] = perLine[L] || { line: L, mech: 0, elec: 0, util: 0 };
+                    perLine[L].mech += s.mech; perLine[L].elec += s.elec; perLine[L].util += s.util;
+                }));
+                Object.keys(perLine).forEach(k => {
+                    const p = perLine[k];
+                    if (p.mech || p.elec || p.util) agg.detail.push(p);
+                });
+                agg.total = agg.mech + agg.elec;
+                return agg;
+            });
+        }
+
+        // Status kalibrasi dipotret per minggu: jatuh tempo dihitung sampai akhir minggu terpilih
+        function dashCal(m) {
+            const ref = m ? dashAkhirMinggu(m) : null;
+            const rows = [];
+            const status = { OK: 0, 'Hampir Jatuh Tempo': 0, 'Terlewat': 0, 'Belum Dijadwalkan': 0 };
+            let dilakukan = 0;
+            CAL_PLANTS.forEach(p => CAL_GROUPS.forEach(g => g.items.forEach(it => {
+                const list = ((calData[p] || {})[g.key] || {})[it] || [];
+                list.forEach(r => {
+                    if (!r || (!r.alat && !r.area && !r.last && !r.next)) return;
+                    const st = m ? dashCalStatus(r.next, ref) : calStatus(r.next);
+                    status[st[1]]++;
+                    const mingguKalibrasi = dashMingguDariTanggal(r.last);
+                    if (m && mingguKalibrasi === m) dilakukan++;
+                    rows.push({ plant: p, grup: g.title, item: it, alat: r.alat, area: r.area, last: r.last, next: r.next, cls: st[0], status: st[1], mingguKalibrasi: mingguKalibrasi });
+                });
+            })));
+            const bobot = { 'Terlewat': 0, 'Hampir Jatuh Tempo': 1, 'OK': 2, 'Belum Dijadwalkan': 3 };
+            rows.sort((x, y) => (bobot[x.status] - bobot[y.status]) || String(x.next || '9999-99-99').localeCompare(String(y.next || '9999-99-99')));
+            return { rows, status, total: rows.length, attention: status['Terlewat'] + status['Hampir Jatuh Tempo'], dilakukan: dilakukan };
+        }
+
+        // History: catatan yang tanggalnya jatuh pada minggu terpilih
+        function dashHist(m) {
+            const rows = [];
+            const perArea = Object.keys(HIST_TITLES).map(k => {
+                const semua = (histNotes[k] || []).filter(x => x && (x.isi || x.pic));
+                const list = semua.filter(x => dashMingguDariTanggal(x.tgl) === m);
+                const last = list.slice().sort((a, b) => String(b.tgl || '').localeCompare(String(a.tgl || '')))[0];
+                list.forEach(x => rows.push({ area: HIST_TITLES[k], tgl: x.tgl, isi: x.isi, pic: x.pic }));
+                return { name: HIST_TITLES[k], short: dashShort(HIST_TITLES[k]), total: list.length, seluruh: semua.length, last };
+            });
+            rows.sort((a, b) => String(b.tgl || '').localeCompare(String(a.tgl || '')));
+            return { rows, perArea, total: rows.length, totalSemua: perArea.reduce((s, a) => s + a.seluruh, 0) };
+        }
+
+        // 10 event DT terlama pada minggu terpilih
+        function dashTopDt(n, m) {
+            const all = [];
+            Object.keys(IND_STAGES).forEach(sk => (indDT[sk] || []).forEach(ev => {
+                if (dashNomorWeek(ev.week) !== m) return;
+                all.push({ stage: IND_STAGES[sk].title.replace('DT ', ''), line: ev.line, tgl: ev.tgl, mesin: ev.mesin, jenis: ev.jenis, mnt: indNum(ev.mnt), pic: ev.pic });
+            }));
+            all.sort((a, b) => b.mnt - a.mnt);
+            return all.slice(0, n);
+        }
+
+        // Minggu (DT) terakhir yang masih punya event - dipakai tombol lompat di alert
+        function dashMingguDTTerakhir() {
+            let max = 0;
+            Object.keys(IND_STAGES).forEach(sk => (indDT[sk] || []).forEach(ev => { max = Math.max(max, dashNomorWeek(ev.week)); }));
+            return max;
+        }
+        function dashPilihMinggu(n) {
+            const el = document.getElementById('dashWeek');
+            if (!el) return;
+            el.value = 'W' + Math.max(1, Math.min(53, n));
+            refreshDashboard();
+        }
+
+        function dashAlerts(pmDone, llf, inv, cal, m, info) {
+            const el = document.getElementById('dashAlerts');
+            if (!el) return;
+            const out = [];
+            const w = 'W' + m;
+            const belumAdaData = pmDone === 0 && llf.total === 0 && inv.total === 0;
+            if (!DB_ENABLED && belumAdaData) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet, jadi angka PM Compliance, LLF dan Inventory masih 0. Data DT, Calibration dan History tetap tampil karena tersimpan di perangkat ini. Klik badge <b>DB belum terhubung</b> di pojok kanan atas untuk memasukkan URL Apps Script.</div>');
+            else if (!DB_ENABLED) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet. Angka yang tampil berasal dari data yang sudah ada di aplikasi ini. Klik badge <b>DB belum terhubung</b> di pojok kanan atas untuk memasukkan URL Apps Script.</div>');
+            else if (belumAdaData) out.push(`<div class="alert alert-info py-2 px-3 small mb-3"><i class="bi bi-info-circle me-1"></i>Sudah terhubung, tapi belum ada data PM maupun LLF untuk <b>${w}</b>. Ganti pilihan minggu di kanan atas atau isi lewat modul 1. PM Compliance.</div>`);
+            if (info.dtSemester > 0 && info.dtMinggu === 0) {
+                const lompat = info.mingguDT ? `<a href="#" class="alert-link" onclick="dashPilihMinggu(${info.mingguDT});return false;">Lihat ${'W' + info.mingguDT}</a>` : '';
+                out.push(`<div class="alert alert-info py-2 px-3 small mb-3"><i class="bi bi-calendar-x me-1"></i>Tidak ada event downtime pada <b>${w}</b>, padahal semester ini ada <b>${info.dtSemester}</b> event di minggu lain. ${lompat}</div>`);
+            }
+            if (cal.attention > 0) out.push(`<div class="alert alert-warning py-2 px-3 small mb-3"><i class="bi bi-exclamation-triangle me-1"></i><b>${cal.attention} alat</b> perlu perhatian per <b>${w}</b> (kalibrasi terlewat atau jatuh tempo dalam 30 hari). <a href="#" class="alert-link" onclick="dashGo('cal');return false;">Buka Calibration Matrix</a></div>`);
+            if (llf.open > 0) out.push(`<div class="alert alert-danger py-2 px-3 small mb-3"><i class="bi bi-envelope-open me-1"></i><b>${llf.open} temuan LLF masih Open</b> dari ${llf.total} temuan pada <b>${w}</b>. <a href="#" class="alert-link" onclick="dashGo('llf');return false;">Buka modul LLF</a></div>`);
+            if (info.histSemua > 0 && info.histMinggu === 0) out.push(`<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-journal-text me-1"></i>Tidak ada catatan History pada <b>${w}</b> (total ${info.histSemua} catatan tersimpan). <a href="#" class="alert-link" onclick="dashGo('hist');return false;">Buka History Area &amp; Stage</a></div>`);
+            el.innerHTML = out.join('');
+        }
+
+        function dashKpi(pm, pmAll, llf, dtAll, tb, cal, inv, week, m) {
+            const el = document.getElementById('dashKpi');
+            if (!el) return;
+            const w = 'W' + m;
+            const k = [
+                { tab: 'pm', icon: 'bi-check2-square', color: 'text-primary', label: 'PM Compliance ' + w, nilai: pmAll + '%', sub: pm.reduce((s, a) => s + a.done, 0) + '/' + pm.reduce((s, a) => s + a.total, 0) + ' item selesai' },
+                { tab: 'llf', icon: 'bi-gear-wide-connected', color: 'text-danger', label: 'Temuan LLF ' + w, nilai: dashFmt(llf.total), sub: llf.open + ' Open - ' + llf.pct + '% Closed' + (llf.pakaiMinggu ? '' : ' (tanpa kolom minggu)') },
+                { tab: 'ind', icon: 'bi-speedometer2', color: 'text-warning', label: 'Total DT ' + w, nilai: dtAll.pct.toFixed(2).replace('.', ',') + '%', sub: dashFmt(dtAll.mnt) + ' menit - ' + dashFmt(dtAll.events) + ' event' },
+                { tab: 'ind', icon: 'bi-wrench-adjustable', color: 'text-dark', label: 'Technical Breakdown ' + w, nilai: dashJam(tb.all), sub: '1112: ' + dashFmt(tb.p1112) + ' m - 1113: ' + dashFmt(tb.p1113) + ' m' },
+                { tab: 'cal', icon: 'bi-sliders', color: 'text-info', label: 'Alat Kalibrasi s/d ' + w, nilai: dashFmt(cal.total), sub: cal.attention + ' perlu perhatian - ' + cal.dilakukan + ' kalibrasi minggu ini' },
+                { tab: 'inv', icon: 'bi-boxes', color: 'text-success', label: 'Item Inventory (semua)', nilai: dashFmt(inv.total), sub: 'stok saat ini, bukan per minggu' }
             ];
-            chartPMInst.update();
+            el.innerHTML = k.map(c => `
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="metric-card" onclick="dashGo('${c.tab}')">
+                        <small class="text-muted d-block mb-1" style="font-size:.64rem;text-transform:uppercase;"><i class="bi ${c.icon} me-1"></i>${c.label}</small>
+                        <b class="${c.color} fs-4 d-block">${c.nilai}</b>
+                        <small class="text-muted d-block mt-1" style="font-size:.62rem;">${dashEsc(c.sub)}</small>
+                    </div>
+                </div>`).join('');
+        }
+
+        function refreshDashboard() {
+            const m = dashWeekNum();
+            const week = 'W' + m;                      // PM & LLF memakai label 'W38'
+            const pm = dashPM(week);
+            const pmDone = pm.reduce((s, a) => s + a.done, 0);
+            const pmTotal = pm.reduce((s, a) => s + a.total, 0);
+            const pmAll = pmTotal ? Math.round(pmDone / pmTotal * 100) : 0;
+            const llf = dashLLF(m);
+            const inv = dashInv();
+            const dt = dashDT(m);
+            const trend = dashTrend(m);
+            const tbRows = dashTB(m);
+            const tb = {
+                rows: tbRows,
+                p1112: tbRows.reduce((s, r) => s + (r.plant === '1112' ? r.total : 0), 0),
+                p1113: tbRows.reduce((s, r) => s + (r.plant === '1113' ? r.total : 0), 0)
+            };
+            tb.all = tb.p1112 + tb.p1113;
+            const cal = dashCal(m);
+            const hist = dashHist(m);
+            const dtAll = {
+                mnt: dt.reduce((s, r) => s + r.dt, 0),
+                wtSum: dt.reduce((s, r) => s + r.wt, 0),
+                events: dt.reduce((s, r) => s + r.events, 0)
+            };
+            dtAll.pct = dtAll.wtSum ? dtAll.mnt / dtAll.wtSum * 100 : 0;
+            const sem = dashDTSemester();
+            const semester = { mnt: sem.reduce((s, r) => s + r.dt, 0), wt: sem.reduce((s, r) => s + r.wt, 0), events: sem.reduce((s, r) => s + r.events, 0) };
+            semester.pct = semester.wt ? semester.mnt / semester.wt * 100 : 0;
+
+            dashAlerts(pmDone, llf, inv, cal, m, {
+                dtMinggu: dtAll.events,
+                dtSemester: semester.events,
+                mingguDT: dashMingguDTTerakhir(),
+                histMinggu: hist.total,
+                histSemua: hist.totalSemua
+            });
+            dashKpi(pm, pmAll, llf, dtAll, tb, cal, inv, week, m);
+
+            // 1. PM Compliance
+            const pmNote = document.getElementById('dashPmWeekNote');
+            if (pmNote) pmNote.innerHTML = `Dihitung dari <b>${pmTotal}</b> item PM pada minggu <b>${week}</b>. Arahkan kursor ke batang untuk rincian selesai / belum / belum diisi.`;
+            if (chartPMInst) { chartPMInst.data.datasets[0].data = pm.map(a => a.pct); chartPMInst.$d = pm; chartPMInst.update(); }
+
+            // 2. LLF (hanya temuan yang dilaporkan pada minggu terpilih)
+            const llfNote = document.getElementById('dashLlfNote');
+            if (llfNote) {
+                const buka = llf.rows.filter(r => r.open > 0);
+                llfNote.innerHTML = llf.total
+                    ? `Minggu <b>${week}</b>: <b>${llf.total}</b> temuan - <span class="text-success">${llf.closed} Closed</span>, <span class="text-danger">${llf.open} Open</span> (${llf.pct}% Closed).` + (buka.length ? ` Masih Open: ${buka.map(r => r.name.replace('Stage ', 'S') + ' (' + r.open + ')').join(', ')}.` : '')
+                    : (llf.pakaiMinggu ? `Tidak ada temuan LLF yang dilaporkan pada ${week} (kolom WEEK temuan lain tidak cocok).` : 'Belum ada temuan LLF yang masuk (tab LLF masih kosong).');
+            }
+            if (chartLLFInst) { chartLLFInst.data.datasets[0].data = [llf.closed, llf.open]; chartLLFInst.$d = llf; chartLLFInst.update(); }
+
+            // 3. Inventory (tidak punya kolom minggu, jadi selalu posisi saat ini)
+            const invNote = document.getElementById('dashInvNote');
+            if (invNote) invNote.innerHTML = inv.total ? `<b>${dashFmt(inv.total)}</b> item tercatat pada ${DASH_INV.length} tab Inventory (posisi hari ini, bukan per minggu).` : 'Belum ada data Inventory (tab On Order / On PR / On PO masih kosong).';
+            if (chartInvInst) {
+                const labels = Object.keys(inv.grp);
+                chartInvInst.data.labels = labels;
+                chartInvInst.data.datasets = [
+                    { label: 'Plant 1112', data: labels.map(l => inv.grp[l].a), backgroundColor: '#0d6efd', borderRadius: 5 },
+                    { label: 'Plant 1113', data: labels.map(l => inv.grp[l].b), backgroundColor: '#fd7e14', borderRadius: 5 }
+                ];
+                chartInvInst.$d = { labels, grp: inv.grp, rows: inv.rows, total: inv.total };
+                chartInvInst.update();
+            }
+
+            // 4. DT per stage untuk minggu terpilih
+            const dtNote = document.getElementById('dashDtNote');
+            if (dtNote) dtNote.innerHTML = dtAll.events
+                ? `Minggu <b>${week}</b> (${dashLabelMinggu(m).replace(/^W\d+ /, '')}): <b>${dashFmt(dtAll.mnt)} menit</b> DT dari <b>${dashFmt(dtAll.wtSum)} menit</b> Run Time = <b>${dtAll.pct.toFixed(2).replace('.', ',')}%</b> dari ${dtAll.events} event. Pembanding semester: ${semester.events} event, ${semester.pct.toFixed(2).replace('.', ',')}%.`
+                : `Tidak ada event downtime pada ${week}. Total semester ${semester.events} event / ${dashFmt(semester.mnt)} menit.`;
+            renderIndicatorSummary(m);
+
+            // 5. Tren DT per minggu (8 minggu terakhir sampai minggu terpilih)
+            const trNote = document.getElementById('dashTrendNote');
+            if (trNote) trNote.innerHTML = trend.length ? `8 minggu s/d <b>${week}</b> (W${trend[0].week} - W${trend[trend.length - 1].week}), gabungan 6 stage. Batang = DT menit, garis = DT %${trend.some(t => t.terpilih) ? ', batang gelap = minggu terpilih' : ''}.` : 'Belum ada minggu untuk ditampilkan.';
+            if (chartTrendInst) {
+                chartTrendInst.data.labels = trend.map(t => 'W' + t.week);
+                chartTrendInst.data.datasets = [
+                    { type: 'bar', label: 'DT (menit)', data: trend.map(t => Math.round(t.dt)), backgroundColor: trend.map(t => t.terpilih ? 'rgba(13,110,253,.95)' : 'rgba(13,110,253,.30)'), borderRadius: 4, yAxisID: 'y1' },
+                    { type: 'line', label: 'Total DT (%)', data: trend.map(t => Math.round(t.pct * 100) / 100), borderColor: '#dc3545', backgroundColor: 'rgba(220,53,69,.10)', fill: true, tension: .3, yAxisID: 'y' }
+                ];
+                chartTrendInst.$d = trend;
+                chartTrendInst.update();
+            }
+
+            // 6. Calibration (status dihitung s/d akhir minggu terpilih)
+            const calNote = document.getElementById('dashCalNote');
+            if (calNote) {
+                const perlu = cal.rows.filter(r => r.status === 'Terlewat' || r.status === 'Hampir Jatuh Tempo').slice(0, 3);
+                calNote.innerHTML = cal.total
+                    ? `Status per akhir <b>${week}</b> (${dashTglFmt(dashAkhirMinggu(m))}): <b>${cal.total}</b> alat - ${cal.status['Terlewat']} Terlewat, ${cal.status['Hampir Jatuh Tempo']} Hampir Jatuh Tempo, ${cal.status.OK} OK, ${cal.status['Belum Dijadwalkan']} belum dijadwalkan` + (cal.dilakukan ? `, ${cal.dilakukan} kalibrasi executed minggu ini` : '') + '.' + (perlu.length ? ` Paling mendesak: ${perlu.map(r => dashEsc(r.alat || r.item) + ' (' + histTgl(r.next) + ')').join(', ')}.` : '')
+                    : 'Belum ada alat kalibrasi (tab INTERNAL / EXTERNAL CALIBRATION 1112 &amp; 1113 kosong).';
+            }
+            if (chartCalInst) {
+                chartCalInst.data.datasets[0].data = [cal.status.OK, cal.status['Hampir Jatuh Tempo'], cal.status['Terlewat'], cal.status['Belum Dijadwalkan']];
+                chartCalInst.$d = cal;
+                chartCalInst.update();
+            }
+
+            // 7. Technical Breakdown minggu terpilih
+            const tbNote = document.getElementById('dashTbNote');
+            if (tbNote) tbNote.innerHTML = tb.all ? `Technical Downtime ${week} = MECH + ELEC (<b>${dashFmt(tb.all)} menit = ${dashJam(tb.all)}</b>; 1112: ${dashFmt(tb.p1112)} m, 1113: ${dashFmt(tb.p1113)} m). UTIL tidak masuk total. Hover untuk rincian per line.` : `${week} tidak punya Technical Breakdown (kolom TB pada tab DT kosong / tidak ada event minggu ini).`;
+            if (chartTBInst) {
+                chartTBInst.data.labels = tb.rows.map(r => 'Plant ' + r.plant);
+                chartTBInst.data.datasets = [
+                    { label: 'MECH', data: tb.rows.map(r => Math.round(r.mech)), backgroundColor: '#0d6efd', borderRadius: 5 },
+                    { label: 'ELEC', data: tb.rows.map(r => Math.round(r.elec)), backgroundColor: '#fd7e14', borderRadius: 5 },
+                    { label: 'UTIL (di luar total)', data: tb.rows.map(r => Math.round(r.util)), backgroundColor: '#adb5bd', borderRadius: 5 }
+                ];
+                chartTBInst.$d = tb.rows;
+                chartTBInst.update();
+            }
+
+            // 8. History: catatan minggu terpilih
+            const hNote = document.getElementById('dashHistNote');
+            if (hNote) hNote.innerHTML = hist.total ? `<b>${hist.total}</b> catatan pada ${week} (dari ${hist.totalSemua} catatan tersimpan), muncul di ${hist.perArea.filter(a => a.total).length} area. Hover batang untuk isi catatan terakhir.` : `Tidak ada catatan History pada ${week} (total ${hist.totalSemua} catatan di minggu lain). Buka modul 5. History Area &amp; Stage untuk menambah.`;
+            if (chartHistInst) {
+                chartHistInst.data.labels = hist.perArea.map(a => a.short);
+                chartHistInst.data.datasets = [{ label: 'Catatan', data: hist.perArea.map(a => a.total), backgroundColor: '#20c997', borderRadius: 5 }];
+                chartHistInst.$d = hist.perArea;
+                chartHistInst.update();
+            }
+
+            // 9. Downtime terlama pada minggu terpilih
+            const top = dashTopDt(10, m);
+            const tNote = document.getElementById('dashTopDtNote');
+            if (tNote) tNote.innerHTML = top.length ? `10 event terlama pada ${week} (${dtAll.events} event total). Terlama: <b>${dashFmt(top[0].mnt)} menit</b> — ${dashEsc(top[0].stage)} line ${dashEsc(top[0].line)} (${dashEsc(top[0].jenis || top[0].mesin)}).` : `${week} tidak punya event downtime, jadi tidak ada daftar terlama.`;
+            if (chartTopDtInst) {
+                chartTopDtInst.data.labels = top.map((r, i) => String((i + 1) + '. ' + (r.mesin || r.jenis || 'Event') + ' L' + (r.line || '-')).slice(0, 24));
+                chartTopDtInst.data.datasets = [{ label: 'Menit', data: top.map(r => Math.round(r.mnt)), backgroundColor: top.map((_, i) => i === 0 ? '#dc3545' : (i < 3 ? '#fd7e14' : '#0d6efd')), borderRadius: 5 }];
+                chartTopDtInst.$d = top;
+                chartTopDtInst.update();
+            }
         }
 
         // =========================
@@ -4350,6 +4874,7 @@
             if(element) element.classList.add('active');
             window.scrollTo(0, 0);
 
+            if (tabName === 'dash') refreshDashboard();
             if (tabName === 'hist') renderHistCards();
             if (tabName === 'cal') renderCalMatrix();
 
@@ -4386,15 +4911,31 @@
             renderPackingStage1Table();
             renderPackingStage2Table();
 
+            initDashWeek();
+
+            // Semua grafik dimulai dari angka 0; isinya selalu dihitung refreshDashboard()
             const chartPMEl = document.getElementById('chartPM');
             if(chartPMEl) {
                 chartPMInst = new Chart(chartPMEl.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['Utility 1', 'Utility 2', 'Proses 1', 'Proses 2', 'Packing 1', 'Packing 2', 'Biomass'],
-                        datasets: [{ data: [95, 92, 98, 90, 94, 91, 88], backgroundColor: '#0d6efd', borderRadius: 6 }]
+                        labels: DASH_PM_AREAS.map(a => dashShort(a.name)),
+                        datasets: [{ label: 'PM Compliance (%)', data: DASH_PM_AREAS.map(() => 0), backgroundColor: '#0d6efd', borderRadius: 6 }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '% item selesai' } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: {
+                                title: items => items[0].label + ' — ' + dashWeekValue(),
+                                label: ctx => {
+                                    const d = (ctx.chart.$d || [])[ctx.dataIndex] || {};
+                                    return ['Compliance: ' + (d.pct || 0) + '%', 'Selesai: ' + (d.done || 0) + ' dari ' + (d.total || 0) + ' item', 'Belum selesai: ' + (d.belum || 0) + ' item', 'Belum diisi remarks: ' + (d.kosong || 0) + ' item'];
+                                }
+                            } }
+                        }
+                    }
                 });
             }
 
@@ -4404,21 +4945,51 @@
                     type: 'doughnut',
                     data: {
                         labels: ['Closed', 'Open'],
-                        datasets: [{ data: [85, 15], backgroundColor: ['#198754', '#dc3545'] }]
+                        datasets: [{ data: [0, 0], backgroundColor: ['#198754', '#dc3545'] }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '62%',
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: {
+                                title: items => items[0].label + ' — ' + dashWeekValue() + ((items[0].chart.$d || {}).pakaiMinggu === false ? ' (data LLF tanpa kolom WEEK, jadi semua minggu ikut terhitung)' : ''),
+                                label: ctx => {
+                                    const llf = ctx.chart.$d || { total: 0 };
+                                    const v = ctx.parsed || 0;
+                                    return ctx.label + ': ' + v + ' temuan (' + (llf.total ? Math.round(v / llf.total * 100) : 0) + '% dari ' + llf.total + ')';
+                                },
+                                footer: items => {
+                                    const llf = items[0].chart.$d || { rows: [] };
+                                    const isi = (llf.rows || []).filter(r => r.total);
+                                    return isi.length ? ['Per stage (total / closed):'].concat(isi.map(r => '• ' + r.name + ': ' + r.total + ' / ' + r.closed)) : 'Belum ada temuan LLF.';
+                                }
+                            } }
+                        }
+                    }
                 });
             }
 
             const chartInvEl = document.getElementById('chartInv');
             if(chartInvEl) {
-                new Chart(chartInvEl.getContext('2d'), {
+                chartInvInst = new Chart(chartInvEl.getContext('2d'), {
                     type: 'bar',
-                    data: {
-                        labels: ['On Order', 'On PR', 'On PO'],
-                        datasets: [{ data: [85, 60, 100], backgroundColor: ['#ffc107', '#0dcaf0', '#198754'], borderRadius: 6 }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Jumlah item' } } },
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: {
+                                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.x + ' item',
+                                footer: items => {
+                                    const d = items[0].chart.$d || {};
+                                    const g = d.grp ? d.grp[items[0].label] : null;
+                                    const tab = (d.rows || []).filter(r => r.grp === items[0].label).map(r => r.name + ' ' + r.total).join(', ');
+                                    return g ? ['Total ' + items[0].label + ': ' + (g.a + g.b) + ' item', 'Rincian tab: ' + tab].concat(['Total semua tab: ' + (d.total || 0) + ' item']) : '';
+                                }
+                            } }
+                        }
+                    }
                 });
             }
 
@@ -4427,15 +4998,182 @@
                 chartIndInst = new Chart(chartIndEl.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['Proses Stage 1', 'Proses Stage 2', 'Packing Stage 1', 'Packing Stage 2', 'Utility Stage 1', 'Utility Stage 2'],
-                        datasets: [{ data: [0, 0, 0, 0, 0, 0], backgroundColor: ['#6f42c1', '#fd7e14', '#20c997', '#0dcaf0', '#dc3545', '#0d6efd'], borderRadius: 6 }]
+                        labels: DASH_PM_AREAS.slice(0, 2).map(() => ''),
+                        datasets: [{ label: 'Total DT (%)', data: [], backgroundColor: ['#0d6efd', '#6610f2', '#fd7e14', '#ffc107', '#20c997', '#0dcaf0'], borderRadius: 6 }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, title: { display: true, text: 'DT (%)' } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: {
+                                title: items => 'DT ' + (items[0].label || '') + ' — Minggu ' + (items[0].chart.$m || dashWeekNum()),
+                                label: ctx => {
+                                    const d = (ctx.chart.$d || [])[ctx.dataIndex] || {};
+                                    return ['DT: ' + (d.pct || 0).toFixed(2).replace('.', ',') + '%', 'Downtime: ' + dashMenit(d.dt), 'Run Time: ' + dashFmt(d.wt) + ' menit', 'Jumlah event: ' + (d.events || 0)];
+                                }
+                            } }
+                        }
+                    }
+                });
+            }
+
+            const chartTrendEl = document.getElementById('chartTrend');
+            if(chartTrendEl) {
+                chartTrendInst = new Chart(chartTrendEl.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: { position: 'left', beginAtZero: true, title: { display: true, text: 'DT (%)' }, grid: { drawOnChartArea: true } },
+                            y1: { position: 'right', beginAtZero: true, title: { display: true, text: 'DT (menit)' }, grid: { drawOnChartArea: false } }
+                        },
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: {
+                                title: items => 'Minggu ' + items[0].label + ' — ' + dashLabelMinggu(indNum(items[0].label)).replace(/^W\d+ /, '') + ' (gabungan 6 stage)',
+                                label: ctx => {
+                                    const d = (ctx.chart.$d || [])[ctx.dataIndex] || {};
+                                    if (ctx.dataset.yAxisID === 'y1') {
+                                        return ['DT: ' + dashMenit(d.dt), 'Run Time: ' + dashFmt(d.wt) + ' menit', 'Jumlah event: ' + (d.events || 0)];
+                                    }
+                                    return 'Total DT: ' + (d.pct || 0).toFixed(2).replace('.', ',') + '%';
+                                },
+                                footer: items => {
+                                    const d = (items[0].chart.$d || [])[items[0].dataIndex] || {};
+                                    return d.wt ? 'Rumus: ' + dashFmt(d.dt) + ' / ' + dashFmt(d.wt) + ' x 100%' + (d.terpilih ? ' (minggu terpilih)' : '') : 'Run Time minggu ini belum diisi';
+                                }
+                            } }
+                        }
+                    }
+                });
+            }
+
+            const chartCalEl = document.getElementById('chartCal');
+            if(chartCalEl) {
+                chartCalInst = new Chart(chartCalEl.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['OK', 'Hampir Jatuh Tempo', 'Terlewat', 'Belum Dijadwalkan'],
+                        datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#198754', '#ffc107', '#dc3545', '#adb5bd'] }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '58%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+                            tooltip: { callbacks: {
+                                label: ctx => {
+                                    const cal = ctx.chart.$d || { total: 0 };
+                                    const pct = cal.total ? Math.round(ctx.parsed / cal.total * 100) : 0;
+                                    return ctx.label + ': ' + ctx.parsed + ' alat (' + pct + '% dari ' + cal.total + ')';
+                                },
+                                footer: items => {
+                                    const cal = items[0].chart.$d || { rows: [] };
+                                    const need = (cal.rows || []).filter(r => r.status === items[0].label).slice(0, 5);
+                                    if (!need.length) return 'Tidak ada alat pada status ini';
+                                    return ['Perhatian: ' + (cal.attention || 0) + ' alat perlu tindakan']
+                                        .concat(need.map(r => (r.alat || r.item) + ' - ' + (r.plant) + ' - ' + (r.next ? histTgl(r.next) : 'tanpa tanggal')));
+                                }
+                            } }
+                        }
+                    }
+                });
+            }
+
+            const chartTBEl = document.getElementById('chartTB');
+            if(chartTBEl) {
+                chartTBInst = new Chart(chartTBEl.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, stacked: true, title: { display: true, text: 'Menit' } }, x: { stacked: true } },
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: {
+                                label: ctx => {
+                                    const r = (ctx.chart.$d || [])[ctx.dataIndex] || {};
+                                    const v = Math.round(ctx.parsed.y);
+                                    return ctx.dataset.label + ': ' + dashMenit(v)
+                                        + (ctx.dataset.label.indexOf('UTIL') === 0 ? ' - tidak masuk total TD' : '');
+                                },
+                                footer: items => {
+                                    const r = (items[0].chart.$d || [])[items[0].dataIndex] || {};
+                                    const baris = ['Total Technical Downtime (MECH + ELEC) = ' + dashMenit(r.total || 0) + ' pada ' + dashWeekValue()];
+                                    return baris.concat((r.detail || []).slice(0, 5).map(p => 'LINE ' + p.line + ': MECH ' + dashFmt(p.mech) + ' m, ELEC ' + dashFmt(p.elec) + ' m, UTIL ' + dashFmt(p.util) + ' m'));
+                                }
+                            } }
+                        }
+                    }
+                });
+            }
+
+            const chartHistEl = document.getElementById('chartHist');
+            if(chartHistEl) {
+                chartHistInst = new Chart(chartHistEl.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Jumlah catatan' } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: {
+                                title: items => {
+                                    const a = (items[0].chart.$d || [])[items[0].dataIndex] || {};
+                                    return (a.name || items[0].label) + ' — ' + dashWeekValue();
+                                },
+                                label: ctx => {
+                                    const a = (ctx.chart.$d || [])[ctx.dataIndex] || {};
+                                    return (a.total || 0) + ' catatan pada minggu ini' + (a.seluruh ? ' (dari ' + a.seluruh + ' catatan tersimpan)' : '');
+                                },
+                                footer: items => {
+                                    const a = (items[0].chart.$d || [])[items[0].dataIndex] || {};
+                                    if (!a.last) return a.seluruh ? 'Tidak ada catatan pada ' + dashWeekValue() + ' — ada ' + a.seluruh + ' catatan di minggu lain' : 'Belum ada catatan untuk area ini';
+                                    const isi = String(a.last.isi || '').slice(0, 60);
+                                    return ['Catatan terakhir ' + histTgl(a.last.tgl) + (a.last.pic ? ' - PIC ' + a.last.pic : ''), isi + (String(a.last.isi || '').length > 60 ? '...' : '')];
+                                }
+                            } }
+                        }
+                    }
+                });
+            }
+
+            const chartTopDtEl = document.getElementById('chartTopDt');
+            if(chartTopDtEl) {
+                chartTopDtInst = new Chart(chartTopDtEl.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { x: { beginAtZero: true, title: { display: true, text: 'Downtime (menit)' } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: {
+                                title: items => {
+                                    const r = (items[0].chart.$d || [])[items[0].dataIndex] || {};
+                                    return (r.mesin || r.jenis || 'Event') + ' - ' + (r.stage || '') + ' (' + dashWeekValue() + ')';
+                                },
+                                label: ctx => {
+                                    const v = Math.round(ctx.parsed.x);
+                                    return 'Downtime ' + dashMenit(v);
+                                },
+                                footer: items => {
+                                    const r = (items[0].chart.$d || [])[items[0].dataIndex] || {};
+                                    return ['Line: ' + (r.line || '-') + (r.tgl ? ' | Tanggal: ' + r.tgl : ''), 'Jenis: ' + (r.jenis || '-')]
+                                        .concat(r.pic ? ['PIC: ' + r.pic] : []);
+                                }
+                            } }
+                        }
+                    }
                 });
             }
 
             pmBindModals();
-            renderIndicatorSummary();
+            refreshDashboard();
             Object.keys(LLF_STAGE_NAMES).forEach(hitungClosedRateStage);
             if (DB_ENABLED) { loadFromSheet(); } else { setSync('local'); }
         };
