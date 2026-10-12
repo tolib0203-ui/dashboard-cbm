@@ -162,35 +162,41 @@
             box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
         }
 
-        /* Badge status koneksi: di kanan atas, di bawah modal, tidak menutupi konten di HP */
-        .sync-badge {
-            position: fixed;
-            top: 74px;
-            right: 14px;
-            z-index: 1030;
-            cursor: pointer;
-            border-radius: 999px;
-            font-size: 0.76rem;
-            font-weight: 600;
-            padding: 7px 12px;
-            max-width: 42vw;
-            white-space: normal;
-            line-height: 1.25;
+        /* Status koneksi database: strip rata kanan di awal konten (bukan overlay, jadi tidak menutupi judul modul) */
+        .sync-strip {
+            display: flex;
+            justify-content: flex-end;
+            margin: 0 0 12px;
         }
 
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 3px 12px;
+            line-height: 1.35;
+            max-width: 100%;
+            border: 1px solid rgba(0, 0, 0, .14);
+        }
+
+        .sync-badge:hover { filter: brightness(.94); }
+
         @media (max-width: 767.98px) {
-            .sync-badge { top: 68px; right: 10px; font-size: 0.66rem; padding: 5px 9px; max-width: 34vw; }
+            .sync-badge { font-size: 0.68rem; padding: 2px 9px; }
+            .topbar-title { font-size: 0.86rem; line-height: 1.15; }
+        }
+
+        @media (max-width: 575.98px) {
             #syncTextExt { display: none; }
         }
 
     </style>
 </head>
 <body>
-
-    <!-- Status koneksi database -->
-    <div id="syncBadge" class="sync-badge bg-secondary shadow" onclick="syncBadgeClick()">
-        <i class="bi bi-database me-1"></i><span id="syncText">Memuat...</span><span id="syncTextExt"></span>
-    </div>
 
     <nav id="sidebar" class="sidebar">
         <div class="sidebar-header">
@@ -212,20 +218,30 @@
     <div class="mobile-topbar">
         <div class="d-flex align-items-center">
             <button class="btn btn-dark btn-sm me-2" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
-            <span class="fw-bold">Maintenance System</span>
+            <span class="fw-bold topbar-title">Maintenance Management System</span>
         </div>
     </div>
 
     <div class="main-content">
 
+        <!-- Status koneksi database: strip kecil rata kanan, tidak menutupi judul modul -->
+        <div class="sync-strip">
+            <div id="syncBadge" class="sync-badge bg-secondary" onclick="syncBadgeClick()" title="Klik untuk mengisi URL Apps Script atau mencoba sinkron ulang">
+                <i class="bi bi-database"></i><span id="syncText">Memuat...</span><span id="syncTextExt"></span>
+            </div>
+        </div>
+
         <!-- DASHBOARD TAB -->
         <div id="page-dash" class="tab-pane active-tab">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h4 class="fw-bold text-dark mb-0"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Dashboard &amp; Visualisasi Seluruh Modul</h4>
-                <div class="d-flex align-items-center gap-2">
-                    <label class="small fw-bold text-muted mb-0" for="dashWeek">Minggu PM</label>
-                    <select id="dashWeek" class="form-select form-select-sm" style="width:105px" onchange="refreshDashboard()"></select>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="dashReload()" title="Muat ulang data"><i class="bi bi-arrow-clockwise"></i></button>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="text-end">
+                        <label class="small fw-bold text-muted mb-0 d-block" for="dashWeek">Pengambilan Data</label>
+                        <small class="text-muted" id="dashWeekRange" style="font-size:.72rem"></small>
+                    </div>
+                    <select id="dashWeek" class="form-select form-select-sm" style="width:118px" onchange="refreshDashboard()"></select>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="dashReload()" title="Ambil ulang data dari Spreadsheet / perangkat"><i class="bi bi-arrow-clockwise"></i></button>
                 </div>
             </div>
 
@@ -758,7 +774,7 @@
     function updateLLFStage() {
         if (!llfWork || !llfDirty) return;                       // tidak ada perubahan
         if (DB_ENABLED && !pmLoaded) {
-            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan atas). Perubahan belum tersimpan.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di baris kanan atas halaman). Perubahan belum tersimpan.');
             return;
         }
         const rows = llfWork.map(x => ({
@@ -1090,18 +1106,45 @@
             </div>
         </div>
 
-        <!-- KELOMPOK REPAIR -->
+        <!-- KELOMPOK REFURBISHMENT -->
         <div class="col-md-6">
             <div class="card shadow-sm border-top border-secondary border-4 h-100">
                 <div class="card-body">
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-tools text-secondary me-1"></i> Repair</h5>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-arrow-repeat text-secondary me-1"></i> Refurbishment</h5>
 
                     <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
                         <div>
                             <span class="fw-bold small text-secondary">Semua Plant</span>
                             <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary fw-bold px-3" onclick="bukaModalInventory('REPAIR', '')">Detail</button>
+                        <button class="btn btn-sm btn-outline-secondary fw-bold px-3" onclick="bukaModalInventory('REFURBISHMENT', '')">Detail</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <!-- KELOMPOK SRF (USULAN REFURBISHMENT) -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-top border-warning border-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-recycle text-warning me-1"></i> SRF <small class="fw-normal text-secondary fs-6">(Refurbishment)</small></h5>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Plant 1112</span>
+                            <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning fw-bold px-3" onclick="bukaModalInventory('SRF', '1112')">Detail</button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold small text-secondary">Plant 1113</span>
+                            <h6 class="fw-bold text-dark mb-0">Kelola Data</h6>
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning fw-bold px-3" onclick="bukaModalInventory('SRF', '1113')">Detail</button>
                     </div>
                 </div>
             </div>
@@ -1279,8 +1322,8 @@
         { k: 'price', h: 'PRICE', label: 'Price', t: 'text', w: 2 },
         IC.poNum(), IC.poDate(), IC.poStatus()
     ];
-    // Repair: satu tab untuk semua plant (tidak dipisah per Plant 1112/1113)
-    const REPAIR_COLS = () => [
+    // Refurbishment: satu tab untuk semua plant (tidak dipisah per Plant 1112/1113)
+    const REFURB_COLS = () => [
         { k: 'section', h: 'Section', label: 'Section', t: 'text', w: 2 },
         { k: 'nama', h: 'Name of equipment / gear box / parts under repair', label: 'Nama Equipment / Parts', t: 'text', w: 3 },
         { k: 'partMesin', h: 'PART MESIN', label: 'Part Mesin', t: 'text', w: 2 },
@@ -1294,14 +1337,28 @@
         { k: 'tglTiba', h: 'Expacted date of arrival at site', label: 'Estimasi Tiba di Site', t: 'date', w: 2 },
         { k: 'remarks', h: 'Remarks', label: 'Remarks', t: 'text', w: 3 }
     ];
+    // SRF 1112 / 1113: usulan refurbishment per material, kolomnya persis seperti baris 1 tab SRF di spreadsheet
+    const SRF_COLS = () => [
+        IC.kode('MATERIAL CODE', 'Material Code'), IC.nama('MATERIAL NAME', 'Material Name'),
+        IC.prNum(),
+        { k: 'prLine', h: 'PR ITEM LINE', label: 'PR Item Line', t: 'text', w: 1 },
+        IC.prDate(), IC.delDate(),
+        { k: 'prResched', h: 'PR RESCHEDULE DATE', label: 'PR Reschedule Date', t: 'date', w: 2 },
+        IC.prQty(), IC.poNum(),
+        { k: 'poLine', h: 'PO ITEM LINE', label: 'PO Item Line', t: 'text', w: 1 },
+        IC.poDate(), IC.poQty(),
+        { k: 'outstanding', h: 'OUTSTANDING', label: 'Outstanding', t: 'text', w: 2 },
+        IC.poStatus(), IC.mapNo(), IC.bulan()
+    ];
     ['1112', '1113'].forEach(pl => {
         INV_CFG['PR SRP_' + pl] = PR_SRP_JAP_COLS();
         INV_CFG['PR JAP_' + pl] = PR_SRP_JAP_COLS();
         INV_CFG['PO SRP_' + pl] = PO_SRP_COLS();
         INV_CFG['PO JAP_' + pl] = PO_JAP_COLS();
         INV_CFG['PR PROJECT CAPEX_' + pl] = PR_PROJECT_CAPEX_COLS();
+        INV_CFG['SRF_' + pl] = SRF_COLS();
     });
-    INV_CFG['REPAIR_'] = REPAIR_COLS();   // tidak dipisah per plant
+    INV_CFG['REFURBISHMENT_'] = REFURB_COLS();   // tidak dipisah per plant
 
     let currentKategori = '';
     let currentStage = '';
@@ -1322,10 +1379,11 @@
 
         const INV_TITLE = {
             'PR PROJECT CAPEX': 'PR Project CAPEX',
-            'REPAIR': 'Repair'
+            'REFURBISHMENT': 'Refurbishment',
+            'SRF': 'SRF (Refurbishment)'
         };
         const invTitleText = INV_TITLE[kategori] || (kategori + ' ' + (currentTier === 'atas' ? 'SPP' : 'SPF'));
-        document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${invTitleText} — Plant ${stage}`;
+        document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${invTitleText}${stage ? ' — Plant ' + stage : ' — Semua Plant'}`;
         renderFormInput();
         renderTabelData();
 
@@ -1433,7 +1491,7 @@
     function updateInventory() {
         if (!invWork || !invDirty) return;
         if (DB_ENABLED && !pmLoaded) {
-            alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan atas). Perubahan belum tersimpan.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di baris kanan atas halaman). Perubahan belum tersimpan.');
             return;
         }
         const cols = invCols();
@@ -3171,11 +3229,11 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbz_S26X3XLxt0J4RZTOmQqgRDO1gc7i3GqaE0NCnarAIwHLrsn-ebCCnri8F9QhOOOg/exec';
+        let API_URL = 'https://script.google.com/macros/s/AKfycbxdF1NMX2FDjI_JZRqGium9YZdK8eIh4zAlygMvnHik0L3mGJPtyB6OFgMCEDvEwBq-mw/exec';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
-        const EXPECTED_API_VERSION = 14;   // harus sama dengan API_VERSION di Code.gs
+        const EXPECTED_API_VERSION = 15;   // harus sama dengan API_VERSION di Code.gs
         let versionAlerted = false;
         const PM_BASE_WEEK = 38;          // minggu acuan tanggal "Planned Date" bawaan aplikasi
 
@@ -3226,7 +3284,7 @@
                 ok:      ['bg-success', 'Terhubung', ' ke Spreadsheet'],
                 error:   ['bg-danger', 'Gagal sinkron', (msg ? ': ' + msg : '') + ' (klik untuk coba lagi)']
             }[state] || ['bg-secondary', 'Status', ''];
-            badge.className = 'sync-badge shadow ' + map[0];
+            badge.className = 'sync-badge ' + map[0];
             text.textContent = map[1];
             if (ext) ext.textContent = map[2];
         }
@@ -3363,7 +3421,7 @@
             const keys = Object.keys(pmDraft).filter(k => refs.indexOf(k.split('|')[0]) >= 0);
             if (!keys.length) return;                                    // tidak ada perubahan
             if (DB_ENABLED && !pmLoaded) {
-                alert('Koneksi ke Spreadsheet belum siap (lihat badge di pojok kanan atas). Perubahan belum tersimpan.');
+                alert('Koneksi ke Spreadsheet belum siap (lihat badge di baris kanan atas halaman). Perubahan belum tersimpan.');
                 return;
             }
             const weeks = {};
@@ -4162,7 +4220,7 @@
             { name: 'Biomass', refs: ['biomassData'] }
         ];
 
-        // Tab Inventory yang dihitung (REPAIR tidak dipisah per plant)
+        // Tab Inventory yang dihitung (REFURBISHMENT tidak dipisah per plant)
         const DASH_INV = [
             { name: 'On Order SPF', a: 'On Order_1112', b: 'On Order_1113', grp: 'On Order' },
             { name: 'On PR SPF', a: 'On PR_1112', b: 'On PR_1113', grp: 'On PR' },
@@ -4175,7 +4233,8 @@
             { name: 'PR JAP', a: 'PR JAP_1112', b: 'PR JAP_1113', grp: 'SRP/JAP' },
             { name: 'PO JAP', a: 'PO JAP_1112', b: 'PO JAP_1113', grp: 'SRP/JAP' },
             { name: 'PR Project CAPEX', a: 'PR PROJECT CAPEX_1112', b: 'PR PROJECT CAPEX_1113', grp: 'SRP/JAP' },
-            { name: 'Repair', a: 'REPAIR_', b: '', gabung: true, grp: 'Repair' }
+            { name: 'SRF', a: 'SRF_1112', b: 'SRF_1113', grp: 'SRF/Refurb' },
+            { name: 'Refurbishment', a: 'REFURBISHMENT_', b: '', gabung: true, grp: 'SRF/Refurb' }
         ];
 
         function dashEsc(t) { return String(t === null || t === undefined ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -4465,8 +4524,8 @@
             const out = [];
             const w = 'W' + m;
             const belumAdaData = pmDone === 0 && llf.total === 0 && inv.total === 0;
-            if (!DB_ENABLED && belumAdaData) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet, jadi angka PM Compliance, LLF dan Inventory masih 0. Data DT, Calibration dan History tetap tampil karena tersimpan di perangkat ini. Klik badge <b>DB belum terhubung</b> di pojok kanan atas untuk memasukkan URL Apps Script.</div>');
-            else if (!DB_ENABLED) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet. Angka yang tampil berasal dari data yang sudah ada di aplikasi ini. Klik badge <b>DB belum terhubung</b> di pojok kanan atas untuk memasukkan URL Apps Script.</div>');
+            if (!DB_ENABLED && belumAdaData) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet, jadi angka PM Compliance, LLF dan Inventory masih 0. Data DT, Calibration dan History tetap tampil karena tersimpan di perangkat ini. Klik badge <b>DB belum terhubung</b> di baris kanan atas halaman untuk memasukkan URL Apps Script.</div>');
+            else if (!DB_ENABLED) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet. Angka yang tampil berasal dari data yang sudah ada di aplikasi ini. Klik badge <b>DB belum terhubung</b> di baris kanan atas halaman untuk memasukkan URL Apps Script.</div>');
             else if (belumAdaData) out.push(`<div class="alert alert-info py-2 px-3 small mb-3"><i class="bi bi-info-circle me-1"></i>Sudah terhubung, tapi belum ada data PM maupun LLF untuk <b>${w}</b>. Ganti pilihan minggu di kanan atas atau isi lewat modul 1. PM Compliance.</div>`);
             if (info.dtSemester > 0 && info.dtMinggu === 0) {
                 const lompat = info.mingguDT ? `<a href="#" class="alert-link" onclick="dashPilihMinggu(${info.mingguDT});return false;">Lihat ${'W' + info.mingguDT}</a>` : '';
@@ -4503,6 +4562,8 @@
         function refreshDashboard() {
             const m = dashWeekNum();
             const week = 'W' + m;                      // PM & LLF memakai label 'W38'
+            const wr = document.getElementById('dashWeekRange');
+            if (wr) wr.textContent = dashLabelMinggu(m);
             const pm = dashPM(week);
             const pmDone = pm.reduce((s, a) => s + a.done, 0);
             const pmTotal = pm.reduce((s, a) => s + a.total, 0);
