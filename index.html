@@ -40,16 +40,20 @@
             transform: translateX(0);
         }
 
-        @media (min-width: 992px) {
-            .sidebar {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: var(--sidebar-width);
-            }
-            .mobile-topbar {
-                display: none !important;
-            }
+        /* Sidebar selalu tersembunyi (PC maupun HP) agar konten tampil penuh; dibuka lewat tombol ☰ */
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 37, 55, .45);
+            z-index: 1045;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, visibility .25s ease;
+        }
+
+        .sidebar-backdrop.show {
+            opacity: 1;
+            visibility: visible;
         }
 
         .sidebar-header {
@@ -162,31 +166,24 @@
             box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
         }
 
-        /* Status koneksi database: strip rata kanan di awal konten (bukan overlay, jadi tidak menutupi judul modul) */
-        .sync-strip {
-            display: flex;
-            justify-content: flex-end;
-            margin: 0 0 12px;
-        }
-
+        /* Status koneksi database: pill kecil di header sidebar, tepat di bawah teks "Engineering Biscuit Jayanti 2" */
         .sync-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             cursor: pointer;
             border-radius: 999px;
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            padding: 3px 12px;
+            padding: 3px 11px;
             line-height: 1.35;
             max-width: 100%;
-            border: 1px solid rgba(0, 0, 0, .14);
+            border: 1px solid rgba(255, 255, 255, .28);
         }
 
-        .sync-badge:hover { filter: brightness(.94); }
+        .sync-badge:hover { filter: brightness(1.1); }
 
         @media (max-width: 767.98px) {
-            .sync-badge { font-size: 0.68rem; padding: 2px 9px; }
             .topbar-title { font-size: 0.86rem; line-height: 1.15; }
         }
 
@@ -202,6 +199,11 @@
         <div class="sidebar-header">
             <h6 class="fw-bold mb-0 text-white"><i class="bi bi-cpu me-2"></i>Maintenance Management System</h6>
             <small class="text-white-50" style="font-size: 0.7rem;">Engineering Biscuit Jayanti 2</small>
+            <div class="mt-2">
+                <div id="syncBadge" class="sync-badge bg-secondary" onclick="syncBadgeClick()" title="Klik untuk mengisi URL Apps Script atau mencoba sinkron ulang">
+                    <i class="bi bi-database"></i><span id="syncText">Memuat...</span><span id="syncTextExt"></span>
+                </div>
+            </div>
         </div>
         <div class="sidebar-menu">
             <a href="#" class="nav-link-custom active" onclick="switchTab('dash', this)"><i class="bi bi-pie-chart-fill"></i>0. Dashboard & Grafik</a>
@@ -215,6 +217,9 @@
         </div>
     </nav>
 
+    <!-- Layar redup saat sidebar terbuka (klik untuk menutup) -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
     <div class="mobile-topbar">
         <div class="d-flex align-items-center">
             <button class="btn btn-dark btn-sm me-2" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
@@ -223,13 +228,6 @@
     </div>
 
     <div class="main-content">
-
-        <!-- Status koneksi database: strip kecil rata kanan, tidak menutupi judul modul -->
-        <div class="sync-strip">
-            <div id="syncBadge" class="sync-badge bg-secondary" onclick="syncBadgeClick()" title="Klik untuk mengisi URL Apps Script atau mencoba sinkron ulang">
-                <i class="bi bi-database"></i><span id="syncText">Memuat...</span><span id="syncTextExt"></span>
-            </div>
-        </div>
 
         <!-- DASHBOARD TAB -->
         <div id="page-dash" class="tab-pane active-tab">
@@ -774,7 +772,7 @@
     function updateLLFStage() {
         if (!llfWork || !llfDirty) return;                       // tidak ada perubahan
         if (DB_ENABLED && !pmLoaded) {
-            alert('Koneksi ke Spreadsheet belum siap (lihat badge di baris kanan atas halaman). Perubahan belum tersimpan.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di menu samping (klik tombol ☰ kiri atas)). Perubahan belum tersimpan.');
             return;
         }
         const rows = llfWork.map(x => ({
@@ -1125,11 +1123,11 @@
     </div>
 
     <div class="row g-4 mt-1">
-        <!-- KELOMPOK SRF (USULAN REFURBISHMENT) -->
+        <!-- KELOMPOK SRF -->
         <div class="col-md-6">
             <div class="card shadow-sm border-top border-warning border-4 h-100">
                 <div class="card-body">
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-recycle text-warning me-1"></i> SRF <small class="fw-normal text-secondary fs-6">(Refurbishment)</small></h5>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-recycle text-warning me-1"></i> SRF</h5>
 
                     <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
                         <div>
@@ -1380,7 +1378,7 @@
         const INV_TITLE = {
             'PR PROJECT CAPEX': 'PR Project CAPEX',
             'REFURBISHMENT': 'Refurbishment',
-            'SRF': 'SRF (Refurbishment)'
+            'SRF': 'SRF'
         };
         const invTitleText = INV_TITLE[kategori] || (kategori + ' ' + (currentTier === 'atas' ? 'SPP' : 'SPF'));
         document.getElementById('judulModalInv').innerHTML = `<i class="bi bi-journal-text me-2"></i> Rincian ${invTitleText}${stage ? ' — Plant ' + stage : ' — Semua Plant'}`;
@@ -1491,7 +1489,7 @@
     function updateInventory() {
         if (!invWork || !invDirty) return;
         if (DB_ENABLED && !pmLoaded) {
-            alert('Koneksi ke Spreadsheet belum siap (lihat badge di baris kanan atas halaman). Perubahan belum tersimpan.');
+            alert('Koneksi ke Spreadsheet belum siap (lihat badge di menu samping (klik tombol ☰ kiri atas)). Perubahan belum tersimpan.');
             return;
         }
         const cols = invCols();
@@ -1930,7 +1928,17 @@
     <script>
         function toggleSidebar() {
             let sidebar = document.getElementById('sidebar');
-            if(sidebar) sidebar.classList.toggle('show');
+            if(!sidebar) return;
+            const buka = sidebar.classList.toggle('show');
+            const bd = document.getElementById('sidebarBackdrop');
+            if (bd) bd.classList.toggle('show', buka);
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.remove('show');
+            const bd = document.getElementById('sidebarBackdrop');
+            if (bd) bd.classList.remove('show');
         }
 
         function initWeekDropdowns() {
@@ -3421,7 +3429,7 @@
             const keys = Object.keys(pmDraft).filter(k => refs.indexOf(k.split('|')[0]) >= 0);
             if (!keys.length) return;                                    // tidak ada perubahan
             if (DB_ENABLED && !pmLoaded) {
-                alert('Koneksi ke Spreadsheet belum siap (lihat badge di baris kanan atas halaman). Perubahan belum tersimpan.');
+                alert('Koneksi ke Spreadsheet belum siap (lihat badge di menu samping (klik tombol ☰ kiri atas)). Perubahan belum tersimpan.');
                 return;
             }
             const weeks = {};
@@ -4524,8 +4532,8 @@
             const out = [];
             const w = 'W' + m;
             const belumAdaData = pmDone === 0 && llf.total === 0 && inv.total === 0;
-            if (!DB_ENABLED && belumAdaData) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet, jadi angka PM Compliance, LLF dan Inventory masih 0. Data DT, Calibration dan History tetap tampil karena tersimpan di perangkat ini. Klik badge <b>DB belum terhubung</b> di baris kanan atas halaman untuk memasukkan URL Apps Script.</div>');
-            else if (!DB_ENABLED) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet. Angka yang tampil berasal dari data yang sudah ada di aplikasi ini. Klik badge <b>DB belum terhubung</b> di baris kanan atas halaman untuk memasukkan URL Apps Script.</div>');
+            if (!DB_ENABLED && belumAdaData) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet, jadi angka PM Compliance, LLF dan Inventory masih 0. Data DT, Calibration dan History tetap tampil karena tersimpan di perangkat ini. Klik badge <b>DB belum terhubung</b> di menu samping (klik tombol ☰ kiri atas) untuk memasukkan URL Apps Script.</div>');
+            else if (!DB_ENABLED) out.push('<div class="alert alert-secondary py-2 px-3 small mb-3"><i class="bi bi-database-exclamation me-1"></i>Belum terhubung ke Spreadsheet. Angka yang tampil berasal dari data yang sudah ada di aplikasi ini. Klik badge <b>DB belum terhubung</b> di menu samping (klik tombol ☰ kiri atas) untuk memasukkan URL Apps Script.</div>');
             else if (belumAdaData) out.push(`<div class="alert alert-info py-2 px-3 small mb-3"><i class="bi bi-info-circle me-1"></i>Sudah terhubung, tapi belum ada data PM maupun LLF untuk <b>${w}</b>. Ganti pilihan minggu di kanan atas atau isi lewat modul 1. PM Compliance.</div>`);
             if (info.dtSemester > 0 && info.dtMinggu === 0) {
                 const lompat = info.mingguDT ? `<a href="#" class="alert-link" onclick="dashPilihMinggu(${info.mingguDT});return false;">Lihat ${'W' + info.mingguDT}</a>` : '';
@@ -4939,10 +4947,7 @@
             if (tabName === 'hist') renderHistCards();
             if (tabName === 'cal') renderCalMatrix();
 
-            if (window.innerWidth <= 991.98) {
-                let sidebar = document.getElementById('sidebar');
-                if(sidebar) sidebar.classList.remove('show');
-            }
+            closeSidebar();       // sidebar selalu tersembunyi lagi setelah memilih menu (PC maupun HP)
         }
 
         function submitLLF(areaName, keyId) {
