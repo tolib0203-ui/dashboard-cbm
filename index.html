@@ -103,6 +103,8 @@
             padding: 15px 20px;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
             position: sticky;
             top: 0;
             z-index: 1040;
@@ -183,8 +185,45 @@
 
         .sync-badge:hover { filter: brightness(1.1); }
 
+        /* Versi mini status koneksi di baris atas - selalu terlihat walau sidebar tertutup */
+        .sync-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .85);
+            background: rgba(255, 255, 255, .10);
+            border: 1px solid rgba(255, 255, 255, .20);
+            border-radius: 999px;
+            padding: 3px 10px;
+            white-space: nowrap;
+        }
+
+        .sync-chip:hover { background: rgba(255, 255, 255, .18); }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+            background: #adb5bd;
+        }
+
+        .sync-chip[data-state="ok"] .sync-dot { background: #28c76f; box-shadow: 0 0 0 3px rgba(40, 199, 111, .25); }
+        .sync-chip[data-state="busy"] .sync-dot { background: #0dcaf0; animation: syncPulse 1s ease-in-out infinite; }
+        .sync-chip[data-state="error"] .sync-dot { background: #ea4c5b; box-shadow: 0 0 0 3px rgba(234, 76, 91, .25); }
+
+        @keyframes syncPulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+
         @media (max-width: 767.98px) {
             .topbar-title { font-size: 0.86rem; line-height: 1.15; }
+        }
+
+        @media (max-width: 420px) {
+            #syncChipText { display: none; }
+            .sync-chip { padding: 4px 8px; }
         }
 
         @media (max-width: 575.98px) {
@@ -224,6 +263,9 @@
         <div class="d-flex align-items-center">
             <button class="btn btn-dark btn-sm me-2" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
             <span class="fw-bold topbar-title">Maintenance Management System</span>
+        </div>
+        <div id="syncChip" class="sync-chip" data-state="off" onclick="syncBadgeClick()" title="Status koneksi Spreadsheet - klik untuk mengisi URL atau mencoba sinkron ulang">
+            <span class="sync-dot"></span><span id="syncChipText">Memuat...</span>
         </div>
     </div>
 
@@ -1797,10 +1839,25 @@
                     <div class="d-flex align-items-center flex-wrap gap-3">
                         <h5 class="modal-title fw-bold mb-0"><i class="bi bi-table me-2"></i>Proses Area - Stage 1</h5>
                         <select id="weekDropdownProses1" class="form-select form-select-sm bg-light text-dark fw-bold border-0 shadow-sm" style="width: 130px;"></select>
-                        <select id="prosesSubCategory" class="form-select form-select-sm bg-light text-dark fw-bold border-0 shadow-sm" style="width: 150px;" onchange="renderProsesStage1Table()">
+                        <select id="prosesSubCategory" class="form-select form-select-sm bg-light text-dark fw-bold border-0 shadow-sm" style="width: 230px;" onchange="renderProsesStage1Table()">
                             <option value="CK">PM CK</option>
                             <option value="MHS">PM MHS</option>
                             <option value="GDRM">PM GDRM</option>
+                            <option value="MOLDING11">PM MOLDING LINE 1.1</option>
+                            <option value="MOLDING21">PM MOLDING LINE 2.1</option>
+                            <option value="MOLDING31">PM MOLDING LINE 3.1</option>
+                            <option value="MOLDING41">PM MOLDING LINE 4.1</option>
+                            <option value="MOLDING51">PM MOLDING LINE 5.1</option>
+                            <option value="OVEN11">PM OVEN LINE 1.1</option>
+                            <option value="OVEN21">PM OVEN LINE 2.1</option>
+                            <option value="OVEN31">PM OVEN LINE 3.1</option>
+                            <option value="OVEN41">PM OVEN LINE 4.1</option>
+                            <option value="OVEN51">PM OVEN LINE 5.1</option>
+                            <option value="PROSES11">PM PROSES LINE 1.1</option>
+                            <option value="PROSES21">PM PROSES LINE 2.1</option>
+                            <option value="PROSES31">PM PROSES LINE 3.1</option>
+                            <option value="PROSES41">PM PROSES LINE 4.1</option>
+                            <option value="PROSES51">PM PROSES LINE 5.1</option>
                         </select>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1831,6 +1888,24 @@
                     <div class="d-flex align-items-center flex-wrap gap-3">
                         <h5 class="modal-title fw-bold mb-0"><i class="bi bi-table me-2"></i>Proses Area - Stage 2</h5>
                         <select id="weekDropdownProses2" class="form-select form-select-sm bg-light text-dark fw-bold border-0 shadow-sm" style="width: 130px;"></select>
+                        <select id="prosesStage2SubCategory" class="form-select form-select-sm bg-light text-dark fw-bold border-0 shadow-sm" style="width: 230px;" onchange="renderProsesStage2Table()">
+                            <option value="CK">PM CK</option>
+                            <option value="MOLDING12">PM MOLDING LINE 1.2</option>
+                            <option value="MOLDING22">PM MOLDING LINE 2.2</option>
+                            <option value="MOLDING32">PM MOLDING LINE 3.2</option>
+                            <option value="MOLDING42">PM MOLDING LINE 4.2</option>
+                            <option value="MOLDING52">PM MOLDING LINE 5.2</option>
+                            <option value="OVEN12">PM OVEN LINE 1.2</option>
+                            <option value="OVEN22">PM OVEN LINE 2.2</option>
+                            <option value="OVEN32">PM OVEN LINE 3.2</option>
+                            <option value="OVEN42">PM OVEN LINE 4.2</option>
+                            <option value="OVEN52">PM OVEN LINE 5.2</option>
+                            <option value="PROSES12">PM PROSES LINE 1.2</option>
+                            <option value="PROSES22">PM PROSES LINE 2.2</option>
+                            <option value="PROSES32">PM PROSES LINE 3.2</option>
+                            <option value="PROSES42">PM PROSES LINE 4.2</option>
+                            <option value="PROSES52">PM PROSES LINE 5.2</option>
+                        </select>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -3237,7 +3312,7 @@
         // =====================================================
         // Tempel URL Web App hasil Deploy Apps Script di bawah ini.
         // Contoh: 'https://script.google.com/macros/s/AKfycb.../exec'
-        let API_URL = 'https://script.google.com/macros/s/AKfycbxdF1NMX2FDjI_JZRqGium9YZdK8eIh4zAlygMvnHik0L3mGJPtyB6OFgMCEDvEwBq-mw/exec';
+        let API_URL = '';
         try { if (!API_URL.trim()) API_URL = localStorage.getItem('pm_api_url') || ''; } catch (e) {}
         const DB_ENABLED = API_URL.trim() !== '';
         const LLF_STAGE_NAMES = { util1: 'Utility Stage 1', util2: 'Utility Stage 2', pros1: 'Proses Stage 1', pros2: 'Proses Stage 2', pack1: 'Packing Stage 1', pack2: 'Packing Stage 2', biom: 'Biomass' };
@@ -3266,13 +3341,34 @@
             packingStage2Line5: { sheet: 'PM Packing stage 2',     line: 'PM LINE 5.2', week: 'weekDropdownPacking2', render: 'renderPackingStage2Table' }
         };
 
+        const PM_PACKING_REFS = ['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data',
+            'packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5'];
+        const PM_PROSES_WORKS = ['MOULDING', 'OVEN', 'PROSES'];
+        const PROSES_LINE_CFG = {};
+        [1, 2, 3, 4, 5].forEach(line => {
+            ['MOLDING', 'OVEN', 'PROSES'].forEach(jenis => {
+                const work = jenis === 'MOLDING' ? 'MOULDING' : jenis;
+                PROSES_LINE_CFG[jenis + line + '1'] = { source: 'packingLine' + line + 'Data', work: work, week: 'weekDropdownProses1' };
+                PROSES_LINE_CFG[jenis + line + '2'] = { source: 'packingStage2Line' + line, work: work, week: 'weekDropdownProses2' };
+            });
+        });
+
+        function pmSourceRef(ref) {
+            return PROSES_LINE_CFG[ref] ? PROSES_LINE_CFG[ref].source : ref;
+        }
+
+        const PROSES_STAGE1_REFS = Object.keys(PROSES_LINE_CFG).filter(ref => ref.endsWith('1'));
+        const PROSES_STAGE2_REFS = Object.keys(PROSES_LINE_CFG).filter(ref => ref.endsWith('2'));
+
         function pmDatasets() {
-            return {
+            const data = {
                 utilityStage1Data, utilityStage2Data, biomassData,
                 prosesCKData, prosesMHSData, prosesGDRMData, prosesStage2Data,
                 packingLine1Data, packingLine2Data, packingLine3Data, packingLine4Data, packingLine5Data,
                 packingStage2Line1, packingStage2Line2, packingStage2Line3, packingStage2Line4, packingStage2Line5
             };
+            Object.keys(PROSES_LINE_CFG).forEach(ref => { data[ref] = data[PROSES_LINE_CFG[ref].source]; });
+            return data;
         }
 
         // ---------- Indikator status ----------
@@ -3295,6 +3391,18 @@
             badge.className = 'sync-badge ' + map[0];
             text.textContent = map[1];
             if (ext) ext.textContent = map[2];
+
+            const chip = document.getElementById('syncChip');
+            if (chip) {
+                const singkat = {
+                    local: 'Belum terhubung', loading: 'Memuat...', saving: 'Menyimpan...',
+                    ok: 'Terhubung', error: 'Gagal sinkron'
+                }[state] || 'Status';
+                chip.dataset.state = { ok: 'ok', error: 'error', loading: 'busy', saving: 'busy' }[state] || 'off';
+                chip.title = map[1] + map[2];
+                const ct = document.getElementById('syncChipText');
+                if (ct) ct.textContent = singkat;
+            }
         }
 
         function syncBadgeClick() {
@@ -3338,7 +3446,9 @@
         const pmWeekData = {};
 
         function pmWeekOf(ref) {
-            const el = document.getElementById(PM_MAP[ref].week);
+            const cfg = PROSES_LINE_CFG[ref];
+            const weekId = cfg ? cfg.week : PM_MAP[ref].week;
+            const el = document.getElementById(weekId);
             return (el && el.value) ? el.value : 'W' + PM_BASE_WEEK;
         }
 
@@ -3353,8 +3463,11 @@
 
         // Nilai yang ditampilkan: dari database bila ada, selain itu bawaan template
         function pmEffective(ref, index, week) {
-            const base = pmDatasets()[ref][index];
-            const ov = pmWeekData[ref] && pmWeekData[ref][week] && pmWeekData[ref][week][index];
+            const sourceRef = pmSourceRef(ref);
+            const base = pmDatasets()[sourceRef][index];
+            const own = pmWeekData[ref] && pmWeekData[ref][week] && pmWeekData[ref][week][index];
+            const shared = pmWeekData[sourceRef] && pmWeekData[sourceRef][week] && pmWeekData[sourceRef][week][index];
+            const ov = own || shared;
             return {
                 si: base.si, eq: base.eq, work: base.work,
                 freq: ov ? ov.freq : pmNormalizeFrequency(base.freq),
@@ -3372,6 +3485,8 @@
         // (hanya baris yang belum ada di database)
         function pmSeedWeek(ref, week) {
             if (!DB_ENABLED || !pmLoaded) return;
+            const sourceRef = pmSourceRef(ref);
+            if (sourceRef !== ref) { pmSeedWeek(sourceRef, week); return; }
             const ds = pmDatasets()[ref];
             pmWeekData[ref] = pmWeekData[ref] || {};
             pmWeekData[ref][week] = pmWeekData[ref][week] || {};
@@ -3387,8 +3502,9 @@
         }
 
         function pmRowPayload(ref, index, week) {
+            const sourceRef = pmSourceRef(ref);
             const it = pmEffective(ref, index, week);
-            return { sheet: PM_MAP[ref].sheet, sub: '', line: PM_MAP[ref].line, week: week,
+            return { sheet: PM_MAP[sourceRef].sheet, sub: '', line: PM_MAP[sourceRef].line, week: week,
                      si: it.si, eq: it.eq, work: it.work,
                      freq: it.freq, planned: it.planned, comp: it.comp, remarks: it.remarks };
         }
@@ -3400,8 +3516,8 @@
             utilityStage1Modal: ['utilityStage1Data'],
             utilityStage2Modal: ['utilityStage2Data'],
             biomassModal:       ['biomassData'],
-            prosesStage1Modal:  ['prosesCKData', 'prosesMHSData', 'prosesGDRMData'],
-            prosesStage2Modal:  ['prosesStage2Data'],
+            prosesStage1Modal:  ['prosesCKData', 'prosesMHSData', 'prosesGDRMData'].concat(PROSES_STAGE1_REFS),
+            prosesStage2Modal:  ['prosesStage2Data'].concat(PROSES_STAGE2_REFS),
             packingStage1Modal: ['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data'],
             packingStage2Modal: ['packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5']
         };
@@ -4221,8 +4337,8 @@
         const DASH_PM_AREAS = [
             { name: 'Utility Stage 1', refs: ['utilityStage1Data'] },
             { name: 'Utility Stage 2', refs: ['utilityStage2Data'] },
-            { name: 'Proses Stage 1', refs: ['prosesCKData', 'prosesMHSData', 'prosesGDRMData'] },
-            { name: 'Proses Stage 2', refs: ['prosesStage2Data'] },
+            { name: 'Proses Stage 1', refs: ['prosesCKData', 'prosesMHSData', 'prosesGDRMData'].concat(PROSES_STAGE1_REFS) },
+            { name: 'Proses Stage 2', refs: ['prosesStage2Data'].concat(PROSES_STAGE2_REFS) },
             { name: 'Packing Stage 1', refs: ['packingLine1Data', 'packingLine2Data', 'packingLine3Data', 'packingLine4Data', 'packingLine5Data'] },
             { name: 'Packing Stage 2', refs: ['packingStage2Line1', 'packingStage2Line2', 'packingStage2Line3', 'packingStage2Line4', 'packingStage2Line5'] },
             { name: 'Biomass', refs: ['biomassData'] }
@@ -4359,9 +4475,9 @@
             return DASH_PM_AREAS.map(a => {
                 let total = 0, done = 0, belum = 0, kosong = 0;
                 a.refs.forEach(ref => {
-                    (pmDatasets()[ref] || []).forEach((_, i) => {
+                    pmVisibleRows(ref).forEach(({ index }) => {
                         total++;
-                        const r = pmNormalizeRemarks(pmView(ref, i, week).remarks);
+                        const r = pmNormalizeRemarks(pmView(ref, index, week).remarks);
                         if (r === 'PM sudah terselesaikan') done++;
                         else if (r === 'PM belum terselesaikan') belum++;
                         else kosong++;
@@ -4805,13 +4921,24 @@
             `;
         }
 
+        function pmVisibleRows(ref, dataset) {
+            const rows = dataset || pmDatasets()[ref] || [];
+            const cfg = PROSES_LINE_CFG[ref];
+            return rows.map((item, index) => ({ item: item, index: index })).filter(({ item }) => {
+                const work = String(item.work || '').toUpperCase();
+                if (cfg) return work === cfg.work;
+                if (PM_PACKING_REFS.indexOf(ref) >= 0) return PM_PROSES_WORKS.indexOf(work) < 0;
+                return true;
+            });
+        }
+
         function renderPMTable(tbodyId, dataset, dataRef) {
             const tbody = document.getElementById(tbodyId);
             if (!tbody) return;
 
             const week = pmWeekOf(dataRef);
             tbody.innerHTML = '';
-            dataset.forEach((_, index) => {
+            pmVisibleRows(dataRef, dataset).forEach(({ index }) => {
                 tbody.innerHTML += renderPMRow(pmView(dataRef, index, week), index, dataRef);
             });
         }
@@ -4830,22 +4957,29 @@
 
         function renderProsesStage1Table() {
             const subCat = document.getElementById('prosesSubCategory').value;
-            let activeDataset = prosesCKData;
-            let dataRef = 'prosesCKData';
-
-            if (subCat === 'MHS') {
-                activeDataset = prosesMHSData;
-                dataRef = 'prosesMHSData';
-            } else if (subCat === 'GDRM') {
-                activeDataset = prosesGDRMData;
-                dataRef = 'prosesGDRMData';
+            const refs = { CK: 'prosesCKData', MHS: 'prosesMHSData', GDRM: 'prosesGDRMData' };
+            const dataRef = refs[subCat] || (PROSES_LINE_CFG[subCat] ? subCat : '');
+            if (!dataRef) {
+                renderPMEmpty('proses_stage1_tbody');
+                return;
             }
-
-            renderPMTable('proses_stage1_tbody', activeDataset, dataRef);
+            renderPMTable('proses_stage1_tbody', pmDatasets()[dataRef], dataRef);
         }
 
         function renderProsesStage2Table() {
-            renderPMTable('proses_stage2_tbody', prosesStage2Data, 'prosesStage2Data');
+            const subCat = document.getElementById('prosesStage2SubCategory').value;
+            const dataRef = subCat === 'CK' ? 'prosesStage2Data' : (PROSES_LINE_CFG[subCat] ? subCat : '');
+            if (!dataRef) {
+                renderPMEmpty('proses_stage2_tbody');
+                return;
+            }
+            renderPMTable('proses_stage2_tbody', pmDatasets()[dataRef], dataRef);
+        }
+
+        function renderPMEmpty(tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox me-2"></i>Belum ada data equipment untuk grup ini.</td></tr>';
         }
 
         function renderPackingStage1Table() {
